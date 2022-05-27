@@ -3,6 +3,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import npmlog from 'npmlog';
+import cors from 'cors';
 
 // Constants
 dotenv.config();
@@ -36,18 +37,19 @@ try {
   log.error(err);
 }
 
-
 // Listen for error events on database
 mongoose.connection.on('error', (err) => {
   log.error(err);
 });
+
+// Setup security
+app.use(cors());
 
 // Setup port (get from .env or use default 8080)
 const port = ENV.PORT || DEFAULT_PORT;
 app.listen(port, () => {
   log.info('SERVER START', `Server is listening on port ${port} ...`);
 });
-
 
 // Dummy respomse
 app.get('/', (req, res) => {
