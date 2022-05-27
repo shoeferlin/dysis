@@ -51,7 +51,14 @@ app.listen(port, () => {
   log.info('SERVER START', `Server is listening on port ${port} ...`);
 });
 
-// Dummy respomse
+// Default request
 app.get('/', (req, res) => {
-  res.send(`Hello World! Und Servus ${ENV.ADVISOR}!`);
+  res.send(`Sever is running`);
+});
+
+// Forward requests to routes
+
+// Catch all resources not found
+app.all('*', function(_, res) {
+  return res.status(404).send('Requested resource not found');
 });
