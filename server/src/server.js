@@ -1,27 +1,17 @@
-// Imports
+// External imports
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import npmlog from 'npmlog';
 import cors from 'cors';
+
+// Internal improts
+import log from './helpers/log.js';
+import router from './router.js';
 
 // Constants
 dotenv.config();
 const ENV = process.env;
 const DEFAULT_PORT = 8080;
-
-// Setup logger
-const log = npmlog;
-log.enableColor();
-
-// Create debug level (use 'log.debug(Prefix, Msg)' instead of 'console.log()')
-log.addLevel(
-    'debug',
-    10,
-    {bg: 'yellow', fg: 'white', bold: true, bell: true},
-    ' DEBUG ',
-);
-log.level = 'debug';
 
 // Setup app
 const app = express();
@@ -51,14 +41,5 @@ app.listen(port, () => {
   log.info('SERVER START', `Server is listening on port ${port} ...`);
 });
 
-// Default request
-app.get('/', (req, res) => {
-  res.send(`Sever is running`);
-});
-
-// Forward requests to routes
-
-// Catch all resources not found
-app.all('*', function(_, res) {
-  return res.status(404).send('Requested resource not found');
-});
+// Forward requests to router
+app.get('*', router);
