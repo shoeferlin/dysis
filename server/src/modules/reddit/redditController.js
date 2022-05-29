@@ -1,7 +1,8 @@
-import {respondWithSuccess} from '../../helpers/response.js';
+/* eslint-disable require-jsdoc */
 
-const getForMuliple = [
-  (req, res) => {
+import {respondWithSuccess} from '../../helpers/response.js';
+export default class RedditController {
+  static getForMuliple(req, res) {
     const data = {
       itsdino: {
         liwcAnalytical: 80,
@@ -12,11 +13,5 @@ const getForMuliple = [
         'Found data for the following reddit users',
         data,
     );
-  },
-];
-
-const redditController = {
-  getForMuliple: getForMuliple,
-};
-
-export default redditController;
+  }
+}
