@@ -1,8 +1,14 @@
 import mongoose from 'mongoose';
 
-const redditSchema = new mongoose.Schema({
-  username: {type: String, required: true},
-  liwcAnalytical: {type: String},
-});
+const redditSchema = new mongoose.Schema(
+    {
+      identifier: {type: String, required: true, unique: true},
+      liwcAnalytical: {type: String},
+    },
+    {
+      timestamps: true,
+    },
+);
 
-export default mongoose.model('reddit', redditSchema);
+const redditModel = mongoose.model('reddit', redditSchema);
+export default redditModel;

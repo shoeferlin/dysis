@@ -20,17 +20,25 @@ log.info('SERVER START', 'Started server ...');
 
 // Connect database
 try {
-  await mongoose.connect(ENV.MONGODB_URI).then(() => {
-    log.info('SERVER START', 'Database is connecting ...');
-  });
+  await mongoose.connect(ENV.MONGODB_URI_DEV,
+      {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
+        autoIndex: true,
+      })
+      .then((db) => {
+        log.info('SERVER START', 'Database is connecting ...');
+      });
 } catch (err) {
   log.error(err);
 }
+const db = mongoose.connection;
+if (db.readyState) log.info('SERVER START', 'Database is connected ...');
 
 // Listen for error events on database
-mongoose.connection.on('error', (err) => {
-  log.error(err);
-});
+db.on('connected', () => log.info('DATABASE', 'Database is connected'));
+db.on('error', (err) => log.error('DATABASE', err));
+db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 
 // Setup security
 app.use(cors());
