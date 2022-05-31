@@ -15,7 +15,7 @@ dotenv.config();
 const ENV = process.env;
 const DEFAULT_PORT = 8080;
 
-// Setup app
+// Setup server
 const app = express();
 log.info('SERVER START');
 log.info('SERVER START', 'Started server ...');
@@ -28,7 +28,7 @@ try {
         useNewUrlParser: true,
         autoIndex: true,
       })
-      .then((db) => {
+      .then(() => {
         log.info('SERVER START', 'Database is connecting ...');
       });
 } catch (err) {
@@ -42,8 +42,9 @@ db.on('connected', () => log.info('DATABASE', 'Database is connected'));
 db.on('error', (err) => log.error('DATABASE', err));
 db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 
-// Setup security
+// Configure server
 app.use(cors());
+app.use(express.json());
 
 // Setup port (get from .env or use default 8080)
 const port = ENV.PORT || DEFAULT_PORT;

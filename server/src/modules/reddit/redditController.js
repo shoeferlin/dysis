@@ -1,10 +1,9 @@
 import log from '../../helpers/log.js';
 
 import {
-  respondWithError,
   respondWithNotFound,
-  respondWithSuccess}
-  from '../../helpers/response.js';
+  respondWithSuccess,
+} from '../../helpers/response.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import redditModel from './redditModel.js';
 
