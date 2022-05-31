@@ -3,7 +3,7 @@ import express from 'express';
 import requestLogger from './middleware/requestLogger.js';
 import moduleRouter from './modules/moduleRouter.js';
 
-const router = new express.Router;
+const router = express();
 
 // Middleware to log all requests
 router.use(requestLogger);

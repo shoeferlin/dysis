@@ -54,7 +54,7 @@ app.listen(port, () => {
 });
 
 // Forward requests to router
-app.get('*', router);
+app.use('', router);
 
 // Middleware for error handling
 app.use(errorLogger);

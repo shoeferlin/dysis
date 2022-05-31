@@ -6,7 +6,7 @@
  */
 export function respondWithSuccess(
     res,
-    msg = 'Request successfull.',
+    msg = 'Request successfull',
 ) {
   const response = {
     status: true,
@@ -25,7 +25,7 @@ export function respondWithSuccess(
 export function respondWithSuccessAndData(
     res,
     data,
-    msg = 'Request successfull with data response.',
+    msg = 'Request successfull with data response',
 ) {
   const response = {
     status: true,
@@ -41,7 +41,7 @@ export function respondWithSuccessAndData(
  * @param {String} msg optional
  * @return {Response}
  */
-export function respondWithNotFound(res, msg = 'Resource not found.') {
+export function respondWithNotFound(res, msg = 'Resource not found') {
   const response = {
     status: false,
     message: msg,
@@ -59,7 +59,7 @@ export function respondWithNotFound(res, msg = 'Resource not found.') {
 export function respondWithValidationError(
     res,
     validationErrors,
-    msg = 'Request not valid.',
+    msg = 'Request not valid',
 ) {
   const response = {
     status: false,
@@ -75,7 +75,7 @@ export function respondWithValidationError(
  * @param {String} msg optional
  * @return {Response}
  */
-export function respondWithError(res, msg = 'Internal server error.') {
+export function respondWithError(res, msg = 'Internal server error') {
   const response = {
     status: false,
     message: msg,

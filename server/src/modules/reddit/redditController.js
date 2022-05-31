@@ -2,9 +2,9 @@ import log from '../../helpers/log.js';
 import {body} from 'express-validator';
 
 import {
-  respondWithSuccess,
   respondWithSuccessAndData,
   respondWithNotFound,
+  respondWithError,
 } from '../../helpers/response.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
@@ -22,7 +22,9 @@ import redditModel from './redditModel.js';
 export default class RedditController {
   static getOne = [
     // Validations using express-validator
-    body('identifier').exists().withMessage('Required value missing'),
+    body('identifier')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be string'),
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
@@ -46,20 +48,33 @@ export default class RedditController {
    * @param {Request} req request instance
    * @param {Response} res response instance
    */
-  static createOne(req, res) {
-    redditModel.create(
-        {
-          identifier: 'also_awesome',
-          liwcAnalytical: getRandomInt(99),
-        },
-        function(err, awesomeInstance) {
-          if (err) return log.error(err);
-          log.debug(awesomeInstance);
-        },
-    );
-    respondWithSuccess(
-        res,
-        'Created one element',
-    );
-  }
+  static createOne = [
+    body('identifier')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be string'),
+    validate,
+    async (req, res) => {
+      const identifier = req.body.identifier;
+      try {
+        const data = await redditModel.create(
+            {
+              identifier: identifier,
+              liwcAnalytical: getRandomInt(99),
+            },
+        );
+        respondWithSuccessAndData(
+            res,
+            data,
+            'Created new element',
+        );
+      } catch (err) {
+        if (err?.code === 11000) {
+          respondWithError(res, 'Identifier already exists');
+        } else {
+          log.error('DATABASE ERROR', err);
+          respondWithError(res);
+        }
+      }
+    },
+  ];
 }
