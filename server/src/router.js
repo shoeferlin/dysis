@@ -1,7 +1,5 @@
 import express from 'express';
-import {formatISO9075} from 'date-fns';
 
-import log from './helpers/log.js';
 import requestLogger from './middleware/requestLogger.js';
 import moduleRouter from './modules/moduleRouter.js';
 
@@ -24,4 +22,3 @@ router.all('*', function(_, res) {
 });
 
 export default router;
-

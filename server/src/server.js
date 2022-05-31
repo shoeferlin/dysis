@@ -45,10 +45,6 @@ db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 // Setup security
 app.use(cors());
 
-// Middleware
-app.use(errorLogger);
-app.use(errorHandler);
-
 // Setup port (get from .env or use default 8080)
 const port = ENV.PORT || DEFAULT_PORT;
 app.listen(port, () => {
@@ -57,3 +53,7 @@ app.listen(port, () => {
 
 // Forward requests to router
 app.get('*', router);
+
+// Middleware for error handling
+app.use(errorLogger);
+app.use(errorHandler);

@@ -9,7 +9,16 @@ import log from '../helpers/log.js';
  * @param {*} next
  */
 export default function requestLogger(req, res, next) {
-  log.http(req.method + ' REQUEST', `${formatISO9075(Date.now())} ${req.path}`);
+  if (process.env.DEBUG) {
+    log.http(
+        req.method + ' REQUEST',
+        `${formatISO9075(Date.now())} ${req.path} - ${req.body}`);
+  } else {
+    log.http(
+        req.method + ' REQUEST',
+        `${formatISO9075(Date.now())} ${req.path}`);
+  }
+  // Empty next statement to finish request
   next();
 };
 

@@ -8,6 +8,6 @@ import log from '../helpers/log.js';
  * @param {next} next
  */
 export default function errorLogger(err, req, res, next) {
-  log.error(err.stack);
+  log.error('SERVER ERROR', err.stack);
   next(err);
 }
