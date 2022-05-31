@@ -5,7 +5,7 @@ import moduleRouter from './modules/moduleRouter.js';
 
 const router = new express.Router;
 
-// Middleware that is specific to this router
+// Middleware to log all requests
 router.use(requestLogger);
 
 // Default request
@@ -22,3 +22,4 @@ router.all('*', function(_, res) {
 });
 
 export default router;
+
