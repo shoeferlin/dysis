@@ -45,6 +45,7 @@ db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 // Configure server
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Setup port (get from .env or use default 8080)
 const port = ENV.PORT || DEFAULT_PORT;
