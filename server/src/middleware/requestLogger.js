@@ -11,7 +11,7 @@ import log from '../helpers/log.js';
 export default function requestLogger(req, res, next) {
   log.http(
       req.method + ' REQUEST',
-      `${formatISO9075(Date.now())} ${req.path}`);
+      `${formatISO9075(Date.now())} ${req.path} \n${req.body}`);
   next();
 };
 
