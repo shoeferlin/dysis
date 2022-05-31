@@ -2,15 +2,13 @@ import express from 'express';
 import {formatISO9075} from 'date-fns';
 
 import log from './helpers/log.js';
+import requestLogger from './middleware/requestLogger.js';
 import moduleRouter from './modules/moduleRouter.js';
 
 const router = new express.Router;
 
 // Middleware that is specific to this router
-router.use(function timeLog(req, res, next) {
-  log.http(req.method, `${formatISO9075(Date.now())} ${req.path}`);
-  next();
-});
+router.use(requestLogger);
 
 // Default request
 router.get('/', (req, res) => {

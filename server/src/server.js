@@ -6,6 +6,8 @@ import cors from 'cors';
 
 // Internal improts
 import log from './helpers/log.js';
+import errorHandler from './middleware/errorHandler.js';
+import errorLogger from './middleware/errorLogger.js';
 import router from './router.js';
 
 // Constants
@@ -42,6 +44,10 @@ db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 
 // Setup security
 app.use(cors());
+
+// Middleware
+app.use(errorLogger);
+app.use(errorHandler);
 
 // Setup port (get from .env or use default 8080)
 const port = ENV.PORT || DEFAULT_PORT;

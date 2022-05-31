@@ -3,15 +3,13 @@ import {formatISO9075} from 'date-fns';
 import log from '../helpers/log.js';
 
 /**
- * Logs all requests in middleware
+ * Middleware to log all requests with a timestamp
  * @param {*} req
  * @param {*} res
  * @param {*} next
  */
-function requestLogger(req, res, next) {
-  log.debug(formatISO9075(Date.now()));
-  log.http(req.method, `${formatISO9075(Date.now())} ${req.path}`);
+export default function requestLogger(req, res, next) {
+  log.http(req.method + ' REQUEST', `${formatISO9075(Date.now())} ${req.path}`);
   next();
-}
+};
 
-export default requestLogger();
