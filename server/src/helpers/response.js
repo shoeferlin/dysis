@@ -1,5 +1,5 @@
 /**
- * Return successful response with status true and status code 204
+ * Return successful response with status true and status code 200
  * @param {Request} res
  * @param {String} msg optional
  * @return {Response}
@@ -12,7 +12,7 @@ export function respondWithSuccess(
     status: true,
     message: msg,
   };
-  return res.status(204).json(response);
+  return res.status(200).json(response);
 };
 
 /**

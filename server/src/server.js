@@ -56,6 +56,11 @@ app.listen(port, () => {
 // Forward requests to router
 app.use('', router);
 
+// Catch all resources not found
+router.all('*', function(_, res) {
+  res.status(404).json({status: false, message: 'Resource not found'});
+});
+
 // Middleware for error handling
 app.use(errorLogger);
 app.use(errorHandler);
