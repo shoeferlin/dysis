@@ -60,6 +60,7 @@ export default class RedditController {
             {
               identifier: identifier,
               liwcAnalytical: getRandomInt(99),
+              liwcEmotionalTone: getRandomInt(99),
             },
         );
         respondWithSuccessAndData(
