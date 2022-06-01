@@ -22,7 +22,7 @@ log.info('SERVER START', 'Started server ...');
 
 // Connect database
 try {
-  await mongoose.connect(ENV.MONGODB_URI),
+  await mongoose.connect(ENV.MONGODB_URI,
       {
         useUnifiedTopology: true,
         useNewUrlParser: true,
