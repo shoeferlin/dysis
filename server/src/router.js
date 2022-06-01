@@ -2,6 +2,7 @@ import express from 'express';
 
 import requestLogger from './middleware/requestLogger.js';
 import moduleRouter from './modules/moduleRouter.js';
+import {respondWithNotFound} from './helpers/response.js';
 
 const router = express();
 
@@ -18,7 +19,7 @@ router.use('/api', moduleRouter);
 
 // Catch all resources not found
 router.all('*', function(_, res) {
-  return res.status(404).send('Requested resource not found');
+  respondWithNotFound(res);
 });
 
 export default router;
