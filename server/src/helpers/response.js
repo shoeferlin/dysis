@@ -82,3 +82,16 @@ export function respondWithError(res, msg = 'Internal server error') {
   };
   return res.status(500).json(response);
 };
+
+/**
+ * @param {Response} res
+ * @param {String} msg
+ * @return {Response}
+ */
+export function respondWithUnauthorized(res, msg = 'Unauthorized request') {
+  const response = {
+    status: false,
+    message: msg,
+  };
+  return res.status(401).json(response);
+};
