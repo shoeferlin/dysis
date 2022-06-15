@@ -13,15 +13,17 @@
     "default_title": "Dysis",
     "default_popup": "popup/popup.html"
   },
+  "options_page": "options/options.html",
   "background": {
     "service_worker": "background/background.js"
   },
-  "permissions": ["tabs", "storage"],
   "content_scripts": [
     {
       "matches": ["https://*.reddit.com/*"],
       "css": ["content/content.css"],
-      "js": ["content/content.js"]
+      "js": ["content/content.js"],
+      "run_at": "document_end"
     }
-  ]
+  ],
+  "permissions": ["tabs", "storage"]
 }
