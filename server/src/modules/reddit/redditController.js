@@ -1,5 +1,5 @@
 import log from '../../helpers/log.js';
-import {body} from 'express-validator';
+import {body, query} from 'express-validator';
 
 import {
   respondWithSuccessAndData,
@@ -22,14 +22,15 @@ import redditModel from './redditModel.js';
 export default class RedditController {
   static getOne = [
     // Validations using express-validator
-    body('identifier')
+    query('identifier')
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
     async (req, res) => {
-      const identifier = req.body.identifier;
+      log.debug(req.query);
+      const identifier = req.query.identifier;
       const data = await redditModel
           .findOne({identifier: identifier}).exec();
       if (data !== null) {
