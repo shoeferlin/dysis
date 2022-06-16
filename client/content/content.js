@@ -3,16 +3,33 @@ console.log('content.js');
 // For webpages that use dynamic JavaScript (e.g., using React) this listener
 // waits until a page has been fully loaded
 window.addEventListener('load', update)
-window.addEventListener('scroll', update)
-window.addEventListener('popstate', update)
+// window.addEventListener('popstate', update)
 window.addEventListener('click', update)
+
+// Scroll throttling
+let scrolling = false;
+
+window.addEventListener('scroll', () => {
+  console.log("Scrolling detected")
+  scrolling = true
+});
+
+setInterval(() => {
+  if (scrolling === true) {
+    scrolling = false;
+    logActivity('Scroll update')
+    update()
+    console.log('Scorlling is:');
+    console.log(scrolling);    
+  }
+}, 3000)
+  
 // As fallback the extension will try to update every interval step (in ms)
 // setInterval(update, 1000)
 
 async function update() {
   // Add all functions that should be executed after the webpage has finished loading
-  removeUserInformation()
-  appendUserInformation()
+  updateUserInformations()
   logActivity('Updated information')  
 }
 
@@ -37,22 +54,31 @@ function getRelevantUsernameElements() {
   return userElements
 }
 
-function appendUserInformationToElement(element) {
+async function appendUserInformationToElement(element) {
   let enrichment = document.createElement('span')
   enrichment.className = 'dysis';
   enrichment.setAttribute('style', 'font_weight: bold !important; color: red !important');
-  enrichment.innerText = `  DYSIS info for '${getUsernameParamFromPath(element.href)}' `
+  const extractedUsername = getUsernameParamFromPath(element.href)
+  const extractedInformation = await getInformationForIdentifier(extractedUsername)
+  enrichment.innerText = `  DYSIS info for '${extractedUsername}': ${extractedInformation} `
   element.appendChild(enrichment)
 }
 
-function appendUserInformation() {
+function updateUserInformations() {
   for (const element of getRelevantUsernameElements()) {
+    removeUserInformationFromElement(element)
     appendUserInformationToElement(element)
   }
 }
 
 function removeUserInformation() {
   const appendedElements = document.querySelectorAll('.dysis');
+  for (const appendedElement of appendedElements) {
+    appendedElement.remove();
+  }
+}
+function removeUserInformationFromElement(element) {
+  const appendedElements = element.querySelectorAll('.dysis');
   for (const appendedElement of appendedElements) {
     appendedElement.remove();
   }
@@ -68,8 +94,9 @@ function getUsernameParamFromPath(path) {
 
 async function getInformationForIdentifier(identifier) {
   const response = await request('GET', `reddit?identifier=${identifier}`)
-  if (response.status === 200) { 
-    return json(response.data)
+  if (await response.status === 200) { 
+    let data = await response.json()
+    return JSON.stringify(data);
   } else if (response.status === 404) {
     return 'none'
   } else {
@@ -77,7 +104,7 @@ async function getInformationForIdentifier(identifier) {
   }
 }
 
-async function request(method, path) {
+async function request(method, path, body = null) {
   const API_PROD = 'https://dysis-server.herokuapp.com/api/';
   const API_DEV = 'http://localhost:8080/api/';
   const API = DEBUG ? API_DEV : API_PROD;
@@ -92,12 +119,19 @@ async function request(method, path) {
   console.log(request);
   try {
     let response = await fetch(...request)
+    .catch((e) => {
+      console.log(e)
+    })
     if (response.status !== 500) {
       return response;
     } else {
       throw new Error(response.status)
     }
   } catch (e) {
+    console.log(e)
+    if (e.status === 404) {
+      return;
+    }
     throw new Error(e)
   }
 }
