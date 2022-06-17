@@ -59,7 +59,7 @@ async function appendUserInformationToElement(element) {
   enrichment.className = 'dysis';
   enrichment.setAttribute('style', 'font_weight: bold !important; color: red !important');
   const extractedUsername = getUsernameParamFromPath(element.href)
-  const extractedInformation = await getInformationForIdentifier(extractedUsername)
+  const extractedInformation = JSON.stringify(await getInformationForIdentifier(extractedUsername));
   removeUserInformationFromElement(element)
   enrichment.innerText = `  DYSIS info for '${extractedUsername}': ${extractedInformation} `
   element.appendChild(enrichment)
@@ -94,11 +94,9 @@ function getUsernameParamFromPath(path) {
 
 async function getInformationForIdentifier(identifier) {
   const response = await request('GET', `reddit?identifier=${identifier}`)
-  console.log(response)
-  console.log(response.status)
-  if (response.success) { 
-    return JSON.stringify(response.data);
-  } else if (!response.success) {
+  if (response.data !== null) { 
+    return response.data;
+  } else if ( response.data === null) {
     return 'none'
   } else {
     throw Error(response) 
@@ -127,31 +125,6 @@ async function request(method, path, body = null) {
   } catch (error) {
     throw Error(error)
   }
-
-
-  /**
-  try {
-    let response = await fetch(...request)
-    console.log('ok');
-    console.log(response.ok);
-    console.log('Status');
-    console.log(response.status);
-    
-    if (response.ok || response.status === 404) {
-      return response;
-    } else {
-      console.log('Reponse not ok');
-      throw Error(response.status)
-    }
-  } catch (e) {
-    console.log('THRrowwwinng');
-    console.log(e)
-    if (e.status === 404) {
-      return;
-    }
-    throw Error(e)
-  }
-   */
 }
 
 // DEBUG FUNCTIONS BELOW
