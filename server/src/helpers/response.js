@@ -36,20 +36,6 @@ export function respondWithSuccessAndData(
 }
 
 /**
- * Returns not found but not an error so status code 200
- * @param {Request} res
- * @param {String} msg optional
- * @return {Response}
- */
-export function respondWithNotFound(res, msg = 'Element not found') {
-  const response = {
-    success: false,
-    message: msg,
-  };
-  return res.status(200).json(response);
-};
-
-/**
  * Returns not found error with status false and status code 404
  * @param {Request} res
  * @param {String} msg optional

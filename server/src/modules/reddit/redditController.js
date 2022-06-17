@@ -4,8 +4,8 @@ import {body, query} from 'express-validator';
 import {
   respondWithSuccessAndData,
   respondWithErrorNotFound,
-  respondWithNotFound,
   respondWithError,
+  respondWithSuccess,
 } from '../../helpers/response.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
@@ -75,8 +75,9 @@ export default class RedditController {
             data,
         );
       } else {
-        respondWithNotFound(
+        respondWithSuccessAndData(
             res,
+            data,
             'No information for given identifier',
         );
       }
