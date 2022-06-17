@@ -20,6 +20,43 @@ import redditModel from './redditModel.js';
  * @param {Next} next
  */
 export default class RedditController {
+  /**
+   * Takes multiple identifiers in a post body and sends array of results
+   * (array can be empty if no results are found)
+   * Creates an reddit object
+   * @param {Request} req request instance
+   * @param {Response} res response instance
+   */
+  static get = [
+    // Validations using express-validator
+    body('identifiers')
+        .exists().withMessage('identifiers in request body required')
+        .isArray().withMessage('identifiers must be an array'),
+    body('identifiers.*')
+        .isString().withMessage('identifier must be of type string'),
+    // Using own helper to check for generated validation errors
+    validate,
+    // Actual controller method handling valid request
+    async (req, res) => {
+      const identifiers = req.body.identifiers;
+      const data = await redditModel.find({identifier: identifiers});
+      log.debug(data);
+      if (data !== null) {
+        respondWithSuccessAndData(
+            res,
+            data,
+        );
+      } else {
+        respondWithNotFound(res);
+      }
+    },
+  ];
+
+  /**
+   * Gets one reddit instance
+   * @param {Request} req request instance
+   * @param {Response} res response instance
+   */
   static getOne = [
     // Validations using express-validator
     query('identifier')
