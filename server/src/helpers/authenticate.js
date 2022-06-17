@@ -3,7 +3,7 @@ import {body} from 'express-validator';
 import dotenv from 'dotenv';
 
 import {
-  respondWithUnauthorized,
+  respondWithErrorUnauthorized,
   respondWithSuccessAndData,
 } from './response.js';
 import validate from './validate.js';
@@ -78,7 +78,7 @@ export class AuthenticationController {
         };
         respondWithSuccessAndData(res, data);
       } else {
-        respondWithUnauthorized(res, 'Wrong credentials provided');
+        respondWithErrorUnauthorized(res, 'Wrong credentials provided');
       };
     },
   ];

@@ -60,13 +60,13 @@ async function appendUserInformationToElement(element) {
   enrichment.setAttribute('style', 'font_weight: bold !important; color: red !important');
   const extractedUsername = getUsernameParamFromPath(element.href)
   const extractedInformation = await getInformationForIdentifier(extractedUsername)
+  removeUserInformationFromElement(element)
   enrichment.innerText = `  DYSIS info for '${extractedUsername}': ${extractedInformation} `
   element.appendChild(enrichment)
 }
 
 function updateUserInformations() {
   for (const element of getRelevantUsernameElements()) {
-    removeUserInformationFromElement(element)
     appendUserInformationToElement(element)
   }
 }
@@ -94,13 +94,14 @@ function getUsernameParamFromPath(path) {
 
 async function getInformationForIdentifier(identifier) {
   const response = await request('GET', `reddit?identifier=${identifier}`)
-  if (await response.status === 200) { 
-    let data = await response.json()
-    return JSON.stringify(data);
-  } else if (response.status === 404) {
+  console.log(response)
+  console.log(response.status)
+  if (response.success) { 
+    return JSON.stringify(response.data);
+  } else if (!response.success) {
     return 'none'
   } else {
-    throw new Error(response.status) 
+    throw Error(response) 
   }
 }
 
@@ -116,24 +117,41 @@ async function request(method, path, body = null) {
       body: body
     }
   ]
-  console.log(request);
+  try {
+    const response = await fetch(...request);
+    if (response.ok) {
+      return response.json();
+    } else {
+      throw Error(response)
+    }
+  } catch (error) {
+    throw Error(error)
+  }
+
+
+  /**
   try {
     let response = await fetch(...request)
-    .catch((e) => {
-      console.log(e)
-    })
-    if (response.status !== 500) {
+    console.log('ok');
+    console.log(response.ok);
+    console.log('Status');
+    console.log(response.status);
+    
+    if (response.ok || response.status === 404) {
       return response;
     } else {
-      throw new Error(response.status)
+      console.log('Reponse not ok');
+      throw Error(response.status)
     }
   } catch (e) {
+    console.log('THRrowwwinng');
     console.log(e)
     if (e.status === 404) {
       return;
     }
-    throw new Error(e)
+    throw Error(e)
   }
+   */
 }
 
 // DEBUG FUNCTIONS BELOW

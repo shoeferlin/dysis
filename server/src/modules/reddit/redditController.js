@@ -3,6 +3,7 @@ import {body, query} from 'express-validator';
 
 import {
   respondWithSuccessAndData,
+  respondWithErrorNotFound,
   respondWithNotFound,
   respondWithError,
 } from '../../helpers/response.js';
@@ -40,14 +41,13 @@ export default class RedditController {
     async (req, res) => {
       const identifiers = req.body.identifiers;
       const data = await redditModel.find({identifier: identifiers});
-      log.debug(data);
       if (data !== null) {
         respondWithSuccessAndData(
             res,
             data,
         );
       } else {
-        respondWithNotFound(res);
+        respondWithNotErrorNotFound(res);
       }
     },
   ];
@@ -66,7 +66,6 @@ export default class RedditController {
     validate,
     // Actual controller method handling valid request
     async (req, res) => {
-      log.debug(req.query);
       const identifier = req.query.identifier;
       const data = await redditModel
           .findOne({identifier: identifier}).exec();
@@ -76,7 +75,10 @@ export default class RedditController {
             data,
         );
       } else {
-        respondWithNotFound(res);
+        respondWithNotFound(
+            res,
+            'No information for given identifier',
+        );
       }
     },
   ];

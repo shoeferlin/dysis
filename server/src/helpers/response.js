@@ -9,14 +9,14 @@ export function respondWithSuccess(
     msg = 'Request successfull',
 ) {
   const response = {
-    status: true,
+    success: true,
     message: msg,
   };
   return res.status(200).json(response);
 };
 
 /**
- * Return successful response with data and status true and status code 200
+ * Return successful response with data and status code 200
  * @param {Response} res
  * @param {Object} data
  * @param {String} msg optional
@@ -28,7 +28,7 @@ export function respondWithSuccessAndData(
     msg = 'Request successfull with data response',
 ) {
   const response = {
-    status: true,
+    success: true,
     message: msg,
     data: data,
   };
@@ -36,14 +36,28 @@ export function respondWithSuccessAndData(
 }
 
 /**
+ * Returns not found but not an error so status code 200
+ * @param {Request} res
+ * @param {String} msg optional
+ * @return {Response}
+ */
+export function respondWithNotFound(res, msg = 'Element not found') {
+  const response = {
+    success: false,
+    message: msg,
+  };
+  return res.status(200).json(response);
+};
+
+/**
  * Returns not found error with status false and status code 404
  * @param {Request} res
  * @param {String} msg optional
  * @return {Response}
  */
-export function respondWithNotFound(res, msg = 'Resource not found') {
+export function respondWithErrorNotFound(res, msg = 'Resource not found') {
   const response = {
-    status: false,
+    success: false,
     message: msg,
   };
   return res.status(404).json(response);
@@ -62,7 +76,7 @@ export function respondWithValidationError(
     msg = 'Request not valid',
 ) {
   const response = {
-    status: false,
+    success: false,
     message: msg,
     validationErrors,
   };
@@ -77,7 +91,7 @@ export function respondWithValidationError(
  */
 export function respondWithError(res, msg = 'Internal server error') {
   const response = {
-    status: false,
+    success: false,
     message: msg,
   };
   return res.status(500).json(response);
@@ -88,9 +102,9 @@ export function respondWithError(res, msg = 'Internal server error') {
  * @param {String} msg
  * @return {Response}
  */
-export function respondWithUnauthorized(res, msg = 'Unauthorized request') {
+export function respondWithErrorUnauthorized(res, msg = 'Unauthorized') {
   const response = {
-    status: false,
+    success: false,
     message: msg,
   };
   return res.status(401).json(response);
