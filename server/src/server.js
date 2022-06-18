@@ -10,6 +10,8 @@ import errorHandler from './middleware/errorHandler.js';
 import errorLogger from './middleware/errorLogger.js';
 import router from './router.js';
 
+import perspective from './analytics/perspective.js';
+
 // Constants
 dotenv.config();
 const ENV = process.env;
@@ -64,3 +66,9 @@ router.all('*', function(_, res) {
 // Middleware for error handling
 app.use(errorLogger);
 app.use(errorHandler);
+
+try {
+  perspective();
+} catch (err) {
+  log.warn(err);
+}
