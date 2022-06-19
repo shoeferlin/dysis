@@ -42,6 +42,7 @@ export function respondWithSuccessAndData(
  * @return {Response}
  */
 export function respondWithErrorNotFound(res, msg = 'Resource not found') {
+  log.warn('RESPONSE', 'Resource not found');
   const response = {
     success: false,
     message: msg,
@@ -76,6 +77,7 @@ export function respondWithValidationError(
  * @return {Response}
  */
 export function respondWithError(res, msg = 'Internal server error') {
+  log.error('RESPONSE', 'Internal server error');
   const response = {
     success: false,
     message: msg,
@@ -89,6 +91,7 @@ export function respondWithError(res, msg = 'Internal server error') {
  * @return {Response}
  */
 export function respondWithErrorUnauthorized(res, msg = 'Unauthorized') {
+  log.warn('RESPONSE', 'Unauthorized');
   const response = {
     success: false,
     message: msg,
