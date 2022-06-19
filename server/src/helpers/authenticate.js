@@ -41,11 +41,11 @@ export function generateAccessToken(username) {
  */
 export function validateAuthentication(req, res, next) {
   const token = req.headers['authorization'];
-  if (token === null) respondWithUnauthorized(res);
+  if (token === null) respondWithErrorUnauthorized(res);
   jsonwebtoken.verify(token, ENV.TOKEN_SECRET, (err, data) => {
     if (err) {
-      log.debug(err);
-      return respondWithUnauthorized(res);
+      log.warn(err);
+      return respondWithErrorUnauthorized(res);
     };
     log.info('AUTHENTICATED', data.username);
     req.user = data.username;

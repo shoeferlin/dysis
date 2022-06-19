@@ -4,6 +4,24 @@ import npmlog from 'npmlog';
 const log = npmlog;
 log.enableColor();
 
+const ACTIVATE_TIMESTAMP = true;
+const DATE_TIME_FORMAT = 'de-DE';
+
+if (ACTIVATE_TIMESTAMP) {
+  // Add time stamp to all logs
+  // Source: https://github.com/npm/npmlog/issues/33
+  Object.defineProperty(log, 'heading', {
+    get: () => {
+      const date = new Date().toLocaleDateString(DATE_TIME_FORMAT);
+      const time = new Date().toLocaleTimeString(DATE_TIME_FORMAT);
+      return `${date} ${time}`;
+    },
+  });
+  log.headingStyle = {
+    bg: '',
+    fg: 'white',
+  };
+}
 // Create debug level (use 'log.debug(Prefix, Msg)' instead of 'console.log()')
 log.addLevel(
     'debug',

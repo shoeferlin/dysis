@@ -7,6 +7,7 @@ import {
   validateAuthentication,
   AuthenticationController,
 } from './helpers/authenticate.js';
+import {PerspectiveController} from './analytics/perspective.js';
 
 const router = express();
 
@@ -21,7 +22,7 @@ router.get('/', (_, res) => {
 // Forward to module router
 router.use('/api', moduleRouter);
 
-// Possibility to extend with authentication
+// Receive authentication token by using .env environment user and password
 router.get('/authenticate', AuthenticationController.authenticate);
 
 /**
@@ -34,6 +35,7 @@ router.get('/protectedContent', (_, res) => {
   respondWithSuccess(res, 'Content which needs authentication');
 });
 
+router.post('/api/perspective', PerspectiveController.analyzeComment);
 
 export default router;
 

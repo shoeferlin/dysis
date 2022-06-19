@@ -1,1 +1,1 @@
-// ZEIT.de could be a future example
+// ZEIT.de could be a future module
