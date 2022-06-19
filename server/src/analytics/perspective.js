@@ -11,23 +11,26 @@ dotenv.config();
 const ENV = process.env;
 
 const API_KEY = ENV.GOOGLE_API_KEY;
-
-
-const perspective = new Perspective({
+const perspectiveAPI = new Perspective({
   apiKey: API_KEY,
 });
 
 /**
- * Text
- * @param {String} message
- * @return {Result}
+ * Analyzes a given text via the Perspective API
+ * @param {String} text Text to be analyzed
+ * @return {Result} Response from Perspective API
  */
-async function analyzeComment(message) {
+async function analyzeComment(text) {
+  log.info(
+      'PERSPECTIVE API',
+      `Requesting perspective API for the following text:\n\"${text}\"`,
+  );
   try {
-    const result = await perspective.analyze({
+    const result = await perspectiveAPI.analyze({
       'comment': {
-        'text': message,
+        'text': text,
       },
+      // List attributes which should be analyzed
       'requestedAttributes': {
         'TOXICITY': {},
         'INSULT': {},
@@ -36,8 +39,8 @@ async function analyzeComment(message) {
     });
     return result;
   } catch (err) {
-    console.log(err);
-    return false;
+    log.error(err);
+    return null;
   }
 }
 
@@ -77,4 +80,4 @@ class PerspectiveController {
   ];
 }
 
-export {perspective, PerspectiveController};
+export {perspectiveAPI, PerspectiveController};

@@ -10,8 +10,6 @@ import errorHandler from './middleware/errorHandler.js';
 import errorLogger from './middleware/errorLogger.js';
 import router from './router.js';
 
-import {perspective} from './analytics/perspective.js';
-
 // Constants
 dotenv.config();
 const ENV = process.env;
