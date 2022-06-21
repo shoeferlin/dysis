@@ -1,3 +1,5 @@
+import log from '../helpers/log.js';
+
 /**
  * Return successful response with status true and status code 200
  * @param {Request} res
@@ -8,6 +10,7 @@ export function respondWithSuccess(
     res,
     msg = 'Request successfull',
 ) {
+  log.info('RESPONSE', 'Request successfull with data response');
   const response = {
     success: true,
     message: msg,
@@ -27,6 +30,7 @@ export function respondWithSuccessAndData(
     data,
     msg = 'Request successfull with data response',
 ) {
+  log.info('RESPONSE', 'Request successfull with data response');
   const response = {
     success: true,
     message: msg,
@@ -62,6 +66,7 @@ export function respondWithValidationError(
     validationErrors,
     msg = 'Request not valid',
 ) {
+  log.warn('RESPONSE', 'Validation error');
   const response = {
     success: false,
     message: msg,

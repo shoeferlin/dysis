@@ -33,8 +33,8 @@ async function analyzeComment(text) {
       // List attributes which should be analyzed
       'requestedAttributes': {
         'TOXICITY': {},
-        'INSULT': {},
-        'SPAM': {},
+        // 'INSULT': {},
+        // 'SPAM': {},
       },
     });
     return result;
@@ -45,7 +45,7 @@ async function analyzeComment(text) {
 }
 
 /**
- * Controller for handling incoming requests to test the Perspective AP
+ * Controller for handling incoming requests to test the Perspective API
  */
 class PerspectiveController {
   /**
@@ -80,4 +80,4 @@ class PerspectiveController {
   ];
 }
 
-export {perspectiveAPI, PerspectiveController};
+export {analyzeComment, PerspectiveController};

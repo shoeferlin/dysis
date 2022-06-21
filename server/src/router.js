@@ -8,6 +8,7 @@ import {
   AuthenticationController,
 } from './helpers/authenticate.js';
 import {PerspectiveController} from './analytics/perspective.js';
+import {PushshiftController} from './sources/reddit/pushshift.js';
 
 const router = express();
 
@@ -35,7 +36,15 @@ router.get('/protectedContent', (_, res) => {
   respondWithSuccess(res, 'Content which needs authentication');
 });
 
+// Perspective API
+
+// Pushshift API
 router.post('/api/perspective', PerspectiveController.analyzeComment);
+router.get('/api/pushshift/debug', PushshiftController.debug);
+router.get('/api/pushshift/getComments', PushshiftController.getComments);
+router.get('/api/pushshift/getSubmissions',
+    PushshiftController.getSubmissions,
+);
 
 export default router;
 

@@ -28,7 +28,7 @@ export function generateAccessToken(username) {
       ENV.TOKEN_SECRET,
       // Configurations such as expiry
       {
-        expiresIn: '24h',
+        expiresIn: '14d',
       },
   );
 }
