@@ -3,7 +3,7 @@ console.log('content.js');
 // For webpages that use dynamic JavaScript (e.g., using React) this listener
 // waits until a page has been fully loaded
 window.addEventListener('load', update)
-// window.addEventListener('popstate', update)
+window.addEventListener('popstate', update)
 window.addEventListener('click', update)
 
 // Scroll throttling

@@ -6,7 +6,7 @@ const redditRouter = express();
 
 redditRouter.post('/get', redditController.get);
 redditRouter.post('/analyze', redditController.analyze);
-redditRouter.get('/', redditController.getOne);
+redditRouter.get('/', redditController.analyze);
 redditRouter.post('/', redditController.createOne);
 
 export default redditRouter;

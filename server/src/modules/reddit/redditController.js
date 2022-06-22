@@ -133,12 +133,12 @@ export default class RedditController {
   ];
 
   static analyze = [
-    body('identifier')
+    query('identifier')
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
     validate,
     async (req, res) => {
-      const identifier = req.body.identifier;
+      const identifier = req.query.identifier;
       try {
         let data = await redditModel.findOne({identifier: identifier});
         if (data !== null) {
@@ -188,7 +188,7 @@ export default class RedditController {
 }
 
 async function analyze(redditModel, identifier) {
-  log.info('ANALYZE', `Analyzing informaiton for ${identifier}`);
+  log.info('ANALYZE', `Analyzing information for ${identifier}`);
 
   const submissions = await getSubmissionsFromRedditUserOnPushshift(
       identifier,
@@ -244,6 +244,9 @@ async function analyze(redditModel, identifier) {
 }
 
 function getAverageOfNumberArray(numberArray) {
+  if (numberArray.length === 0) {
+    return null;
+  }
   let sum = 0;
   for (const element of numberArray) {
     sum += element;
@@ -258,6 +261,9 @@ function getMedianOfNumberArray(numberArray) {
   result = numberArray[mid];
   if (numberArray.length % 2 === 0) {
     result = (numberArray[mid - 1] + numberArray[mid]) / 2;
+  }
+  if (isNaN(result)) {
+    return 0;
   }
   return result;
 }
