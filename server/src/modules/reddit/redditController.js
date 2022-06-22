@@ -3,6 +3,7 @@
 import log from '../../helpers/log.js';
 import {body, query} from 'express-validator';
 import count from 'count-array-values';
+import {differenceInDays} from 'date-fns';
 
 import {
   respondWithSuccessAndData,
@@ -18,6 +19,9 @@ import {perspectiveAnalysis} from '../../analytics/perspective.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
+
+const VALIDITY_PERIOD = 90;
+const VALIDTITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -138,25 +142,39 @@ export default class RedditController {
       try {
         let data = await redditModel.findOne({identifier: identifier});
         if (data !== null) {
-          respondWithSuccessAndData(
-              res,
-              data,
-              'Updated analysis for an existing Reddit user',
-          );
-          return;
+          const lastTimeUpdated = new Date(data.createdAt);
+          const daysSinceLastUpdate = differenceInDays(
+              Date.now(),
+              lastTimeUpdated);
+
+          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDTITY_DEBUG) {
+            data = await analyze(data, identifier);
+            await data.save();
+            log.info('ANALYZE', 'Updated');
+            respondWithSuccessAndData(
+                res,
+                await data,
+                'Updated analysis for an existing Reddit user',
+            );
+            return;
+          } else {
+            log.info('ANALYZE', 'Kept');
+            respondWithSuccessAndData(
+                res,
+                data,
+                'Kept analysis for an existing Reddit user',
+            );
+            return;
+          }
         } else {
           data = await redditModel.create({
             identifier,
           });
         }
-
         data = await analyze(data, identifier);
+        // await redditModel.updateOne({identifier}, await data);
 
-        log.debug('ANALYZE', 'Save');
-
-        await redditModel.updateOne({identifier}, await data);
-
-        log.debug('ANALYZE', 'Respond');
+        log.info('ANALYZE', 'Created');
         respondWithSuccessAndData(
             res,
             await data,
@@ -170,12 +188,12 @@ export default class RedditController {
 }
 
 async function analyze(redditModel, identifier) {
-  log.debug('ANALYZE', 'getSubmission');
+  log.info('ANALYZE', `Analyzing informaiton for ${identifier}`);
+
   const submissions = await getSubmissionsFromRedditUserOnPushshift(
       identifier,
   );
 
-  log.debug('ANALYZE', 'getComments');
   const comments = await getCommentsFromRedditUserOnPushshift(
       identifier,
   );
@@ -189,13 +207,11 @@ async function analyze(redditModel, identifier) {
   const submissionScores = [];
   const submissionSubreddits = [];
 
-  log.debug('ANALYZE', 'Loop through comments');
   for (const comment of comments.data) {
     commentScores.push(comment.score);
     commentSubreddits.push(comment.subreddit);
   }
 
-  log.debug('ANALYZE', 'Loop through submissisons');
   for (const submission of submissions.data) {
     submissionScores.push(submission.score);
     submissionSubreddits.push(submission.subreddit);
@@ -208,6 +224,12 @@ async function analyze(redditModel, identifier) {
       submissionScores,
   );
 
+  redditModel.metrics.averageScoreComments = getAverageOfNumberArray(
+      commentScores,
+  );
+  redditModel.metrics.averageScoreSubmissions = getAverageOfNumberArray(
+      submissionScores,
+  );
 
   redditModel.context.subredditsForComments = count(
       commentSubreddits,
@@ -218,12 +240,15 @@ async function analyze(redditModel, identifier) {
       'subreddit',
   );
 
-  console.log(redditModel.metrics.subredditsForComments);
-  console.log(redditModel.metrics.subredditsForSubmissions);
-
-  console.log(redditModel);
-  await redditModel.save();
   return redditModel;
+}
+
+function getAverageOfNumberArray(numberArray) {
+  let sum = 0;
+  for (const element of numberArray) {
+    sum += element;
+  }
+  return sum / numberArray.length;
 }
 
 function getMedianOfNumberArray(numberArray) {
@@ -234,7 +259,6 @@ function getMedianOfNumberArray(numberArray) {
   if (numberArray.length % 2 === 0) {
     result = (numberArray[mid - 1] + numberArray[mid]) / 2;
   }
-  log.debug(result);
   return result;
 }
 

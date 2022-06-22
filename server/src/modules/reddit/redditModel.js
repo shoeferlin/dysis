@@ -15,6 +15,8 @@ const redditSchema = new mongoose.Schema(
         totalComments: {type: Number},
         medianScoreComments: {type: Number},
         medianScoreSubmissions: {type: Number},
+        averageScoreComments: {type: Number},
+        averageScoreSubmissions: {type: Number},
       },
       context: {
         subredditsForSubmissions: [{subreddit: String, count: Number}],
