@@ -12,6 +12,6 @@ import redditRouter from './reddit/redditRouter.js';
 moduleRouter.use('/reddit', redditRouter);
 
 import zeitRouter from './zeit/zeitRouter.js';
-moduleRouter.all('/zeit', zeitRouter);
+moduleRouter.use('/zeit', zeitRouter);
 
 export default moduleRouter;

@@ -20,7 +20,7 @@ const perspectiveAPI = new Perspective({
  * @param {String} text Text to be analyzed
  * @return {Result} Response from Perspective API
  */
-async function analyzeComment(text) {
+async function perspectiveAnalysis(text) {
   log.info(
       'PERSPECTIVE API',
       `Requesting perspective API for the following text:\n\"${text}\"`,
@@ -63,7 +63,7 @@ class PerspectiveController {
     // Actual controller method handling valid request
     async (req, res) => {
       const text = req.body.text;
-      const analysis = await analyzeComment(text);
+      const analysis = await perspectiveAnalysis(text);
       try {
         const data = {
           perspective: analysis,
@@ -80,4 +80,4 @@ class PerspectiveController {
   ];
 }
 
-export {analyzeComment, PerspectiveController};
+export {perspectiveAnalysis, PerspectiveController};

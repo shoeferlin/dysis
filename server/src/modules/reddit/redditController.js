@@ -1,5 +1,8 @@
+/* eslint-disable require-jsdoc */
+
 import log from '../../helpers/log.js';
 import {body, query} from 'express-validator';
+import count from 'count-array-values';
 
 import {
   respondWithSuccessAndData,
@@ -7,6 +10,11 @@ import {
   respondWithError,
   respondWithSuccess,
 } from '../../helpers/response.js';
+import {
+  getSubmissionsFromRedditUserOnPushshift,
+  getCommentsFromRedditUserOnPushshift,
+} from '../../sources/reddit/pushshift.js';
+import {perspectiveAnalysis} from '../../analytics/perspective.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
@@ -99,7 +107,7 @@ export default class RedditController {
       try {
         const data = await redditModel.create(
             {
-              identifier: identifier,
+              identifier,
               liwcAnalytical: getRandomInt(99),
               liwcEmotionalTone: getRandomInt(99),
             },
@@ -119,4 +127,160 @@ export default class RedditController {
       }
     },
   ];
+
+  static analyze = [
+    body('identifier')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be string'),
+    validate,
+    async (req, res) => {
+      const identifier = req.body.identifier;
+      try {
+        let data = await redditModel.findOne({identifier: identifier});
+        if (data !== null) {
+          respondWithSuccessAndData(
+              res,
+              data,
+              'Updated analysis for an existing Reddit user',
+          );
+          return;
+        } else {
+          data = await redditModel.create({
+            identifier,
+          });
+        }
+
+        data = await analyze(data, identifier);
+
+        log.debug('ANALYZE', 'Save');
+
+        await redditModel.updateOne({identifier}, await data);
+
+        log.debug('ANALYZE', 'Respond');
+        respondWithSuccessAndData(
+            res,
+            await data,
+            'Created analysis for a new Reddit user',
+        );
+      } catch (e) {
+        log.error(e);
+      }
+    },
+  ];
 }
+
+async function analyze(redditModel, identifier) {
+  log.debug('ANALYZE', 'getSubmission');
+  const submissions = await getSubmissionsFromRedditUserOnPushshift(
+      identifier,
+  );
+
+  log.debug('ANALYZE', 'getComments');
+  const comments = await getCommentsFromRedditUserOnPushshift(
+      identifier,
+  );
+
+  redditModel.metrics.totalSubmissions = submissions.data.length;
+  redditModel.metrics.totalComments = comments.data.length;
+
+  const commentScores = [];
+  const commentSubreddits = [];
+
+  const submissionScores = [];
+  const submissionSubreddits = [];
+
+  log.debug('ANALYZE', 'Loop through comments');
+  for (const comment of comments.data) {
+    commentScores.push(comment.score);
+    commentSubreddits.push(comment.subreddit);
+  }
+
+  log.debug('ANALYZE', 'Loop through submissisons');
+  for (const submission of submissions.data) {
+    submissionScores.push(submission.score);
+    submissionSubreddits.push(submission.subreddit);
+  }
+
+  redditModel.metrics.medianScoreComments = getMedianOfNumberArray(
+      commentScores,
+  );
+  redditModel.metrics.medianScoreSubmissions = getMedianOfNumberArray(
+      submissionScores,
+  );
+
+
+  redditModel.context.subredditsForComments = count(
+      commentSubreddits,
+      'subreddit',
+  );
+  redditModel.context.subredditsForSubmissions = count(
+      submissionSubreddits,
+      'subreddit',
+  );
+
+  console.log(redditModel.metrics.subredditsForComments);
+  console.log(redditModel.metrics.subredditsForSubmissions);
+
+  console.log(redditModel);
+  await redditModel.save();
+  return redditModel;
+}
+
+function getMedianOfNumberArray(numberArray) {
+  numberArray = numberArray.sort();
+  let result = null;
+  const mid = Math.floor(numberArray.length / 2);
+  result = numberArray[mid];
+  if (numberArray.length % 2 === 0) {
+    result = (numberArray[mid - 1] + numberArray[mid]) / 2;
+  }
+  log.debug(result);
+  return result;
+}
+
+async function getCommentTextFromUser(username) {
+  const comments = [];
+  const pushshift = await getCommentsFromRedditUserOnPushshift(username);
+  for (const comment of await pushshift.data) {
+    if (comment.body) {
+      comments.push(comment.body);
+    }
+  }
+  log.debug('getCommentsFromUser', typeof comments);
+  return comments;
+}
+
+async function getSubmissionTextFromUser(username) {
+  const submissions = [];
+  const pushshift = await getSubmissionsFromRedditUserOnPushshift(username);
+  for (const comment of await pushshift.data) {
+    if (comment.selftext) {
+      submissions.push(comment.selftext);
+    }
+  }
+  log.debug('getSubmissionsFromUser', typeof submissions);
+  return submissions;
+}
+
+async function sendTextToPerspective(username) {
+  let text = await getCommentTextFromUser(username);
+  log.debug('TEXT DIRECT', text);
+  text = text.join('; ');
+  log.debug('TEXT', text);
+  const analysis = await perspectiveAnalysis(text);
+  console.log(analysis.attributeScores);
+}
+
+async function getTextFromUser(username) {
+  const text = [];
+  const comments = await getCommentTextFromUser(username);
+  const submissions = await getSubmissionTextFromUser(username);
+  log.debug(typeof comments);
+  log.debug(typeof submissions);
+  text.concat(comments);
+  text.concat(submissions);
+  log.debug(typeof text);
+  return text;
+}
+
+// console.log(sendTextToPerspective('1r0ll'));
