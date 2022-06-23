@@ -21,7 +21,7 @@ import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDTITY_DEBUG = false;
+const VALIDTITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -142,14 +142,15 @@ export default class RedditController {
       try {
         let data = await redditModel.findOne({identifier: identifier});
         if (data !== null) {
-          const lastTimeUpdated = new Date(data.createdAt);
+          // Entry exists
+          const lastTimeUpdated = new Date(data.updatedAt);
           const daysSinceLastUpdate = differenceInDays(
               Date.now(),
               lastTimeUpdated);
-
           if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDTITY_DEBUG) {
+            // Update entry
             data = await analyze(data, identifier);
-            await data.save();
+            await data.update();
             log.info('ANALYZE', 'Updated');
             respondWithSuccessAndData(
                 res,
@@ -158,6 +159,7 @@ export default class RedditController {
             );
             return;
           } else {
+            // Keep entry
             log.info('ANALYZE', 'Kept');
             respondWithSuccessAndData(
                 res,
@@ -167,20 +169,22 @@ export default class RedditController {
             return;
           }
         } else {
+          // Entry does not exist
           data = await redditModel.create({
             identifier,
           });
-        }
-        data = await analyze(data, identifier);
-        // await redditModel.updateOne({identifier}, await data);
+          data = await analyze(data, identifier);
+          data.update();
 
-        log.info('ANALYZE', 'Created');
-        respondWithSuccessAndData(
-            res,
-            await data,
-            'Created analysis for a new Reddit user',
-        );
+          log.info('ANALYZE', 'Created');
+          respondWithSuccessAndData(
+              res,
+              await data,
+              'Created analysis for a new Reddit user',
+          );
+        }
       } catch (e) {
+        log.debug(req.query.identifier);
         log.error(e);
       }
     },
