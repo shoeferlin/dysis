@@ -55,6 +55,10 @@ function getRelevantUsernameElements() {
 }
 
 async function appendUserInformationToElement(element) {
+  if (element.getAttributeNames().includes('data-dysis')) {
+    return;
+  }
+  element.setAttribute('data-dysis', 'injected')
   let enrichment = document.createElement('span')
   enrichment.className = 'dysis';
   enrichment.setAttribute('style', 'font_weight: bold !important; color: red !important');
@@ -66,6 +70,7 @@ async function appendUserInformationToElement(element) {
 }
 
 function updateUserInformations() {
+  getRelevantUsernameElements();
   for (const element of getRelevantUsernameElements()) {
     appendUserInformationToElement(element)
   }
