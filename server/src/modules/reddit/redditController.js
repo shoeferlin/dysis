@@ -140,58 +140,61 @@ export default class RedditController {
     async (req, res) => {
       const identifier = req.query.identifier;
       try {
-        let data = await redditModel.findOne({identifier: identifier});
-        if (data !== null) {
+        let redditData = await redditModel.findOne({identifier});
+        if (redditData !== null) {
           // Entry exists
-          const lastTimeUpdated = new Date(data.updatedAt);
+          const lastTimeUpdated = new Date(redditData.updatedAt);
           const daysSinceLastUpdate = differenceInDays(
               Date.now(),
               lastTimeUpdated);
-          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDTITY_DEBUG) {
+          if (daysSinceLastUpdate < VALIDITY_PERIOD || VALIDTITY_DEBUG) {
             // Update entry
-            data = await analyze(data, identifier);
-            await data.update();
-            log.info('ANALYZE', 'Updated');
+            log.info('ANALYSIS', 'Updating');
+            const data = await analyze(identifier);
+            await redditData.updateOne({identifier}, data);
             respondWithSuccessAndData(
                 res,
-                await data,
+                await redditData,
                 'Updated analysis for an existing Reddit user',
             );
             return;
           } else {
             // Keep entry
-            log.info('ANALYZE', 'Kept');
+            log.info('ANALYSIS', 'Keeping');
             respondWithSuccessAndData(
                 res,
-                data,
+                redditData,
                 'Kept analysis for an existing Reddit user',
             );
             return;
           }
         } else {
           // Entry does not exist
-          data = await redditModel.create({
-            identifier,
-          });
-          data = await analyze(data, identifier);
-          data.update();
-
-          log.info('ANALYZE', 'Created');
+          log.info('ANALYSIS', 'Creating');
+          const data = await analyze(identifier);
+          redditData = await redditModel.create(data);
           respondWithSuccessAndData(
               res,
-              await data,
+              await redditData,
               'Created analysis for a new Reddit user',
           );
         }
-      } catch (e) {
-        log.debug(req.query.identifier);
-        log.error(e);
+      } catch (error) {
+        log.error('Error for identifier:' + req.query.identifier);
+        log.error(error);
       }
     },
   ];
 }
 
-async function analyze(redditModel, identifier) {
+async function analyze(identifier) {
+  const redditModel = {
+    identifier,
+    metrics: {},
+    context: {},
+    analytics: {},
+  };
+
   log.info('ANALYZE', `Analyzing information for ${identifier}`);
 
   const submissions = await getSubmissionsFromRedditUserOnPushshift(
