@@ -1,14 +1,14 @@
 import mongoose from 'mongoose';
+import count from 'count-array-values';
 
 const redditSchema = new mongoose.Schema(
     {
       identifier: {type: String, required: true, unique: true},
-      liwcAnalytical: {type: Number},
-      liwcEmotionalTone: {type: Number},
       analytics: {
         perspective: {
           toxicity: {type: Number},
         },
+        liwc: {},
       },
       metrics: {
         totalSubmissions: {type: Number},
@@ -21,7 +21,6 @@ const redditSchema = new mongoose.Schema(
       context: {
         subredditsForSubmissions: [{subreddit: String, count: Number}],
         subredditsForComments: [{subreddit: String, count: Number}],
-        subreddits: [{subreddit: String, count: Number}],
       },
     },
     {
@@ -29,5 +28,30 @@ const redditSchema = new mongoose.Schema(
     },
 );
 
+redditSchema.virtual('metrics.totalPosts').get(function() {
+  return this.metrics.totalComments + this.metrics.totalSubmissions;
+});
+
+// redditSchema.virtual('context.subreddits').get(function() {
+//   let allSubreddits = [];
+//   console.log(this.context.subredditsForComments);
+
+//   const subredditsForComments = Array
+//       .from(this.context.subredditsForComments);
+//   const subredditsForSubmissions = Array
+//       .from(this.context.subredditsForSubmissions);
+//   for (const element of subredditsForComments) {
+//     allSubreddits[element.subreddit] = element.count;
+//   }
+//   for (const element of subredditsForSubmissions) {
+//     allSubreddits[element.subreddit] = element.count;
+//   }
+//   allSubreddits = count(allSubreddits);
+//   return allSubreddits;
+// });
+
+mongoose.set('toJSON', {virtuals: true});
+
 const redditModel = mongoose.model('reddit', redditSchema);
+
 export default redditModel;

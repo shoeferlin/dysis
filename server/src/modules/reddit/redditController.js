@@ -21,7 +21,7 @@ import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDTITY_DEBUG = false;
+const VALIDITY_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -147,7 +147,7 @@ export default class RedditController {
           const daysSinceLastUpdate = differenceInDays(
               Date.now(),
               lastTimeUpdated);
-          if (daysSinceLastUpdate < VALIDITY_PERIOD || VALIDTITY_DEBUG) {
+          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
             // Update entry
             log.info('ANALYSIS', 'Updating');
             const data = await analyze(identifier);

@@ -33,9 +33,14 @@ async function perspectiveAnalysis(text) {
       // List attributes which should be analyzed
       'requestedAttributes': {
         'TOXICITY': {},
-        // 'INSULT': {},
-        // 'SPAM': {},
+        'SEVERE_TOXICITY': {},
+        'IDENTITY_ATTACK': {},
+        'INSULT': {},
+        'PROFANITY': {},
+        'THREAT': {},
       },
+      'spanAnnotations': false,
+      'doNotStore': true,
     });
     return result;
   } catch (err) {
