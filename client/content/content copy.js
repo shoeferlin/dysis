@@ -1,91 +1,5 @@
 console.log('content.js');
 
-// As reddit is a modern web app (i.e., using React) this listeners
-// react to changes
-window.addEventListener('load', updateElements)
-window.addEventListener('popstate', updateElements)
-window.addEventListener('click', updateElements)
-
-// Scroll throttling
-let scrolling = false;
-window.addEventListener('scroll', () => {
-  console.log("Scrolling detected")
-  scrolling = true
-});
-
-function updateElements() {
-  const userElements = getRelevantUsernameElements();
-
-}
-
-
-class DysisApp {
-  constructor() {
-    console.log('Dysis App started ...')
-    this.dysisInstances = []
-  }
-
-  updateElements() {
-    console.log('Called update Element')
-    const x = new DysisElement()
-  }
-}
-
-class DysisElement {
-  constructor(element) {
-    console.log('Dysis Element instance created ...')
-    this.element = element;
-    this.beep();
-  }
-
-  beep() {
-    setInterval(
-      () => {
-        console.log('Beep from a Dysis Element')
-      },
-      1000
-    )
-  }
-
-  
-}
-
-const dysisApp = new DysisApp();
-dysisApp.updateElements(document);
-
-
-
-
-function getUsernameParamFromPath(path) {
-  if (!path.match('\/user\/.+')) {
-    throw Error('Path must be user path with username param ')
-  }
-  let username = path.replace('https://www.reddit.com/user/', '').slice(0, -1)
-  return username;
-}
-
-function getRelevantUsernameElements() {
-  // Create empty Array
-  let userElements = []
-  // Find all anchor tags ('a' HTML elements) and push them into userElements array
-  const anchorTags = document.getElementsByTagName('a');
-  for (const anchorTag of anchorTags) {
-    userElements.push(anchorTag)
-  }
-  // Filter anchor elements based on them including the user path pattern as link
-  userElements = userElements.filter(element => element.href.match('\/user\/.+'))
-  // Filter anchor elements based on them including user name as text in their inner content
-  userElements = userElements.filter(element => {
-    // Extract username from href of element
-    const extractedUsername = getUsernameParamFromPath(element.href)
-    // Filter for the element if the said username has been found in the inner HTML of the element, else not
-    return (element.innerHTML.includes(extractedUsername))
-  })
-  // Return found and filtered elements
-  return userElements
-}
-
-/**
 // For webpages that use dynamic JavaScript (e.g., using React) this listener
 // waits until a page has been fully loaded
 window.addEventListener('load', update)
@@ -236,4 +150,3 @@ function logElements(userElements) {
   }
 }
 
- */
