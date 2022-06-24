@@ -23,7 +23,7 @@ const perspectiveAPI = new Perspective({
 async function perspectiveAnalysis(text) {
   log.info(
       'PERSPECTIVE API',
-      `Requesting perspective API for the following text:\n\"${text}\"`,
+      `Requesting perspective API for the text:\n\"${text.slice(0, 280)}\"`,
   );
   try {
     const result = await perspectiveAPI.analyze({

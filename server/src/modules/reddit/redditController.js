@@ -19,9 +19,10 @@ import {perspectiveAnalysis} from '../../analytics/perspective.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
+import {getByteSize} from '../../helpers/utils.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDITY_DEBUG = false;
+const VALIDITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -192,7 +193,9 @@ async function analyze(identifier) {
     identifier,
     metrics: {},
     context: {},
-    analytics: {},
+    analytics: {
+      perspective: {},
+    },
   };
 
   log.info('ANALYZE', `Analyzing information for ${identifier}`);
@@ -204,6 +207,14 @@ async function analyze(identifier) {
   const comments = await getCommentsFromRedditUserOnPushshift(
       identifier,
   );
+
+  // const textSnippets = getTextSnippetsOfRedditPosts(submissions, comments)
+  //     .slice(0, 30).join('; ');
+  // const perspective = await perspectiveAnalysis(textSnippets);
+  // console.log(await perspective.attributeScores);
+
+  // redditModel.analytics.perspective.toxicity = perspective
+  //     .attributeScores.TOXICITY.summaryScore;
 
   redditModel.metrics.totalSubmissions = submissions.data.length;
   redditModel.metrics.totalComments = comments.data.length;
@@ -273,6 +284,30 @@ function getMedianOfNumberArray(numberArray) {
     return 0;
   }
   return result;
+}
+
+/**
+ * Returns an array of strings originating of the sorted submission and comments
+ * @param {Object} submissions pushshift submission object
+ * @param {Object} comments pushshift comment object
+ * @return {Array<String>} each string is one text snippet
+ */
+function getTextSnippetsOfRedditPosts(submissions, comments) {
+  let posts = [];
+  posts = posts.concat(submissions.data, comments.data);
+  posts = sortRedditPostsByCreatedUTC(posts);
+  const textSnippets = [];
+  for (const post of posts) {
+    if (post.body !== undefined) {
+      textSnippets.push(post.body);
+    }
+  }
+  return textSnippets;
+}
+
+// TODO: Probably time consuming
+function sortRedditPostsByCreatedUTC(arrayOfRedditPosts) {
+  return arrayOfRedditPosts.sort((a, b) => b.created_utc - a.created_utc);
 }
 
 async function getCommentTextFromUser(username) {

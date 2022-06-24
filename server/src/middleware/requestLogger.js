@@ -10,8 +10,8 @@ import log from '../helpers/log.js';
  */
 export default function requestLogger(req, res, next) {
   log.http(
-      req.method + ' REQUEST',
-      req.path,
+      'REQUEST',
+      req.method + ' ' + req.path,
   );
   // log.http(
   //     req.method + ' REQUEST',

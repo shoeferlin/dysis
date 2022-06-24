@@ -8,7 +8,6 @@ window.addEventListener('click', update)
 
 // Scroll throttling
 let scrolling = false;
-
 window.addEventListener('scroll', () => {
   console.log("Scrolling detected")
   scrolling = true
@@ -19,10 +18,8 @@ setInterval(() => {
     scrolling = false;
     logActivity('Scroll update')
     update()
-    console.log('Scorlling is:');
-    console.log(scrolling);    
   }
-}, 3000)
+}, 5000)
   
 // As fallback the extension will try to update every interval step (in ms)
 // setInterval(update, 1000)
@@ -30,7 +27,7 @@ setInterval(() => {
 async function update() {
   // Add all functions that should be executed after the webpage has finished loading
   updateUserInformations()
-  logActivity('Updated information')  
+  logActivity('Updating information')  
 }
 
 function getRelevantUsernameElements() {
@@ -58,7 +55,6 @@ async function appendUserInformationToElement(element) {
   if (element.getAttributeNames().includes('data-dysis')) {
     return;
   }
-  element.setAttribute('data-dysis', 'injected')
   let enrichment = document.createElement('span')
   enrichment.className = 'dysis';
   enrichment.setAttribute('style', 'font_weight: bold !important; color: red !important');
@@ -66,12 +62,13 @@ async function appendUserInformationToElement(element) {
   const extractedInformation = JSON.stringify(await getInformationForIdentifier(extractedUsername));
   removeUserInformationFromElement(element)
   enrichment.innerText = `  DYSIS info for '${extractedUsername}': ${extractedInformation} `
+  element.setAttribute('data-dysis', 'injected')
   element.appendChild(enrichment)
 }
 
 function updateUserInformations() {
-  getRelevantUsernameElements();
-  for (const element of getRelevantUsernameElements()) {
+  const relevantUsernameElements = getRelevantUsernameElements();
+  for (const element of relevantUsernameElements) {
     appendUserInformationToElement(element)
   }
 }
@@ -101,8 +98,6 @@ async function getInformationForIdentifier(identifier) {
   const response = await request('GET', `reddit?identifier=${identifier}`)
   if (response.data !== null) { 
     return response.data;
-  } else if ( response.data === null) {
-    return 'none'
   } else {
     throw Error(response) 
   }
@@ -144,6 +139,7 @@ function markArrayOfElementsForDebugging(elements) {
     element.appendChild(marker)
   }
 }
+
 function logActivity(activity) {
   console.log(`DYSIS (${new Date().toLocaleTimeString('de-DE')}): ${activity.toString()}`);
 }

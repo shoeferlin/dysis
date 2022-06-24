@@ -7,6 +7,11 @@ const redditSchema = new mongoose.Schema(
       analytics: {
         perspective: {
           toxicity: {type: Number},
+          severeToxicity: {type: Number},
+          threat: {type: Number},
+          identityAttack: {type: Number},
+          profanity: {type: Number},
+          insult: {type: Number},
         },
         liwc: {},
       },
