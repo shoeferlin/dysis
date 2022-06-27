@@ -1,23 +1,43 @@
-import {DysisElementCollectorAbstract} from './DysisElementCollectorAbstract';
+import {DysisAbstract} from './DysisAbstract';
 
-export class DysisElementCollectorUser implements DysisElementCollectorAbstract {
-  collect(source: HTMLElement): Array<Element> {
+export class DysisReddit implements DysisAbstract {
+  source: HTMLElement;
+  collection: Array<Element>;
+
+  constructor(source: HTMLElement) {
+    this.source = source;
+  }
+
+  update() {
+
+  }
+
+  private collect() {
     let userElements: Array<HTMLAnchorElement> = [];
-    const anchorTags: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByTagName('a');
-    for (const anchorTag of anchorTags) {
-      userElements.push(anchorTag)
-    }
+    const allAnchorTags: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByTagName('a');
+    userElements = Array.from(allAnchorTags);
      // Filter anchor elements based on them including the user path pattern as link
     userElements = userElements.filter(element => element.href.match('\/user\/.+'))
     // Filter anchor elements based on them including user name as text in their inner content
     userElements = userElements.filter(element => {
       // Extract username from href of element
-      const extractedUsername = DysisElementCollectorUser.getUsernameParamFromPath(element.href)
+      const extractedUsername = DysisReddit.getUsernameParamFromPath(element.href)
       // Filter for the element if the said username has been found in the inner HTML of the element, else not
       return (element.innerHTML.includes(extractedUsername))
     })
-    // Return found and filtered elements
-    return userElements;
+    this.collection = userElements;
+  }
+  
+  handle() {
+    this.collect();
+    for (const element of this.collection) {
+      element.className = 'dysis';
+      element.setAttribute('style', 'color: red !important')
+    }
+  }
+  
+  getCollection(): Array<Element> {
+    return this.collection;
   }
 
   static getUsernameParamFromPath(path: String) {

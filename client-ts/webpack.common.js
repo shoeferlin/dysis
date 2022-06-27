@@ -8,15 +8,12 @@ module.exports = {
     popup: path.resolve('src/popup/popup.tsx'),
     options: path.resolve('src/options/options.tsx'),
     background: path.resolve('src/background/background.ts'),
-    // contentScript: path.resolve('src/contentScript/contentScript.ts'),
-    Dysis: path.resolve('src/contentScript/dysis.ts'),
-    DysisAcademia: path.resolve('src/contentScript/dysis.ts'),
-    DysisElementCollectorAbstract: path.resolve('src/contentScript/DysisElementCollectorAbstract.ts'),
-    DysisElementCollectorUser: path.resolve('src/contentScript/DysisElementCollectorAbstract.ts'),
-    DysisEnrichmentAbstract: path.resolve('src/contentScript/DysisEnrichmentAbstract.ts'),
-    DysisEnrichmentFactory: path.resolve('src/contentScript/DysisEnrichmentFactory.ts'),
-    DysisEnrichmentUser: path.resolve('src/contentScript/DysisEnrichmentUser.ts'),
+    Dysis: path.resolve('src/contentScript/Dysis.ts'),
+    DysisAbstract: path.resolve('src/contentScript/DysisAbstract.ts'),
+    DysisReddit: path.resolve('src/contentScript/DysisReddit.ts'),
+    DysisRedditEnrichment: path.resolve('src/contentScript/DysisRedditEnrichment.ts'),
     DysisRequests: path.resolve('src/contentScript/DysisRequests.ts'),
+    DysisUsage: path.resolve('src/contentScript/DysisUsage.ts'),
   },
   module: {
     rules: [
@@ -70,7 +67,7 @@ module.exports = {
 
 function getHtmlPlugins(chunks) {
   return chunks.map(chunk => new HtmlPlugin({
-    title: 'React Extension',
+    title: 'Dysis',
     filename: `${chunk}.html`,
     chunks: [chunk],
   }))

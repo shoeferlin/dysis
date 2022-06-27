@@ -50,6 +50,8 @@ class DysisElement {
   
 }
 
+abstract class 
+
 const dysisApp = new DysisApp();
 dysisApp.updateElements(document);
 

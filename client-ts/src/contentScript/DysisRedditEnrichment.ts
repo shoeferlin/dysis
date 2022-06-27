@@ -1,6 +1,4 @@
-import type {DysisEnrichmentAbstract} from './DysisEnrichmentAbstract';
-
-export class DysisEnrichmentUser implements DysisEnrichmentAbstract {
+export class DysisRedditEnrichment {
 
   hostingElement: HTMLElement;
 
