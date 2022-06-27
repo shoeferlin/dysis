@@ -10,7 +10,6 @@ class Dysis {
   modules: DysisAbstract[];
   constructor() {
     console.log('Dysis App started ...')
-    console.log('Refresh test 2')
 
     this.usage = new DysisUsage();
 
@@ -26,7 +25,6 @@ class Dysis {
       module.init();
     }
   }
-  
 }
-const dysis: Dysis = new Dysis();
 
+const dysis: Dysis = new Dysis();
