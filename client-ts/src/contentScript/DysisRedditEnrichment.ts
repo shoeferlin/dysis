@@ -1,9 +1,9 @@
 export class DysisRedditEnrichment {
 
-  hostingElement: HTMLElement;
+  hostingElement: Element;
   identifier: String;
 
-  constructor(hostingElement: HTMLElement) {
+  constructor(hostingElement: Element) {
     console.log('Dysis User Enrichments created ...')
     this.hostingElement = hostingElement;
     this.createElement();
