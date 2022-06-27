@@ -68,7 +68,7 @@ export class DysisReddit implements DysisAbstract {
     function delayedObserver () {
       this.viewportObserver.observe(element)
     }
-    setTimeout(delayedObserver.bind(this), 250)
+    setTimeout(delayedObserver.bind(this))
   }
 
   /**
@@ -90,7 +90,7 @@ export class DysisReddit implements DysisAbstract {
       (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
         for (const entry of entries) {
           // Condition checks if element is going inside viewport
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.target instanceof HTMLAnchorElement) {
             // Create a Dysis Enrichment for the specified target which went into viewport
             new DysisRedditEnrichment(entry.target);
             // Unobserve target after first time the target has been in the viewport
