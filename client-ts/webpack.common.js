@@ -13,6 +13,7 @@ module.exports = {
     DysisReddit: path.resolve('src/contentScript/DysisReddit.ts'),
     DysisRedditEnrichment: path.resolve('src/contentScript/DysisRedditEnrichment.ts'),
     DysisRequests: path.resolve('src/contentScript/DysisRequests.ts'),
+    DysisTwitter: path.resolve('src/contentScript/DysisTwitter.ts'),
     DysisUsage: path.resolve('src/contentScript/DysisUsage.ts'),
   },
   module: {

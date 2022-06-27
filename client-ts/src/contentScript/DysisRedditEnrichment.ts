@@ -1,19 +1,17 @@
 export class DysisRedditEnrichment {
 
-  hostingElement: HTMLElement;
+  hostingElement: Element;
+  identifier: String;
 
-  constructor(hostingElement: HTMLElement) {
-    console.log('Dysis User Enrichtment created ...')
+  constructor(hostingElement: Element) {
+    console.log('Dysis User Enrichments created ...')
     this.hostingElement = hostingElement;
-    this.beep()
+    this.createElement();
   }
 
-  beep(): void {
-    setInterval(
-      () => {
-        console.log('Beep');
-      },
-      1000
-    )
+  createElement() {
+    const enrichment = document.createElement('span');
+    enrichment.innerText = '  DYSIS  '
+    this.hostingElement.appendChild(enrichment);
   }
 }

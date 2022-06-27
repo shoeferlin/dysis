@@ -1,43 +1,99 @@
 import {DysisAbstract} from './DysisAbstract';
+import {DysisRedditEnrichment} from './DysisRedditEnrichment';
 
 export class DysisReddit implements DysisAbstract {
-  source: HTMLElement;
-  collection: Array<Element>;
+  page: HTMLElement;
+  mutationObserver: MutationObserver;
+  viewportObserver: IntersectionObserver;
 
-  constructor(source: HTMLElement) {
-    this.source = source;
+  constructor(page: HTMLElement) {
+    this.page = page;
   }
 
-  update() {
-
+  init() {
+    console.log('Initialized Dysis for Reddit ...')
+    this.initMutationObserver();
+    this.initViewportObserver();
   }
 
-  private collect() {
-    let userElements: Array<HTMLAnchorElement> = [];
-    const allAnchorTags: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByTagName('a');
-    userElements = Array.from(allAnchorTags);
-     // Filter anchor elements based on them including the user path pattern as link
-    userElements = userElements.filter(element => element.href.match('\/user\/.+'))
-    // Filter anchor elements based on them including user name as text in their inner content
-    userElements = userElements.filter(element => {
-      // Extract username from href of element
-      const extractedUsername = DysisReddit.getUsernameParamFromPath(element.href)
-      // Filter for the element if the said username has been found in the inner HTML of the element, else not
-      return (element.innerHTML.includes(extractedUsername))
-    })
-    this.collection = userElements;
+  /**
+   * Initialize a mutation observer who observes all DOM changes to the page
+   */
+  initMutationObserver() {
+    const config = {
+      attributes: false,
+      childList: true,
+      subtree: true,
+    };
+    // Instantiate mutation observer with mutation callback
+    this.mutationObserver = new MutationObserver(
+      // Anonymous mutation callback function
+      (mutationList: any) => {
+        for (const mutation of mutationList) {
+          // DysisReddit.debugDisplayMutation(mutation);
+          if (
+            mutation.type === 'childList'       // Mutation is adding / removing elements
+            && mutation.addedNodes.length > 0   // Mutation contains added nodes
+          ) {    
+            for (const addedNode of mutation.addedNodes) {
+              this.getRelevantChildElementsFromElementNode(addedNode); 
+            }
+          }
+        }
+      }
+    );
+
+    // Start observing the page for configured mutations
+    this.mutationObserver.observe(
+      this.page,
+      config,
+    );
   }
-  
-  handle() {
-    this.collect();
-    for (const element of this.collection) {
-      element.className = 'dysis';
-      element.setAttribute('style', 'color: red !important')
+
+  getRelevantChildElementsFromElementNode(node: Element) {
+    if (node instanceof HTMLElement) {
+      const anchorTags = node.getElementsByTagName('a');
+      for (const element of anchorTags) {
+        if (
+          element.href.includes('/user/') 
+          && element.innerHTML.includes(DysisReddit.getUsernameParamFromPath(element.href))
+        ) {
+          this.attachViewportObserverToElement(element);
+        }
+      }
     }
   }
-  
-  getCollection(): Array<Element> {
-    return this.collection;
+
+  attachViewportObserverToElement(element: Element) {
+    function delayedObserver () {
+      this.viewportObserver.observe(element)
+    }
+    setTimeout(delayedObserver.bind(this), 1000)
+  }
+
+  /**
+   * Initialize an intersection observer who observes elements being in the viewport
+   */
+  initViewportObserver() {
+    // Configurations (e.g. root margin and treshold can be fine tuned)
+    const config = {
+      root: null,           // null means intersection root element is the viewport
+      rootMargin: '-5000px',    // margin can in- or decrease the size of the root
+      threshold: 1.0        // treshold sets the fraction overlap required for a trigger
+    }
+    // Instantiate the intersection observer with a viewport callback
+    this.viewportObserver = new IntersectionObserver(
+      // Anonymous viewport observer callback function (fires as soon element is in viewport)
+      (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
+        for (const entry of entries) {
+          // Create a Dysis Enrichment for the specified target which went into viewport
+          new DysisRedditEnrichment(entry.target);
+          // Unobserve target after first time the target has been in the viewport
+          observer.unobserve(entry.target);
+        }
+      },
+      config,
+    );
   }
 
   static getUsernameParamFromPath(path: String) {
@@ -46,5 +102,18 @@ export class DysisReddit implements DysisAbstract {
     }
     let username = path.replace('https://www.reddit.com/user/', '').slice(0, -1)
     return username;
+  }
+
+  /**
+   * Debug function to display mutations in console
+   * @param mutation 
+   */
+  debugDisplayMutation (mutation: MutationRecord) {
+    if (mutation.type === 'childList') {
+      console.log('A child node has been added or removed.');
+    } else if (mutation.type === 'attributes') {
+      console.log('A ' + mutation.attributeName + ' attribute was modified.');
+    }
+    console.log(mutation)
   }
 }

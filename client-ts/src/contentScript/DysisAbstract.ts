@@ -1,10 +1,10 @@
 export abstract class DysisAbstract {
 
-  source: HTMLElement;
+  page: HTMLElement;
 
-  constructor(source: HTMLElement) {
-    this.source = source;
+  constructor(page: HTMLElement) {
+    this.page = page;
   }
 
-  abstract update(): void;
+  abstract init(): void;
 }
