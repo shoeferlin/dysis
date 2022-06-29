@@ -22,7 +22,7 @@ import redditModel from './redditModel.js';
 import {getByteSize} from '../../helpers/utils.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDITY_DEBUG = true;
+const VALIDITY_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -208,13 +208,13 @@ async function analyze(identifier) {
       identifier,
   );
 
-  // const textSnippets = getTextSnippetsOfRedditPosts(submissions, comments)
-  //     .slice(0, 30).join('; ');
-  // const perspective = await perspectiveAnalysis(textSnippets);
-  // console.log(await perspective.attributeScores);
+  const textSnippets = getTextSnippetsOfRedditPosts(submissions, comments)
+      .slice(0, 30).join('; ');
+  const perspective = await perspectiveAnalysis(textSnippets);
+  console.log(await perspective.attributeScores);
 
-  // redditModel.analytics.perspective.toxicity = perspective
-  //     .attributeScores.TOXICITY.summaryScore;
+  redditModel.analytics.perspective.toxicity = perspective
+      .attributeScores.TOXICITY.summaryScore.value;
 
   redditModel.metrics.totalSubmissions = submissions.data.length;
   redditModel.metrics.totalComments = comments.data.length;
