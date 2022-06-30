@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/shoeferlin/dysis#readme",
   "dependencies": {
+    "@tensorflow-models/toxicity": "^1.2.2",
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "count-array-values": "^1.2.1",

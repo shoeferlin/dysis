@@ -20,9 +20,10 @@ import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 import {getByteSize} from '../../helpers/utils.js';
+import {tensorflowToxicity} from '../../analytics/tensorflowToxicity.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDITY_DEBUG = false;
+const VALIDITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -215,6 +216,18 @@ async function analyze(identifier) {
 
   redditModel.analytics.perspective.toxicity = perspective
       .attributeScores.TOXICITY.summaryScore.value;
+  redditModel.analytics.perspective.severeToxicity = perspective
+      .attributeScores.SEVERE_TOXICITY.summaryScore.value;
+  redditModel.analytics.perspective.threat = perspective
+      .attributeScores.THREAT.summaryScore.value;
+  redditModel.analytics.perspective.identityAttack = perspective
+      .attributeScores.IDENTITY_ATTACK.summaryScore.value;
+  redditModel.analytics.perspective.PROFANITY = perspective
+      .attributeScores.TOXICITY.summaryScore.value;
+  redditModel.analytics.perspective.insult = perspective
+      .attributeScores.INSULT.summaryScore.value;
+
+  tensorflowToxicity(textSnippets);
 
   redditModel.metrics.totalSubmissions = submissions.data.length;
   redditModel.metrics.totalComments = comments.data.length;
