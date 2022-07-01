@@ -27,7 +27,7 @@ import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 90;
-const VALIDITY_DEBUG = true;
+const VALIDITY_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -250,21 +250,14 @@ async function analyze(identifier: string) {
       .slice(0, 30).join('; ');
 
   if (textSnippets !== '') {
-    const perspective = await perspectiveAnalysis(textSnippets);
-    console.log(await perspective.attributeScores);
-  
-    redditModel.analytics.perspective.toxicity = perspective
-        .attributeScores.TOXICITY.summaryScore.value;
-    redditModel.analytics.perspective.severeToxicity = perspective
-        .attributeScores.SEVERE_TOXICITY.summaryScore.value;
-    redditModel.analytics.perspective.threat = perspective
-        .attributeScores.THREAT.summaryScore.value;
-    redditModel.analytics.perspective.identityAttack = perspective
-        .attributeScores.IDENTITY_ATTACK.summaryScore.value;
-    redditModel.analytics.perspective.profanity = perspective
-        .attributeScores.PROFANITY.summaryScore.value;
-    redditModel.analytics.perspective.insult = perspective
-        .attributeScores.INSULT.summaryScore.value;
+    // const perspective = await perspectiveAnalysis(textSnippets);
+    const perspective = await ToxicityContext.analyze(textSnippets);
+    console.log(perspective);
+    redditModel.analytics.perspective.toxicity = perspective.toxicity;
+    redditModel.analytics.perspective.severeToxicity = perspective.severeToxicity;
+    redditModel.analytics.perspective.threat = perspective.threat;
+    redditModel.analytics.perspective.identityAttack = perspective.identityAttack;
+    redditModel.analytics.perspective.insult = perspective.insult;
   }
 
   redditModel.metrics.totalSubmissions = submissions.data.length;

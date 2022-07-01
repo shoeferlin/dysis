@@ -1,12 +1,14 @@
 import axios, { AxiosPromise } from 'axios';
+import dotenv from 'dotenv';
 
 import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface';
 
-export class ToxicityStrategyPerspective implements ToxicityStategyI {
+export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
 
   private googleApiKey: string;
 
   constructor() {
+    dotenv.config();
     if (!process.env.GOOGLE_API_KEY) {
       throw new Error('Google API key not set in .env-file')
     } else {
@@ -14,12 +16,12 @@ export class ToxicityStrategyPerspective implements ToxicityStategyI {
     }
   }
 
-  async analyze(text: string): Promise<ToxicityI | Error> {
+  async analyze(text: string): Promise<ToxicityI> {
     const response = await this.postRequestToGooglePerspectiveAPI(text);
     if (response.statusText === 'OK') {
       return this.googlePerspectiveAdapter(response.data);
     } else {
-      return Error('Error while calling perspective API')
+      throw Error('Error while calling perspective API')
     }
   }
 
