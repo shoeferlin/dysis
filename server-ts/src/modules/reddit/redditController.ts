@@ -5,6 +5,7 @@ import {body, query} from 'express-validator';
 import {differenceInDays} from 'date-fns';
 import {Request, Response, NextFunction} from 'express';
 import {MongoError} from 'mongodb';
+import sanitizeHtml from 'sanitize-html';
 
 import {
   respondWithSuccessAndData,
@@ -247,21 +248,24 @@ async function analyze(identifier: string) {
 
   const textSnippets = getTextSnippetsOfRedditPosts(submissions.data, comments.data)
       .slice(0, 30).join('; ');
-  const perspective = await perspectiveAnalysis(textSnippets);
-  console.log(await perspective.attributeScores);
 
-  redditModel.analytics.perspective.toxicity = perspective
-      .attributeScores.TOXICITY.summaryScore.value;
-  redditModel.analytics.perspective.severeToxicity = perspective
-      .attributeScores.SEVERE_TOXICITY.summaryScore.value;
-  redditModel.analytics.perspective.threat = perspective
-      .attributeScores.THREAT.summaryScore.value;
-  redditModel.analytics.perspective.identityAttack = perspective
-      .attributeScores.IDENTITY_ATTACK.summaryScore.value;
-  redditModel.analytics.perspective.profanity = perspective
-      .attributeScores.PROFANITY.summaryScore.value;
-  redditModel.analytics.perspective.insult = perspective
-      .attributeScores.INSULT.summaryScore.value;
+  if (textSnippets !== '') {
+    const perspective = await perspectiveAnalysis(textSnippets);
+    console.log(await perspective.attributeScores);
+  
+    redditModel.analytics.perspective.toxicity = perspective
+        .attributeScores.TOXICITY.summaryScore.value;
+    redditModel.analytics.perspective.severeToxicity = perspective
+        .attributeScores.SEVERE_TOXICITY.summaryScore.value;
+    redditModel.analytics.perspective.threat = perspective
+        .attributeScores.THREAT.summaryScore.value;
+    redditModel.analytics.perspective.identityAttack = perspective
+        .attributeScores.IDENTITY_ATTACK.summaryScore.value;
+    redditModel.analytics.perspective.profanity = perspective
+        .attributeScores.PROFANITY.summaryScore.value;
+    redditModel.analytics.perspective.insult = perspective
+        .attributeScores.INSULT.summaryScore.value;
+  }
 
   redditModel.metrics.totalSubmissions = submissions.data.length;
   redditModel.metrics.totalComments = comments.data.length;
@@ -335,7 +339,7 @@ function getMedianOfNumberArray(numberArray: number[]) {
  * Returns an array of strings originating of the sorted submission and comments
  * @param submissions pushshift submission object
  * @param comments pushshift comment object
- * @return each string is one text snippet
+ * @returns each string is one text snippet
  */
 function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], comments: PushshiftRedditPost[]) {
   let posts: PushshiftRedditPost[] = [];
@@ -343,19 +347,14 @@ function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], commen
   posts = sortRedditPostsByCreatedUTC(posts);
   const textSnippets: string[] = [];
   for (const post of posts) {
-    console.log('POST');
-    console.log(post.selftext)
-    console.log(post.body)
     if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
-      console.log('1')
-      textSnippets.push(post.selftext);
+      const text = beautifyRedditText(post.selftext);
+      if (text !== '') textSnippets.push(text);
     } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
-      console.log('2')
-      textSnippets.push(post.body)
+      const text = beautifyRedditText(post.body)
+      if (text !== '') textSnippets.push(text);
     }
   }
-  console.log('TEXT SNIPPETS')
-  console.log(textSnippets)
   return textSnippets;
 }
 
@@ -364,3 +363,19 @@ function sortRedditPostsByCreatedUTC(arrayOfRedditPosts: PushshiftRedditPost[]) 
   return arrayOfRedditPosts.sort((a: PushshiftRedditPost, b: PushshiftRedditPost) => b.created_utc - a.created_utc);
 }
 
+/**
+ * Cleans up reddit text from text that would be difficult to interprete by an analytics tool
+ * @param text 
+ * @returns
+ */
+function beautifyRedditText(text: string) {
+ return text
+  // Remove quotes (indicated through '> Lorem ipsum')
+    .replace(/^(>.+)$/g, '')
+  // Remove links (indicated through '[text](url)')
+    .replace(/(\[.+\]\(.+\))/g, '')
+    .replace(/(\(http\S+\))/g, '')
+    .replace(/(\(www\S+\))/g, '')
+  // Remove line breaks, tabs and similar
+    .replace(/[\n\r\t\s]+/g, ' ');
+}
