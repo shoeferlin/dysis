@@ -15,16 +15,17 @@ import {
   getSubmissionsFromRedditUserOnPushshift,
   getCommentsFromRedditUserOnPushshift,
 } from '../../sources/reddit/pushshift.js';
-import {perspectiveAnalysis} from '../../analytics/perspective.js';
 import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 import {getByteSize} from '../../helpers/utils.js';
-import {tensorflowToxicity} from '../../analytics/tensorflowToxicity.js';
+import {perspectiveAnalysis} from '../../analytics/toxicity/archive/perspective.js';
+import {tensorflowToxicity} from '../../analytics/toxicity/tensorflowToxicity.js';
 import {getCountOfSubreddits} from '../../helpers/utils.js'
-import {PushshiftRedditPost}from '../../sources/reddit/pushshift.d.js';
+import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 
 import {TypedRequest} from '../../interfaces/TypedRequest.d.js';
+import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 90;
 const VALIDITY_DEBUG = true;
@@ -130,7 +131,7 @@ export default class RedditController {
       } catch (err) {
         if (err instanceof MongoError && err.code === 11000) {
           respondWithError(res, 'Identifier already exists');
-        } if (err instanceof Error) {
+        } else if (err instanceof Error) {
           log.error('DATABASE ERROR', err.toString());
           respondWithError(res)
         } else {
@@ -243,7 +244,7 @@ async function analyze(identifier: string) {
   );
   const comments = commentsResponse.data;
 
-  const textSnippets = getTextSnippetsOfRedditPosts(submissions, comments)
+  const textSnippets = getTextSnippetsOfRedditPosts(submissions.data, comments.data)
       .slice(0, 30).join('; ');
   const perspective = await perspectiveAnalysis(textSnippets);
   console.log(await perspective.attributeScores);
@@ -303,6 +304,7 @@ async function analyze(identifier: string) {
       submissionSubreddits
   );
 
+  ToxicityContext.compare('You son of a bitch')
   return redditModel;
 }
 
@@ -333,19 +335,17 @@ function getMedianOfNumberArray(numberArray: number[]) {
 
 /**
  * Returns an array of strings originating of the sorted submission and comments
- * @param {Object} submissions pushshift submission object
- * @param {Object} comments pushshift comment object
- * @return {Array<String>} each string is one text snippet
+ * @param submissions pushshift submission object
+ * @param comments pushshift comment object
+ * @return each string is one text snippet
  */
-function getTextSnippetsOfRedditPosts(submissions: any, comments: any) {
+function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], comments: PushshiftRedditPost[]) {
   let posts: PushshiftRedditPost[] = [];
-  posts = posts.concat(submissions.data, comments.data);
+  posts = posts.concat(submissions, comments);
   posts = sortRedditPostsByCreatedUTC(posts);
   const textSnippets: string[] = [];
   for (const post of posts) {
-    if (post.selftext !== undefined) {
-      textSnippets.push(post.selftext);
-    }
+    textSnippets.push(post.selftext);
   }
   return textSnippets;
 }

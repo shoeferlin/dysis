@@ -2,9 +2,9 @@ import Perspective from 'perspective-api-client';
 import {body} from 'express-validator';
 import dotenv from 'dotenv';
 
-import log from '../helpers/log.js';
-import validate from '../helpers/validate.js';
-import {respondWithSuccessAndData} from '../helpers/response.js';
+import log from '../../../helpers/log.js';
+import validate from '../../../helpers/validate.js';
+import {respondWithSuccessAndData} from '../../../helpers/response.js';
 
 // Get confif variables
 dotenv.config();

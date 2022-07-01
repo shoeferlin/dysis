@@ -7,7 +7,7 @@ import {
   validateAuthentication,
   AuthenticationController,
 } from './helpers/authenticate.js';
-import {PerspectiveController} from './analytics/perspective.js';
+import {PerspectiveController} from './analytics/toxicity/archive/perspective.js';
 import {PushshiftController} from './sources/reddit/pushshift.js';
 
 const router = express();
@@ -30,13 +30,11 @@ router.get('/authenticate', AuthenticationController.authenticate);
  *  AUTHENTICATION REQUIRED
  *  Requests below  will need to be authenticated
  */
-router.use(validateAuthentication);
+// router.use(validateAuthentication);
 
 router.get('/protectedContent', (_, res) => {
   respondWithSuccess(res, 'Content which needs authentication');
 });
-
-// Perspective API
 
 // Pushshift API
 router.post('/api/perspective', PerspectiveController.analyzeComment);
