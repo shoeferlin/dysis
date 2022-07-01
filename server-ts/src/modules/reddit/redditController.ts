@@ -3,7 +3,7 @@
 import log from '../../helpers/log.js';
 import {body, query} from 'express-validator';
 import {differenceInDays} from 'date-fns';
-import * as express from 'express';
+import {Request, Response, NextFunction} from 'express';
 import {MongoError} from 'mongodb';
 
 import {
@@ -23,8 +23,6 @@ import {perspectiveAnalysis} from '../../analytics/toxicity/archive/perspective.
 import {tensorflowToxicity} from '../../analytics/toxicity/tensorflowToxicity.js';
 import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
-
-import {TypedRequest} from '../../interfaces/TypedRequest.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 90;
@@ -57,7 +55,7 @@ export default class RedditController {
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
-    async (req: express.Request, res: express.Response) => {
+    async (req: Request, res: Response) => {
       const identifiers = req.body.identifiers;
       const data = await redditModel.find({identifier: identifiers});
       if (data !== null) {
@@ -84,7 +82,7 @@ export default class RedditController {
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
-    async (req: express.Request, res: express.Response) => {
+    async (req: Request, res: Response) => {
       const identifier = req.query.identifier;
       const data = await redditModel
           .findOne({identifier: identifier}).exec();
@@ -113,7 +111,7 @@ export default class RedditController {
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
     validate,
-    async (req: express.Request, res: express.Response) => {
+    async (req: Request, res: Response) => {
       const identifier = req.body.identifier;
       try {
         const data = await redditModel.create(
@@ -146,8 +144,8 @@ export default class RedditController {
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
     validate,
-    async (req: TypedRequest<any, any>, res: express.Response) => {
-      const identifier: string = req.query.identifier;
+    async (req: Request, res: Response) => {
+      const identifier = req.body.identifier;
       try {
         let redditData = await redditModel.findOne({identifier});
         if (redditData !== null) {

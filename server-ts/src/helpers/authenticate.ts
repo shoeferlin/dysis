@@ -1,7 +1,7 @@
 import jsonwebtoken from 'jsonwebtoken';
-import { body } from 'express-validator';
+import {body} from 'express-validator';
 import dotenv from 'dotenv';
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 
 import {
   respondWithErrorUnauthorized,
@@ -9,7 +9,6 @@ import {
 } from './response.js';
 import validate from './validate.js';
 import log from '../helpers/log.js';
-import { UserRequest } from '../interfaces/UserRequest.js';
 
 // Please set SECRET_TOKEN in .env file
 dotenv.config();
@@ -42,7 +41,7 @@ export function generateAccessToken(username: string) {
  * @param res
  * @param next
  */
-export function validateAuthentication(req: UserRequest, res: Response, next: NextFunction) {
+export function validateAuthentication(req: Request, res: Response, next: NextFunction) {
   const token = req.headers['authorization'];
   if (token === null || token === undefined) {
     respondWithErrorUnauthorized(res)
@@ -53,7 +52,7 @@ export function validateAuthentication(req: UserRequest, res: Response, next: Ne
       return respondWithErrorUnauthorized(res);
     };
     log.info('AUTHENTICATED', data.username);
-    req.user = data.username;
+    res.locals.user = data.username;
     next();
   });
 };
