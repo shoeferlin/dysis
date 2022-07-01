@@ -11,6 +11,7 @@ import {
   respondWithSuccessAndData,
 } from '../../helpers/response.js';
 import errorLogger from '../../middleware/errorLogger.js';
+import {Reddit} from '../reddit/Reddit.js';
 
 import {PushshiftRedditCommentResponse, PushshiftRedditSubmissionResponse} from './pushshift.d'
 
@@ -62,7 +63,7 @@ class PushshiftController {
       try {
         respondWithSuccessAndData(
             res,
-            {pushshift: response},
+            {pushshift: response.data},
             'Pushshift API returned the following data',
         );
       } catch (error: unknown) {
@@ -106,11 +107,7 @@ class PushshiftController {
             'Pushshift API returned the following data',
         );
       } catch (error) {
-        if (error instanceof Error) {
-          log.error('ERROR', error.message);
-        } else {
-          console.log('Unexpected error', error);
-        }
+          console.log(error)
       }
     },
   ];

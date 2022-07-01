@@ -262,8 +262,6 @@ async function analyze(identifier: string) {
   redditModel.analytics.perspective.insult = perspective
       .attributeScores.INSULT.summaryScore.value;
 
-  tensorflowToxicity(textSnippets);
-
   redditModel.metrics.totalSubmissions = submissions.data.length;
   redditModel.metrics.totalComments = comments.data.length;
 
@@ -304,7 +302,6 @@ async function analyze(identifier: string) {
       submissionSubreddits
   );
 
-  ToxicityContext.compare('You son of a bitch')
   return redditModel;
 }
 
