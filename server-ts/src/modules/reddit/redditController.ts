@@ -145,7 +145,7 @@ export default class RedditController {
         .isString().withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
-      const identifier = req.body.identifier;
+      const identifier = req.query.identifier as string;
       try {
         let redditData = await redditModel.findOne({identifier});
         if (redditData !== null) {
@@ -241,6 +241,9 @@ async function analyze(identifier: string) {
       identifier,
   );
   const comments = commentsResponse.data;
+
+  // console.log(submissions.data)
+  // console.log(comments.data)
 
   const textSnippets = getTextSnippetsOfRedditPosts(submissions.data, comments.data)
       .slice(0, 30).join('; ');
@@ -340,8 +343,19 @@ function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], commen
   posts = sortRedditPostsByCreatedUTC(posts);
   const textSnippets: string[] = [];
   for (const post of posts) {
-    textSnippets.push(post.selftext);
+    console.log('POST');
+    console.log(post.selftext)
+    console.log(post.body)
+    if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
+      console.log('1')
+      textSnippets.push(post.selftext);
+    } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
+      console.log('2')
+      textSnippets.push(post.body)
+    }
   }
+  console.log('TEXT SNIPPETS')
+  console.log(textSnippets)
   return textSnippets;
 }
 

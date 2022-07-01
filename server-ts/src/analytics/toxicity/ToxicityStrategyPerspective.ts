@@ -25,11 +25,11 @@ export class ToxicityStrategyPerspective implements ToxicityStategyI {
 
   private googlePerspectiveAdapter(tensorflowToxicity: any): ToxicityI {
     const toxicity: ToxicityI = {
-      toxicity: tensorflowToxicity.attributeScores.TOXICITY.summaryScore.value,
-      severeToxicity: tensorflowToxicity.attributeScores.SEVERE_TOXICITY.summaryScore.value,
-      identityAttack: tensorflowToxicity.attributeScores.IDENTITY_ATTACK.summaryScore.value,
-      insult: tensorflowToxicity.attributeScores.INSULT.summaryScore.value,
-      threat: tensorflowToxicity.attributeScores.THREAT.summaryScore.value,
+      toxicity: tensorflowToxicity.attributeScores?.TOXICITY?.summaryScore.value ?? null,
+      severeToxicity: tensorflowToxicity.attributeScores?.SEVERE_TOXICITY?.summaryScore.value ?? null,
+      identityAttack: tensorflowToxicity.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,
+      insult: tensorflowToxicity.attributeScores?.INSULT.summaryScore?.value ?? null,
+      threat: tensorflowToxicity.attributeScores?.THREAT.summaryScore?.value ?? null,
     }
     return toxicity;
   }
