@@ -1,5 +1,5 @@
 // External imports
-import express from 'express';
+import express, { NextFunction } from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -41,6 +41,12 @@ db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 app.use(cors({
   origin: 'https://www.reddit.com',
 }));
+let allowCrossDomain = function(req: Request, res: Response, next: NextFunction) {
+  res.headers.append('Access-Control-Allow-Origin', "*");
+  res.headers.append('Access-Control-Allow-Headers', "*");
+  next();
+}
+app.use(allowCrossDomain);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
