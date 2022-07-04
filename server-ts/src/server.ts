@@ -38,15 +38,7 @@ db.on('error', (err) => log.error('DATABASE', err));
 db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 
 // Configure server
-app.use(cors({
-  origin: 'https://www.reddit.com',
-}));
-let allowCrossDomain = function(req: Request, res: Response, next: NextFunction) {
-  res.headers.append('Access-Control-Allow-Origin', "*");
-  res.headers.append('Access-Control-Allow-Headers', "*");
-  next();
-}
-app.use(allowCrossDomain);
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
