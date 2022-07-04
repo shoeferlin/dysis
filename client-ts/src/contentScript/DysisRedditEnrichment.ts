@@ -11,12 +11,12 @@ export class DysisRedditEnrichment {
     this.hostingElement = hostingElement;
     this.identifier = DysisReddit.getUsernameParamFromPath(hostingElement.href);
     console.log(`Dysis User Enrichment created for "${this.identifier}"...`)
-    this.createElement();
-    this.displayLoading();
+    this.createContainerElement();
+    // this.displayLoading();
     this.displayData();
   }
 
-  createElement() {
+  createContainerElement() {
     const dysisContainer = document.createElement('div');
     dysisContainer.classList.add('dysis');
     dysisContainer.style.backgroundColor = '#f2f2f2';
@@ -27,31 +27,43 @@ export class DysisRedditEnrichment {
     dysisContainer.style.fontSize = '12px';
     dysisContainer.style.width = '100%';
 
-    const text = document.createElement('div');
-    text.classList.add('dysis');
-    text.style.color = '#BF0000';
-    text.innerText = `  DYSIS loading ...  `;
+    // const text = document.createElement('div');
+    // text.classList.add('dysis');
+    // text.style.color = '#BF0000';
+    // text.innerText = `  DYSIS loading ...  `;
 
     this.hostingElement.parentElement.parentElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
     this.hostingElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.flexWrap = 'wrap';
     
     this.dysisContainer = dysisContainer;
 
-    this.dysisContainer.appendChild(text);
+    // this.dysisContainer.appendChild(text);
     
   }
 
-  displayLoading() {
-    const loadingCirle = document.createElement('div');
-    loadingCirle.style.display = 'inline-block';
-    loadingCirle.classList.add('loader');
-    this.dysisContainer.appendChild(loadingCirle);
-  }
+  // getBehaviorElement(tagName: string, tagValue: number): string {
+  //   let behaviorValueClass: string;
+  //   if (tagValue > 0.66) {
+  //     behaviorValueClass = 'dysis-tag-behavior-red';
+  //   } else if (tagValue > 0.33) {
+  //     behaviorValueClass = 'dysis-tag-behavior-yellow';
+  //   } else {
+  //     behaviorValueClass = 'dysis-tag-behavior-green';
+  //   }
+  //   return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-behavior">${tagName}</span><span class="dysis-tag-right ${behaviorValueClass}">${tagValue}</span></span>`;
+  // }
+
+  // displayLoading() {
+  //   const loadingCirle = document.createElement('div');
+  //   loadingCirle.style.display = 'inline-block';
+  //   loadingCirle.classList.add('loader');
+  //   this.dysisContainer.appendChild(loadingCirle);
+  // }
 
   async displayData() {
     const response = await this.requestData();
 
-    console.log(response.analytics.perspective.toxicity)
+    console.log(response)
 
     const dataElement = document.createElement('div');    
 
@@ -67,5 +79,4 @@ export class DysisRedditEnrichment {
     const response = await DysisRequest.get(`reddit?identifier=${this.identifier}`);
     return response.data;
   }
-
 }
