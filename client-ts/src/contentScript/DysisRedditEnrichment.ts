@@ -19,14 +19,6 @@ export class DysisRedditEnrichment {
   createContainerElement() {
     const dysisContainer = document.createElement('div');
     dysisContainer.classList.add('dysis');
-    dysisContainer.style.backgroundColor = '#f2f2f2';
-    dysisContainer.style.overflowWrap ='anywhere';
-    dysisContainer.style.margin = '2px 0px';
-    dysisContainer.style.padding = '3px';
-    dysisContainer.style.borderRadius = '2px';
-    dysisContainer.style.fontSize = '12px';
-    dysisContainer.style.width = '100%';
-
     // const text = document.createElement('div');
     // text.classList.add('dysis');
     // text.style.color = '#BF0000';
@@ -41,42 +33,72 @@ export class DysisRedditEnrichment {
     
   }
 
-  // getBehaviorElement(tagName: string, tagValue: number): string {
-  //   let behaviorValueClass: string;
-  //   if (tagValue > 0.66) {
-  //     behaviorValueClass = 'dysis-tag-behavior-red';
-  //   } else if (tagValue > 0.33) {
-  //     behaviorValueClass = 'dysis-tag-behavior-yellow';
-  //   } else {
-  //     behaviorValueClass = 'dysis-tag-behavior-green';
-  //   }
-  //   return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-behavior">${tagName}</span><span class="dysis-tag-right ${behaviorValueClass}">${tagValue}</span></span>`;
-  // }
-
-  // displayLoading() {
-  //   const loadingCirle = document.createElement('div');
-  //   loadingCirle.style.display = 'inline-block';
-  //   loadingCirle.classList.add('loader');
-  //   this.dysisContainer.appendChild(loadingCirle);
-  // }
-
   async displayData() {
     const response = await this.requestData();
-
     console.log(response)
 
-    const dataElement = document.createElement('div');    
+    const tagContainer = document.createElement('div');    
+    tagContainer.style.overflowWrap = 'anywhere';
 
     const dataTextElement = document.createElement('p');
-    // dataTextElement.innerText = `${JSON.stringify(response)}`
     dataTextElement.innerText = 'Aenean eu leo quam.'
-    dataElement.appendChild(dataTextElement);
-    this.dysisContainer.innerHTML = ''
-    this.dysisContainer.appendChild(dataElement);
+
+    
+    this.dysisContainer.appendChild(tagContainer);
+
+    if (response?.analytics?.perspective?.toxicity) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('toxicity', response.analytics.perspective.toxicity))
+    }
+    if (response?.analytics?.perspective?.severeToxicity) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('severe toxicity', response.analytics.perspective.severeToxicity))
+    }
+    if (response?.analytics?.perspective?.insult) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('insult', response.analytics.perspective.insult))
+    }
+    if (response?.analytics?.perspective?.identityAttack) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('identity attack', response.analytics.perspective.identityAttack))
+    }
+    if (response?.analytics?.perspective?.threat) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('threat', response.analytics.perspective.threat))
+    }
+
+    for (const interests of response.context.subredditsForComments.slice(0, 10)) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getInterestsElement(interests.subreddit, interests.count))
+    }
+
+    if (response?.metrics?.averageScoreSubmissions) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getMetricsElement('\&#8709 score for submissions', response.metrics.averageScoreSubmissions))
+    }
+    if (response?.metrics?.averageScoreComments) {
+      tagContainer.insertAdjacentHTML('beforeend', this.getMetricsElement('\&#8709 score for comments', response.metrics.averageScoreComments))
+    }
+    
+
   }
 
   async requestData(): Promise<any> {
     const response = await DysisRequest.get(`reddit?identifier=${this.identifier}`);
     return response.data;
   }
+
+  getBehaviorElement(tagName: string, tagValue: number): string {
+    let behaviorValueClass: string;
+    if (tagValue >= 0.75) {
+      behaviorValueClass = 'dysis-tag-behavior-red';
+    } else if (tagValue >= 0.50) {
+      behaviorValueClass = 'dysis-tag-behavior-yellow';
+    } else {
+      behaviorValueClass = 'dysis-tag-behavior-green';
+    }
+    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-behavior">${tagName}</span><span class="dysis-tag-right ${behaviorValueClass}">${(tagValue * 100).toFixed(0).toString()}%</span></span>`;
+  }
+  
+  getInterestsElement(tagName: string, tagValue: number): string {
+    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-interests">${tagName}</span><span class="dysis-tag-right dysis-tag-interests">${tagValue.toString()}x</span></span>`;
+  }
+
+  getMetricsElement(tagName: string, tagValue: number): string {
+    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-metrics">${tagName}</span><span class="dysis-tag-right dysis-tag-metrics">${tagValue.toFixed(2).toString()}</span></span>`;
+  }
+  
 }

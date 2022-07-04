@@ -25,24 +25,27 @@
 /** Form Tag **/
 
 .dysis-tag {
-  border-radius: 8px;
-  margin: 5px;
+  border-radius: 6px;
+  margin: 3px;
+  white-space: nowrap;
 }
 
 .dysis-tag-left {
-  padding: 2px 12px;
+  padding: 1px 4px;
   border-radius: 8px 0px 0px 8px;
+  font-size: 9px;
 }
 
 .dysis-tag-right {
-  padding: 2px 8px;
+  padding: 1px 4px;
   border-radius: 0px 8px 8px 0px;
+  font-size: 9px;
 }
 
 /** Behavior Tags **/
 
 .dysis-tag-behavior.dysis-tag-left {
-  background-color: rgb(40, 40, 40);
+  background-color: rgb(99, 99, 99);
   color: white
 }
 
