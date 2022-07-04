@@ -4,8 +4,8 @@ import {DysisRequest} from './DysisRequest';
 export class DysisRedditEnrichment {
 
   hostingElement: HTMLAnchorElement;
+  dysisContainer: HTMLElement;
   identifier: String;
-  dysis: HTMLElement;
 
   constructor(hostingElement: HTMLAnchorElement) {
     this.hostingElement = hostingElement;
@@ -17,16 +17,27 @@ export class DysisRedditEnrichment {
   }
 
   createElement() {
-    const dysis = document.createElement('div');
-    dysis.classList.add('dysis');
-    dysis.style.color = '#BF0000';
-    const text = document.createElement('span');
+    const dysisContainer = document.createElement('div');
+    dysisContainer.classList.add('dysis');
+    dysisContainer.style.backgroundColor = '#f2f2f2';
+    dysisContainer.style.overflowWrap ='anywhere';
+    dysisContainer.style.margin = '2px 0px';
+    dysisContainer.style.padding = '3px';
+    dysisContainer.style.borderRadius = '2px';
+    dysisContainer.style.fontSize = '12px';
+    dysisContainer.style.width = '100%';
+
+    const text = document.createElement('div');
     text.classList.add('dysis');
     text.style.color = '#BF0000';
     text.innerText = `  DYSIS loading ...  `;
-    this.hostingElement.appendChild(dysis);
-    this.dysis = dysis;
-    this.dysis.appendChild(text);
+
+    this.hostingElement.parentElement.parentElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
+    this.hostingElement.parentElement.parentElement.parentElement.parentElement.parentElement.style.flexWrap = 'wrap';
+    
+    this.dysisContainer = dysisContainer;
+
+    this.dysisContainer.appendChild(text);
     
   }
 
@@ -34,17 +45,27 @@ export class DysisRedditEnrichment {
     const loadingCirle = document.createElement('div');
     loadingCirle.style.display = 'inline-block';
     loadingCirle.classList.add('loader');
-    this.dysis.appendChild(loadingCirle);
+    this.dysisContainer.appendChild(loadingCirle);
   }
 
   async displayData() {
     const response = await this.requestData();
-    console.log(response);
-    this.dysis.innerText = `  ${JSON.stringify(response)}  `;
+
+    console.log(response.analytics.perspective.toxicity)
+
+    const dataElement = document.createElement('div');    
+
+    const dataTextElement = document.createElement('p');
+    // dataTextElement.innerText = `${JSON.stringify(response)}`
+    dataTextElement.innerText = 'Aenean eu leo quam.'
+    dataElement.appendChild(dataTextElement);
+    this.dysisContainer.innerHTML = ''
+    this.dysisContainer.appendChild(dataElement);
   }
 
   async requestData(): Promise<any> {
     const response = await DysisRequest.get(`reddit?identifier=${this.identifier}`);
     return response.data;
   }
+
 }
