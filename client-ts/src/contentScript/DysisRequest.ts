@@ -1,6 +1,6 @@
 export class DysisRequest {
   
-  static DEBUG: boolean = true;
+  static DEBUG: boolean = false;
 
   static API_URL: string = 'https://dysis-server.herokuapp.com/api/';
   static API_URL_DEV: string = 'http://localhost:8080/api/';
@@ -32,12 +32,16 @@ export class DysisRequest {
       body: any = null,
   ): Promise<any> {
     const BASE_URL = this.DEBUG ? this.API_URL_DEV : this.API_URL;
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Accept', 'application/json');
+    headers.append('Origin','https://www.reddit.com');
     try {
       const response = await fetch(
         BASE_URL + path,
         {
           method: 'post',
-          headers: {'Content-Type': 'application/json'},
+          headers,
           body: body,
         }
 
