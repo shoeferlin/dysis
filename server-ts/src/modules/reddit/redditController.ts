@@ -189,6 +189,7 @@ export default class RedditController {
         }
       } catch (error) {
         log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
+        respondWithErrorNotFound(res, `Error for identifier: ${req.query.identifier}`);
         console.log(error);
       }
     },

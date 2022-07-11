@@ -1,6 +1,6 @@
 export class DysisRequest {
   
-  static DEBUG: boolean = false;
+  static DEBUG: boolean = true;
 
   static API_URL: string = 'https://dysis-server.herokuapp.com/api/';
   static API_URL_DEV: string = 'http://localhost:8080/api/';
@@ -43,8 +43,8 @@ export class DysisRequest {
           method: 'post',
           headers,
           body: body,
+          mode: 'cors',
         }
-
       );
       if (response.ok) {
         return response.json();
