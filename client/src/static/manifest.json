@@ -14,7 +14,7 @@
     "default_title": "Dysis",
     "default_icon": "icon.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms", "notifications", "tabs", "idle"],
   "options_page": "options.html",
   "background": {
     "service_worker": "background.js"
