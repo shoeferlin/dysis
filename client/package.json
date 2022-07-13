@@ -27,6 +27,9 @@
     "webpack-merge": "^5.7.3"
   },
   "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/material": "^5.9.0",
     "upgrade": "^1.1.0"
   }
 }
