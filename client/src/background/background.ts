@@ -1,5 +1,8 @@
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Dysis background script initiated ...')
+  chrome.storage.local.set({
+    dysisInstallDate: Date.now(),
+  });
 })
 
 const TRACKING_INTERVAL_IN_SECONDS: number = 1;
@@ -9,6 +12,10 @@ const TRACKING_SITE_URL: string = 'reddit.com'
 // Setting default values
 chrome.storage.local.get(["dysisRedditTimeSpent"], (res) => {
   chrome.storage.local.set({
+    dysisInstallationDate: "dysisInstallationDate" in res ? res.dysisInstallationDate : "",
+    dysisParticipantName: "dysisParticipantName" in res ? res.dysisParticipantName : "",
+    dysisParticipantAgreedToTerms: "dysisParticipantAgreedToTerms" in res ? res.dysisParticipantAgreedToTerms : false,
+    dysisParticipantSubmitted: "dysisParticipantSubmitted" in res ? res.dysisParticipantSubmitted : false,
     dysisRedditTimeSpent: "dysisRedditTimeSpent" in res ? res.dysisRedditTimeSpent : 0,
   });
 });
@@ -20,23 +27,24 @@ chrome.alarms.create("dysisTracking", {
 
 // Check for idle state
 let activityState: string = 'active';
-console.log(activityState)
 chrome.idle.onStateChanged.addListener(
   (indleState) => {
-    console.log(indleState);
+    console.log(`State change to "${indleState}" detected`);
     activityState = indleState;
   }
 )
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name == "dysisTracking") {
-    chrome.storage.local.get(["dysisRedditTimeSpent"], (res) => {
+    chrome.storage.local.get(["dysisRedditTimeSpent", "dysisInstallDate"], (res) => {
       // Condition for a tick (reddit primary tab and no idle of mouse)
-      let dysisRedditTimeSpent: number = res.dysisRedditTimeSpent
+      let dysisRedditTimeSpent: number = res.dysisRedditTimeSpent;
+      let dysisInstallDate: string = new Date(res.dysisInstallDate).toLocaleString();
       isCurrentTabReddit().then((currentTabIsReddit) => {
         if (currentTabIsReddit && activityState === 'active') {
           dysisRedditTimeSpent = dysisRedditTimeSpent + TRACKING_INTERVAL_IN_SECONDS;
           console.log(`Tick, total time ${dysisRedditTimeSpent}`)
+          console.log(dysisInstallDate)
           chrome.storage.local.set({
             dysisRedditTimeSpent,
           });
