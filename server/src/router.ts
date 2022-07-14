@@ -1,12 +1,15 @@
 import express from 'express';
 
 import {requestLogger} from './middleware/requestLogger.js';
-import moduleRouter from './modules/moduleRouter.js';
 import {respondWithSuccess} from './helpers/response.js';
 import {
   validateAuthentication,
   AuthenticationController,
 } from './helpers/authenticate.js';
+
+import moduleRouter from './modules/moduleRouter.js';
+import trackingRouter from './tracking/trackingRouter.js';
+
 import {PerspectiveController} from './analytics/toxicity/archive/perspective.js';
 import {PushshiftController} from './sources/reddit/pushshift.js';
 
@@ -22,6 +25,9 @@ router.get('/', (_, res) => {
 
 // Forward to module router
 router.use('/api', moduleRouter);
+
+// Forward to tracking router
+router.use('/tracking', trackingRouter)
 
 // Receive authentication token by using .env environment user and password
 router.get('/authenticate', AuthenticationController.authenticate);
