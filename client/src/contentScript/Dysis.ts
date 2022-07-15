@@ -1,5 +1,3 @@
-// TODO: content script
-
 import {DysisUsage} from './DysisUsage';
 import {DysisAbstract} from './DysisAbstract';
 import {DysisReddit} from './DysisReddit';

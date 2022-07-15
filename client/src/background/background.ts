@@ -10,13 +10,14 @@ const SYNC_INTERVAL_IN_SECONDS: number = 30;
 const TRACKING_SITE_URL: string = 'reddit.com'
 
 // Setting default values
-chrome.storage.local.get(["dysisRedditTimeSpent"], (res) => {
+chrome.storage.local.get(["redditUsageTimeTotal"], (res) => {
   chrome.storage.local.set({
     dysisInstallationDate: "dysisInstallationDate" in res ? res.dysisInstallationDate : "",
     dysisParticipantName: "dysisParticipantName" in res ? res.dysisParticipantName : "",
     dysisParticipantAgreedToTerms: "dysisParticipantAgreedToTerms" in res ? res.dysisParticipantAgreedToTerms : false,
     dysisParticipantSubmitted: "dysisParticipantSubmitted" in res ? res.dysisParticipantSubmitted : false,
-    dysisRedditTimeSpent: "dysisRedditTimeSpent" in res ? res.dysisRedditTimeSpent : 0,
+    redditUsageTimeTotal: "redditUsageTimeTotal" in res ? res.redditUsageTimeTotal : 0,
+    redditUsageTimeIncrement: "redditUsageTimeTotal" in res ? res.redditUsageTimeTotal : 0,
   });
 });
 
@@ -36,22 +37,24 @@ chrome.idle.onStateChanged.addListener(
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name == "dysisTracking") {
-    chrome.storage.local.get(["dysisRedditTimeSpent", "dysisInstallDate"], (res) => {
+    chrome.storage.local.get(["redditUsageTimeTotal", "dysisInstallDate"], (res) => {
       // Condition for a tick (reddit primary tab and no idle of mouse)
-      let dysisRedditTimeSpent: number = res.dysisRedditTimeSpent;
+      let redditUsageTimeTotal: number = res.redditUsageTimeTotal;
+      let redditUsageTimeIncrement: number = res.redditUsageTimeIncrement;
       let dysisInstallDate: string = new Date(res.dysisInstallDate).toLocaleString();
       isCurrentTabReddit().then((currentTabIsReddit) => {
         if (currentTabIsReddit && activityState === 'active') {
-          dysisRedditTimeSpent = dysisRedditTimeSpent + TRACKING_INTERVAL_IN_SECONDS;
-          console.log(`Tick, total time ${dysisRedditTimeSpent}`)
+          redditUsageTimeTotal = redditUsageTimeTotal + TRACKING_INTERVAL_IN_SECONDS;
+          redditUsageTimeIncrement = redditUsageTimeIncrement + TRACKING_INTERVAL_IN_SECONDS;
+          console.log(`Tick, total time ${redditUsageTimeTotal}`)
           console.log(dysisInstallDate)
           chrome.storage.local.set({
-            dysisRedditTimeSpent,
+            redditUsageTimeTotal,
           });
         }
       });
       // Sync according to SYNC_INTERVAL_IN_SECONDS
-      if (dysisRedditTimeSpent % SYNC_INTERVAL_IN_SECONDS === 0) {
+      if (redditUsageTimeTotal % SYNC_INTERVAL_IN_SECONDS === 0) {
           console.log('Dysis syncing ...')
           chrome.notifications.create('NOTFICATION_ID', {
             type: 'basic',
