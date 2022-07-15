@@ -2,11 +2,18 @@ import DysisBackgroundTracking from './DysisBackgroundTracking';
 
 export default class DysisBackground {
 
+  protected dysisInstallationDate: number;
+  protected dysisParticipantName: string;
+  protected dysisParticipantAgreedToTerms: boolean = false;
+  protected dysisParticipantSubmitted: boolean = false;
+
   constructor() {
     console.log('Dysis background script initiated ...')
     this.setDefaultValues();
     this.onInstall();
-    this.initTrackers();
+    // if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
+      this.initTrackers();
+    // }
   }
 
   protected setDefaultValues() {
@@ -39,7 +46,7 @@ export default class DysisBackground {
     new DysisBackgroundTracking(
       'reddit',
       'reddit.com'
-    )
+    );
   }
   
 }

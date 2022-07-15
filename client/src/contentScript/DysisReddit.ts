@@ -30,7 +30,7 @@ export class DysisReddit implements DysisAbstract {
       // Anonymous mutation callback function
       (mutationList: any) => {
         for (const mutation of mutationList) {
-          // DysisReddit.debugDisplayMutation(mutation);
+          this.debugDisplayMutation(mutation);
           if (
             mutation.type === 'childList'       // Mutation is adding / removing elements
             && mutation.addedNodes.length > 0   // Mutation contains added nodes
@@ -42,7 +42,6 @@ export class DysisReddit implements DysisAbstract {
         }
       }
     );
-
     // Start observing the page for configured mutations
     this.mutationObserver.observe(
       this.page,
@@ -58,7 +57,14 @@ export class DysisReddit implements DysisAbstract {
           element.href.includes('/user/') 
           && element.innerHTML.includes(DysisReddit.getUsernameParamFromPath(element.href))
         ) {
-          this.attachViewportObserverToElement(element);
+          // Necessary conditions to avoid adding the same object twice to an observer
+          // the element cannot already be marked with the class 'dysis-detected'
+          if (!element.classList.contains('dysis-detected')) {
+            // Mark element with the class 'dysis-detected' so it is not attached again in future
+            element.classList.add('dysis-detected')
+            // Attach viewport observer to element
+            this.attachViewportObserverToElement(element);
+          }
         }
       }
     }
@@ -114,7 +120,7 @@ export class DysisReddit implements DysisAbstract {
    * Debug function to display mutations in console
    * @param mutation 
    */
-  debugDisplayMutation (mutation: MutationRecord) {
+  debugDisplayMutation(mutation: MutationRecord) {
     if (mutation.type === 'childList') {
       console.log('A child node has been added or removed.');
     } else if (mutation.type === 'attributes') {

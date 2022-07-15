@@ -23,12 +23,10 @@ export default class DysisBackgroundTracking {
     this.trackingSiteUrl = trackingSiteUrl;
     this.trackingIntervalInSeconds = trackingIntervalInSeconds;
     this.syncIntervalInSeconds = syncIntervalInSeconds;
-
     // Set derived variables
     this.backgroundAlarmVariableName = `${this.trackingSiteName}Tracking`;
     this.usageTimeTotalVariableName = `${this.trackingSiteName}UsageTimeTotal`
     this.usageTimeIncrementVariableName = `${this.trackingSiteName}UsageTimeIncrement`
-
     // Initialize
     this.init()
   }
@@ -77,6 +75,7 @@ export default class DysisBackgroundTracking {
     chrome.alarms.onAlarm.addListener((alarm) => {
       // If the firing event listener is the one of this instance execute the subsequent code
       if (alarm.name == this.backgroundAlarmVariableName) {
+        console.log('Alarm firing')
         // Retrieve the total and increment usage time from the extension's local storage
         chrome.storage.local.get(
           [
