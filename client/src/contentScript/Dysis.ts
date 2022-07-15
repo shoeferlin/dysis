@@ -3,7 +3,7 @@ import {DysisAbstract} from './DysisAbstract';
 import {DysisReddit} from './DysisReddit';
 import {DysisZeit} from './DysisZeit';
 
-class Dysis {
+export default class Dysis {
   usage: DysisUsage;
   modules: DysisAbstract[];
   constructor() {

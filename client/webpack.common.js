@@ -4,17 +4,12 @@ const HtmlPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
+  // Only add entry points for code (webpacker automatically resolves dependency and imports)
   entry: {
     popup: path.resolve('src/popup/popup.tsx'),
     options: path.resolve('src/options/options.tsx'),
     background: path.resolve('src/background/background.ts'),
-    Dysis: path.resolve('src/contentScript/Dysis.ts'),
-    DysisAbstract: path.resolve('src/contentScript/DysisAbstract.ts'),
-    DysisReddit: path.resolve('src/contentScript/DysisReddit.ts'),
-    DysisRedditEnrichment: path.resolve('src/contentScript/DysisRedditEnrichment.ts'),
-    DysisRequest: path.resolve('src/contentScript/DysisRequest.ts'),
-    DysisUsage: path.resolve('src/contentScript/DysisUsage.ts'),
-    DysisZeit: path.resolve('src/contentScript/DysisZeit.ts'),
+    contentScript: path.resolve('src/contentScript/contenScript.ts'),
   },
   module: {
     rules: [
