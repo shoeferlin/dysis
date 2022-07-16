@@ -11,5 +11,6 @@ export const dysisConfig = {
     displayEnrichmentDataObjects: false,
     displayEnrichmentInstancesCreated: false,
     displaySyncingInformation: false,
+    displaySyncing: true,
   }
 }

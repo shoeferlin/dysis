@@ -101,11 +101,8 @@ export default class DysisBackgroundTracking {
             if (backgroundTime !== 0 && backgroundTime % this.syncIntervalInSeconds === 0) {
               // This code that be executed to sync the usage time
               this.syncUsageTime(usageTime);
-              if (dysisConfig.debug.displaySyncingInformation) {
+              if (dysisConfig.debug.displaySyncing) {
                 console.log('Dysis syncing ...');
-              }
-              if (dysisConfig.sync.showNotificationWhenSyncing) {
-                this.notifyUserAboutSync();
               }
             }
             // Asyncly get the active tab
@@ -141,9 +138,11 @@ export default class DysisBackgroundTracking {
       }
     )
     if (response) {
-      console.log(response);
+      if (dysisConfig.debug.displaySyncingInformation) {
+        console.log(response);
+      }
     } else {
-      throw new Error(response);
+      console.log('Sync error')
     }
   } 
 
@@ -152,16 +151,5 @@ export default class DysisBackgroundTracking {
     const tabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     // Returns true if the active and focused tab matches the tracking site URL
     return tabs.length > 0 && tabs[0].url.includes(this.trackingSiteUrl);
-  }
-
-  protected notifyUserAboutSync() {
-    // Displays a browser notification about the sync
-    chrome.notifications.create('NOTFICATION_ID', {
-      type: 'basic',
-      iconUrl: 'icon.png',
-      title: 'DYSIS',
-      message: 'Syncing usage time for study purpose ...',
-      priority: 2
-    })
   }
 }

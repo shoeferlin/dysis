@@ -33,7 +33,6 @@ export class DysisRequest {
   ): Promise<any> {
     const BASE_URL = this.DEBUG ? this.API_URL_DEV : this.API_URL;
     try {
-      console.log(data)
       const response = await fetch(
         BASE_URL + path,
         {
