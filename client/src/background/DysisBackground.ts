@@ -11,18 +11,25 @@ export default class DysisBackground {
 
   constructor() {
     console.log('Dysis background script initiated ...')
-    this.onInstall();
-    this.updateOrSetDefaultValues();
+    this.onInstalled();
+    this.setDefaultValues();
+    this.getLocalStorageValues();
     this.createListenerForLocalStorageChanges();
-    if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
-      this.initTrackers();
-    }
     if (globalConfig.debug.displayLocalStorageChanges) {
       this.debugDisplayMutationRecords();
     }
   }
 
-  updateOrSetDefaultValues() {
+  protected onInstalled() {
+    chrome.runtime.onInstalled.addListener(() => {
+      console.log('Dysis extension successfully installed ...')
+      chrome.storage.local.set({
+        dysisInstallDate: Date.now(),
+      });
+    })
+  }
+
+  protected setDefaultValues() {
     chrome.storage.local.get(
       [
         'dysisInstallationDate',
@@ -35,30 +42,46 @@ export default class DysisBackground {
         dysisParticipantName: 'dysisParticipantName' in res ? res.dysisParticipantName : '',
         dysisParticipantAgreedToTerms: 'dysisParticipantAgreedToTerms' in res ? res.dysisParticipantAgreedToTerms : false,
         dysisParticipantSubmitted: 'dysisParticipantSubmitted' in res ? res.dysisParticipantSubmitted : false,
-      });
+      })
     });
   }
 
-  protected onInstall() {
-    chrome.runtime.onInstalled.addListener(() => {
-      console.log('Dysis extension successfully installed ...')
-      chrome.storage.local.set({
-        dysisInstallDate: Date.now(),
-      });
-    })
+  protected getLocalStorageValues() {
+    chrome.storage.local.get(
+      [
+        'dysisInstallationDate',
+        'dysisParticipantName',
+        'dysisParticipantAgreedToTerms',
+        'dysisParticipantSubmitted',
+      ], (res) => {
+        this.dysisInstallationDate = res.dysisInstallationDate;
+        this.dysisParticipantName = res.dysisParticipantName;
+        this.dysisParticipantAgreedToTerms = res.dysisParticipantAgreedToTerms;
+        this.dysisParticipantSubmitted = res.dysisParticipantSubmitted;
+        // Notice: As receiving local storage values is asynchronous, everything that
+        // depends on the values being updated should be performed in afterGetLocalStorageValues()
+        this.afterGetLocalStorageValues();
+      }
+    );
   }
 
-  initTrackers() {
-    new DysisBackgroundTracking(
-      'reddit',
-      'reddit.com'
-    );
+  protected afterGetLocalStorageValues() {
+    this.initTrackers();
+  }
+
+  protected initTrackers() {
+    if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
+      new DysisBackgroundTracking(
+        'reddit',
+        'reddit.com'
+      );
+    }
   }
 
   protected localStorageCallback(changes: chrome.storage.StorageChange, namespace: chrome.storage.AreaName, self: DysisBackground) {
     for (let [key] of Object.entries(changes)) {
       if (namespace === 'local' && key === 'dysisParticipantSubmitted') {
-        self.updateOrSetDefaultValues()
+        self.getLocalStorageValues();
         self.initTrackers();
       }
     }
@@ -77,7 +100,6 @@ export default class DysisBackground {
           `Storage key "${key}" in namespace "${namespace}" changed.`,
           `Old value was "${oldValue}", new value is "${newValue}".`
         );
-
       }
     });
   }
