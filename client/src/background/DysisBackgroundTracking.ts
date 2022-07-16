@@ -10,6 +10,7 @@ export default class DysisBackgroundTracking {
   protected syncIntervalInSeconds: number;
 
   protected backgroundAlarmVariableName: string;
+  protected backgroundTimeVariableName: string;
   protected usageTimeVariableName: string;
 
   protected browserActivityState: string = 'active'
@@ -32,6 +33,7 @@ export default class DysisBackgroundTracking {
     this.participantID = participantName;
     // Set derived variables
     this.backgroundAlarmVariableName = `${this.trackingSiteName}Tracking`;
+    this.backgroundTimeVariableName = `${this.trackingSiteName}BackgroundTimer`;
     this.usageTimeVariableName = `${this.trackingSiteName}UsageTimeTotal`
     // Initialize
     this.init()
@@ -48,9 +50,11 @@ export default class DysisBackgroundTracking {
     // Setting default values in local storage (to make sure they are there and set to a default)
     chrome.storage.local.get(
       [
+        this.backgroundTimeVariableName,
         this.usageTimeVariableName,
       ], (res) => {
       chrome.storage.local.set({
+        [this.backgroundTimeVariableName]: this.backgroundTimeVariableName in res ? res[this.backgroundTimeVariableName]: 0,
         [this.usageTimeVariableName]: this.usageTimeVariableName in res ? res[this.usageTimeVariableName] : 0,
       });
     });
@@ -83,9 +87,27 @@ export default class DysisBackgroundTracking {
         chrome.storage.local.get(
           [
             this.usageTimeVariableName,
+            this.backgroundTimeVariableName,
           ], (res) => {
             // Create local variables from the retrieved local storage
             let usageTime: number = res[this.usageTimeVariableName];
+            let backgroundTime: number = res[this.backgroundTimeVariableName];
+            // Increase background time and set it
+            backgroundTime += this.trackingIntervalInSeconds;
+            chrome.storage.local.set({
+              [this.backgroundTimeVariableName]: backgroundTime,
+            });
+            // Sync according according to the given sync interval based on background time
+            if (backgroundTime !== 0 && backgroundTime % this.syncIntervalInSeconds === 0) {
+              // This code that be executed to sync the usage time
+              this.syncUsageTime(usageTime);
+              if (dysisConfig.debug.displaySyncingInformation) {
+                console.log('Dysis syncing ...');
+              }
+              if (dysisConfig.sync.showNotificationWhenSyncing) {
+                this.notifyUserAboutSync();
+              }
+            }
             // Asyncly get the active tab
             this.isCurrentActiveTab().then((isCurrentActiveTab) => {
               // Usage times should only increase if the following conditions for a 'tick' are met:
@@ -101,20 +123,10 @@ export default class DysisBackgroundTracking {
                 // Set the new increased usage times
                 chrome.storage.local.set({
                   [this.usageTimeVariableName]: usageTime,
-              });
+                });
+              } 
             }
-          });
-          // Sync according according to the given sync interval
-          if (usageTime !== 0 && usageTime % this.syncIntervalInSeconds === 0) {
-            // The code that will be executed to sync the time
-            this.syncUsageTime(usageTime);
-            if (dysisConfig.debug.displaySyncingInformation) {
-              console.log('Dysis syncing ...');
-            }
-            if (dysisConfig.sync.showNotificationWhenSyncing) {
-              this.notifyUserAboutSync();
-            }
-          }
+          );
         });
       }
     });    
