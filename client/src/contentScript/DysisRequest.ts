@@ -2,8 +2,8 @@ export class DysisRequest {
   
   static DEBUG: boolean = true;
 
-  static API_URL: string = 'https://dysis-server.herokuapp.com/api/';
-  static API_URL_DEV: string = 'http://localhost:8080/api/';
+  static API_URL: string = 'https://dysis-server.herokuapp.com/';
+  static API_URL_DEV: string = 'http://localhost:8080/';
 
   static async get(
       path: string, 
@@ -13,7 +13,7 @@ export class DysisRequest {
       const response = await fetch(
         BASE_URL + path,
         {
-          method: 'get',
+          method: 'GET',
           headers: {'Content-Type': 'application/json'},
         }
       );
@@ -28,22 +28,18 @@ export class DysisRequest {
   }
 
   static async post(
-      path: string, 
-      body: any = null,
+      path: string,
+      data: Object,
   ): Promise<any> {
     const BASE_URL = this.DEBUG ? this.API_URL_DEV : this.API_URL;
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Accept', 'application/json');
-    headers.append('Origin','https://www.reddit.com');
     try {
+      console.log(data)
       const response = await fetch(
         BASE_URL + path,
         {
-          method: 'post',
-          headers,
-          body: body,
-          mode: 'cors',
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: {'Content-Type': 'application/json'},
         }
       );
       if (response.ok) {
@@ -52,8 +48,8 @@ export class DysisRequest {
         throw Error(response.toString())
       }
     } catch (error) {
+      console.log(error)
       throw Error(error)
     }
-
   }
 }

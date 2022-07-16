@@ -12,7 +12,6 @@ const participantSchema = new mongoose.Schema(
     },
 );
 
-
 mongoose.set('toJSON', {virtuals: true});
 
 const participantModel = mongoose.model('participant', participantSchema);

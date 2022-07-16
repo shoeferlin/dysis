@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import './DysisOptions.css'
 
 import {Typography, TextField, Button, FormGroup, Checkbox, FormControlLabel} from '@mui/material'
 import {Container} from '@mui/material';
+
+import './DysisOptions.css'
+
+import {DysisRequest} from '../contentScript/DysisRequest';
 
 export const DysisOptions = (): JSX.Element => {
 
@@ -45,6 +48,12 @@ export const DysisOptions = (): JSX.Element => {
       dysisParticipantAgreedToTerms: participant.agreedToTerms,
       dysisParticipantSubmitted: true,
     });
+    DysisRequest.post(
+      'tracking/create',
+      {
+        "participantName": participant.name,
+      }
+    )
   }
   
   const toggleButton = () => {

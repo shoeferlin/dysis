@@ -1,6 +1,6 @@
 import DysisBackgroundTracking from './DysisBackgroundTracking';
 
-import {globalConfig} from '../config';
+import {dysisConfig} from '../DysisConfig';
 
 export default class DysisBackground {
 
@@ -15,7 +15,7 @@ export default class DysisBackground {
     this.setDefaultValues();
     this.getLocalStorageValues();
     this.createListenerForLocalStorageChanges();
-    if (globalConfig.debug.displayLocalStorageChanges) {
+    if (dysisConfig.debug.displayLocalStorageChanges) {
       this.debugDisplayMutationRecords();
     }
   }
@@ -73,7 +73,8 @@ export default class DysisBackground {
     if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
       new DysisBackgroundTracking(
         'reddit',
-        'reddit.com'
+        'reddit.com',
+        this.dysisParticipantName,
       );
     }
   }

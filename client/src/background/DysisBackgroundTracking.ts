@@ -1,4 +1,6 @@
-import {globalConfig} from '../config';
+import {dysisConfig} from '../DysisConfig';
+
+import {DysisRequest} from '../contentScript/DysisRequest';
 
 export default class DysisBackgroundTracking {
 
@@ -13,18 +15,23 @@ export default class DysisBackgroundTracking {
 
   protected browserActivityState: string = 'active'
 
+  protected participantName: string;
+
   constructor(
     // Constructor parameters
     trackingSiteName: string,
     trackingSiteUrl: string,
+    participantName: string,
     trackingIntervalInSeconds: number = 1,
-    syncIntervalInSeconds: number = 30,
+    syncIntervalInSeconds: number = 10,
   ) {
     // Set variables
     this.trackingSiteName = trackingSiteName;
     this.trackingSiteUrl = trackingSiteUrl;
     this.trackingIntervalInSeconds = trackingIntervalInSeconds;
     this.syncIntervalInSeconds = syncIntervalInSeconds;
+    this.participantName = participantName;
+
     // Set derived variables
     this.backgroundAlarmVariableName = `${this.trackingSiteName}Tracking`;
     this.usageTimeTotalVariableName = `${this.trackingSiteName}UsageTimeTotal`
@@ -97,7 +104,7 @@ export default class DysisBackgroundTracking {
                 usageTimeTotal = usageTimeTotal + this.trackingIntervalInSeconds;
                 usageTimeIncrement = usageTimeIncrement + this.trackingIntervalInSeconds;
                 // Log a tick to the console if set in globalConfig
-                if (globalConfig.debug.displayUsageTimeTicks) {
+                if (dysisConfig.debug.displayUsageTimeTicks) {
                   console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTimeTotal} s)`)
                 }
                 // Set the new increased usage times
@@ -110,13 +117,46 @@ export default class DysisBackgroundTracking {
           // Sync according according to the given sync interval
           if (usageTimeTotal !== 0 && usageTimeTotal % this.syncIntervalInSeconds === 0) {
             // The code that will be executed to sync the time
-            console.log('Dysis syncing ...');
-            this.notifyUserAboutSync();
+            this.syncUsageTime();
+            if (dysisConfig.debug.displaySyncingInformation) {
+              console.log('Dysis syncing ...');
+            }
+            if (dysisConfig.sync.showNotificationWhenSyncing) {
+              this.notifyUserAboutSync();
+            }
           }
         });
       }
     });    
   }
+
+  protected async syncUsageTime() {
+    console.log('Inside sync usage time');
+    chrome.storage.local.get(
+      [
+        this.usageTimeIncrementVariableName,
+      ], async (res) => {
+        let usageTimeIncrement: number = res[this.usageTimeIncrementVariableName];
+        const response = await DysisRequest.post(
+          'tracking/update',
+          {
+            'participantName': this.participantName,
+            'usageTimeIncrement': usageTimeIncrement,
+          }
+        )
+        console.log(response);
+        if (response) {
+          chrome.storage.local.set({
+            [this.usageTimeIncrementVariableName]: 0,
+          });
+        } else {
+          console.log('Sync error:')
+          console.log(response);
+        }
+      }
+    )
+    
+  } 
 
   protected async isCurrentActiveTab(): Promise<boolean> {
     // Retrieves the open tabs which are active and in focus

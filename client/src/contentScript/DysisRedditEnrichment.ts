@@ -77,7 +77,7 @@ export class DysisRedditEnrichment {
   }
 
   private async requestData(): Promise<any> {
-    const response = await DysisRequest.get(`reddit?identifier=${this.identifier}`);
+    const response = await DysisRequest.get(`api/reddit?identifier=${this.identifier}`);
     return response.data;
   }
 

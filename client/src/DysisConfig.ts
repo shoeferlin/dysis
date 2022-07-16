@@ -1,4 +1,4 @@
-export const globalConfig = {
+export const dysisConfig = {
   sync: {
     showNotificationWhenSyncing: true,
   },
