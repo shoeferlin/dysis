@@ -57,10 +57,11 @@ export const DysisOptions = (): JSX.Element => {
         "participantFirstName": participant.firstName,
         "participantLastName": participant.lastName,
         "participantAgreedToTerms": participant.agreedToTerms,
-        "participantSubmitted": participant.submitted,
+        "participantSubmitted": true,
         "participantInstallationDate": participant.installationDate,
       }
     )
+    setParticipant({ ...participant, submitted: true});
     if (response) {
       chrome.storage.local.set({
         dysisParticipantFirstName: participant.firstName,
