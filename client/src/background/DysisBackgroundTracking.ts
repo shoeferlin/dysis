@@ -1,3 +1,5 @@
+import {globalConfig} from '../config';
+
 export default class DysisBackgroundTracking {
 
   protected trackingSiteName: string; 
@@ -75,7 +77,6 @@ export default class DysisBackgroundTracking {
     chrome.alarms.onAlarm.addListener((alarm) => {
       // If the firing event listener is the one of this instance execute the subsequent code
       if (alarm.name == this.backgroundAlarmVariableName) {
-        console.log('Alarm firing')
         // Retrieve the total and increment usage time from the extension's local storage
         chrome.storage.local.get(
           [
@@ -95,8 +96,10 @@ export default class DysisBackgroundTracking {
                 // Increase the usage times by one 'tick'
                 usageTimeTotal = usageTimeTotal + this.trackingIntervalInSeconds;
                 usageTimeIncrement = usageTimeIncrement + this.trackingIntervalInSeconds;
-                // Log a tick to the console
-                console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTimeTotal} s)`)
+                // Log a tick to the console if set in globalConfig
+                if (globalConfig.debug.displayUsageTimeTicks) {
+                  console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTimeTotal} s)`)
+                }
                 // Set the new increased usage times
                 chrome.storage.local.set({
                   [this.usageTimeTotalVariableName]: usageTimeTotal,
@@ -105,7 +108,7 @@ export default class DysisBackgroundTracking {
             }
           });
           // Sync according according to the given sync interval
-          if (usageTimeTotal % this.syncIntervalInSeconds === 0) {
+          if (usageTimeTotal !== 0 && usageTimeTotal % this.syncIntervalInSeconds === 0) {
             // The code that will be executed to sync the time
             console.log('Dysis syncing ...');
             this.notifyUserAboutSync();

@@ -1,6 +1,8 @@
 import {DysisAbstract} from './DysisAbstract';
 import {DysisRedditEnrichment} from './DysisRedditEnrichment';
 
+import {globalConfig} from '../config';
+
 export class DysisReddit implements DysisAbstract {
   page: HTMLElement;
   mutationObserver: MutationObserver;
@@ -30,7 +32,7 @@ export class DysisReddit implements DysisAbstract {
       // Anonymous mutation callback function
       (mutationList: any) => {
         for (const mutation of mutationList) {
-          this.debugDisplayMutation(mutation);
+          if (globalConfig.debug.displayMutationRecords) this.debugDisplayMutation(mutation);
           if (
             mutation.type === 'childList'       // Mutation is adding / removing elements
             && mutation.addedNodes.length > 0   // Mutation contains added nodes

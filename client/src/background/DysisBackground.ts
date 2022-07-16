@@ -1,5 +1,7 @@
 import DysisBackgroundTracking from './DysisBackgroundTracking';
 
+import {globalConfig} from '../config';
+
 export default class DysisBackground {
 
   protected dysisInstallationDate: number;
@@ -9,14 +11,18 @@ export default class DysisBackground {
 
   constructor() {
     console.log('Dysis background script initiated ...')
-    this.setDefaultValues();
     this.onInstall();
-    // if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
+    this.updateOrSetDefaultValues();
+    this.createListenerForLocalStorageChanges();
+    if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
       this.initTrackers();
-    // }
+    }
+    if (globalConfig.debug.displayLocalStorageChanges) {
+      this.debugDisplayMutationRecords();
+    }
   }
 
-  protected setDefaultValues() {
+  updateOrSetDefaultValues() {
     chrome.storage.local.get(
       [
         'dysisInstallationDate',
@@ -35,18 +41,44 @@ export default class DysisBackground {
 
   protected onInstall() {
     chrome.runtime.onInstalled.addListener(() => {
-      console.log('Dysis extension installed ...')
+      console.log('Dysis extension successfully installed ...')
       chrome.storage.local.set({
         dysisInstallDate: Date.now(),
       });
     })
   }
 
-  protected initTrackers() {
+  initTrackers() {
     new DysisBackgroundTracking(
       'reddit',
       'reddit.com'
     );
   }
+
+  protected localStorageCallback(changes: chrome.storage.StorageChange, namespace: chrome.storage.AreaName, self: DysisBackground) {
+    for (let [key] of Object.entries(changes)) {
+      if (namespace === 'local' && key === 'dysisParticipantSubmitted') {
+        self.updateOrSetDefaultValues()
+        self.initTrackers();
+      }
+    }
+  }
   
+  protected createListenerForLocalStorageChanges() {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+      this.localStorageCallback(changes, namespace, this)
+    });
+  }
+
+  protected debugDisplayMutationRecords() {
+    chrome.storage.onChanged.addListener(function (changes, namespace) {
+      for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
+        console.log(
+          `Storage key "${key}" in namespace "${namespace}" changed.`,
+          `Old value was "${oldValue}", new value is "${newValue}".`
+        );
+
+      }
+    });
+  }
 }
