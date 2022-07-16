@@ -22,8 +22,8 @@ export default class DysisBackgroundTracking {
     trackingSiteName: string,
     trackingSiteUrl: string,
     participantName: string,
-    trackingIntervalInSeconds: number = 1,
-    syncIntervalInSeconds: number = 10,
+    trackingIntervalInSeconds: number = dysisConfig.sync.defaultTrackingIntervalInSeconds,
+    syncIntervalInSeconds: number = dysisConfig.sync.defaultSyncIntervalInSeconds,
   ) {
     // Set variables
     this.trackingSiteName = trackingSiteName;
