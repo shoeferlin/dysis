@@ -6,7 +6,6 @@ import participantModel from './participantModel.js';
 
 import validate from '../helpers/validate.js';
 import {respondWithError, respondWithSuccess, respondWithSuccessAndData} from '../helpers/response.js';
-import { is } from 'date-fns/locale';
 
 
 export default class TrackingRouter {
@@ -19,16 +18,43 @@ export default class TrackingRouter {
    */
   static create = [
     // Validations using express-validator
-    body('participantName')
+    body('participantFirstName')
         .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
+        .isString().withMessage('Value needs to be a string'),
+    body('participantLastName')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be a string'),
+    body('participantAgreedToTerms')
+        .exists().withMessage('Value is required')
+        .isBoolean().withMessage('Value needs to be a boolean'),
+    body('participantSubmitted')
+        .exists().withMessage('Value is required')
+        .isBoolean().withMessage('Value needs to be a boolean'),
+    body('participantInstallationDate')
+        .exists().withMessage('Value is required')
+        .isNumeric().withMessage('Value needs to be a number'),
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.create({name: req.body.participantName})
-        respondWithSuccess(res, `Created participant with name: ${participant.name}`)
+        const participant = await participantModel.create(
+          {
+            firstName: req.body.participantFirstName,
+            lastName: req.body.participantLastName,
+            agreedToTerms: req.body.participantAgreedToTerms,
+            submitted: req.body.participantSubmitted,
+            installationDate: req.body.participantInstallationDate
+          }
+        )
+        const data = {
+          participantID: participant.id
+        }
+        respondWithSuccessAndData(
+          res,
+          data,
+          `Created participant: ${participant.firstName} ${participant.lastName}`,
+        )
       } catch (error) {
         console.log(error);
         respondWithError(res);
@@ -36,23 +62,23 @@ export default class TrackingRouter {
     }
   ];
 
-  static update = [
-    body('participantName')
+  static updateDysis = [
+    body('participantID')
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
-    body('usageTimeIncrement')
+    body('totalUsageTime')
         .exists().withMessage('Value is required')
         .isNumeric().withMessage('Value needs to be UTC number'),
     validate,
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.findOne({name: req.body.participantName});
+        const participant = await participantModel.findOne({id: req.body.participantID});
         if (participant === null) {
           respondWithError(res, 'Could not find participant')
         } else {
-          participant.totalUsageTime += req.body.usageTimeIncrement;
+          participant.dysis.totalUsageTime = req.body.totalUsageTime;
           participant.save();
-          respondWithSuccessAndData(res, participant, 'Updated participant')
+          respondWithSuccess(res, 'Updated participant')
         }
       } catch (error) {
         console.log(error);

@@ -1,8 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 
-import './options.css'
-
 import { DysisOptions } from './DysisOptions';
 
 const App = (): JSX.Element => {

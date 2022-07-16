@@ -1,5 +1,5 @@
 import {DysisReddit} from './DysisReddit';
-import {DysisRequest} from './DysisRequest';
+import {DysisRequest} from '../DysisRequest';
 
 export class DysisRedditEnrichment {
 

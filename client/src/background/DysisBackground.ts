@@ -4,10 +4,12 @@ import {dysisConfig} from '../DysisConfig';
 
 export default class DysisBackground {
 
-  protected dysisInstallationDate: number;
-  protected dysisParticipantName: string;
+  protected dysisParticipantFirstName: string;
+  protected dysisParticipantLastName: string;
+  protected dysisParticipantID: string;
   protected dysisParticipantAgreedToTerms: boolean = false;
   protected dysisParticipantSubmitted: boolean = false;
+  protected dysisInstallationDate: number;
 
   constructor() {
     console.log('Dysis background script initiated ...')
@@ -24,7 +26,7 @@ export default class DysisBackground {
     chrome.runtime.onInstalled.addListener(() => {
       console.log('Dysis extension successfully installed ...')
       chrome.storage.local.set({
-        dysisInstallDate: Date.now(),
+        dysisInstallationDate: Date.now(),
       });
     })
   }
@@ -32,14 +34,17 @@ export default class DysisBackground {
   protected setDefaultValues() {
     chrome.storage.local.get(
       [
-        'dysisInstallationDate',
-        'dysisParticipantName',
+        'dysisParticipantFirstName',
+        'dysisParticipantLastName',
+        'dysisParticipantID',
         'dysisParticipantAgreedToTerms',
         'dysisParticipantSubmitted',
+        'dysisInstallationDate',
       ], (res) => {
       chrome.storage.local.set({
-        dysisInstallationDate: 'dysisInstallationDate' in res ? res.dysisInstallationDate : '',
-        dysisParticipantName: 'dysisParticipantName' in res ? res.dysisParticipantName : '',
+        dysisParticipantFirstName: 'dysisParticipantFirstName' in res ? res.dysisParticipantFirstName : '',
+        dysisParticipantLastName: 'dysisParticipantLastName' in res ? res.dysisParticipantLastName : '',
+        dysisParticipantID: 'dysisParticipantID' in res ? res.dysisParticipantID : null,
         dysisParticipantAgreedToTerms: 'dysisParticipantAgreedToTerms' in res ? res.dysisParticipantAgreedToTerms : false,
         dysisParticipantSubmitted: 'dysisParticipantSubmitted' in res ? res.dysisParticipantSubmitted : false,
       })
@@ -49,15 +54,19 @@ export default class DysisBackground {
   protected getLocalStorageValues() {
     chrome.storage.local.get(
       [
-        'dysisInstallationDate',
-        'dysisParticipantName',
+        'dysisParticipantFirstName',
+        'dysisParticipantLastName',
+        'dysisParticipantID',
         'dysisParticipantAgreedToTerms',
         'dysisParticipantSubmitted',
+        'dysisInstallationDate',
       ], (res) => {
-        this.dysisInstallationDate = res.dysisInstallationDate;
-        this.dysisParticipantName = res.dysisParticipantName;
+        this.dysisParticipantFirstName = res.dysisParticipantFirstName;
+        this.dysisParticipantLastName = res.dysisParticipantLastName
+        this.dysisParticipantID = res.dysisParticipantID
         this.dysisParticipantAgreedToTerms = res.dysisParticipantAgreedToTerms;
         this.dysisParticipantSubmitted = res.dysisParticipantSubmitted;
+        this.dysisInstallationDate = res.dysisInstallationDate;
         // Notice: As receiving local storage values is asynchronous, everything that
         // depends on the values being updated should be performed in afterGetLocalStorageValues()
         this.afterGetLocalStorageValues();
@@ -74,7 +83,7 @@ export default class DysisBackground {
       new DysisBackgroundTracking(
         'reddit',
         'reddit.com',
-        this.dysisParticipantName,
+        this.dysisParticipantID,
       );
     }
   }

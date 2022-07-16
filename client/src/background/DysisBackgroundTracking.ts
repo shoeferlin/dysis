@@ -1,6 +1,6 @@
 import {dysisConfig} from '../DysisConfig';
 
-import {DysisRequest} from '../contentScript/DysisRequest';
+import {DysisRequest} from '../DysisRequest';
 
 export default class DysisBackgroundTracking {
 
@@ -10,12 +10,11 @@ export default class DysisBackgroundTracking {
   protected syncIntervalInSeconds: number;
 
   protected backgroundAlarmVariableName: string;
-  protected usageTimeTotalVariableName: string;
-  protected usageTimeIncrementVariableName: string;
+  protected usageTimeVariableName: string;
 
   protected browserActivityState: string = 'active'
 
-  protected participantName: string;
+  protected participantID: string;
 
   constructor(
     // Constructor parameters
@@ -30,12 +29,10 @@ export default class DysisBackgroundTracking {
     this.trackingSiteUrl = trackingSiteUrl;
     this.trackingIntervalInSeconds = trackingIntervalInSeconds;
     this.syncIntervalInSeconds = syncIntervalInSeconds;
-    this.participantName = participantName;
-
+    this.participantID = participantName;
     // Set derived variables
     this.backgroundAlarmVariableName = `${this.trackingSiteName}Tracking`;
-    this.usageTimeTotalVariableName = `${this.trackingSiteName}UsageTimeTotal`
-    this.usageTimeIncrementVariableName = `${this.trackingSiteName}UsageTimeIncrement`
+    this.usageTimeVariableName = `${this.trackingSiteName}UsageTimeTotal`
     // Initialize
     this.init()
   }
@@ -51,12 +48,10 @@ export default class DysisBackgroundTracking {
     // Setting default values in local storage (to make sure they are there and set to a default)
     chrome.storage.local.get(
       [
-        this.usageTimeTotalVariableName,
-        this.usageTimeIncrementVariableName
+        this.usageTimeVariableName,
       ], (res) => {
       chrome.storage.local.set({
-        [this.usageTimeTotalVariableName]: this.usageTimeTotalVariableName in res ? res[this.usageTimeTotalVariableName] : 0,
-        [this.usageTimeIncrementVariableName]: this.usageTimeIncrementVariableName in res ? res[this.usageTimeIncrementVariableName] : 0,
+        [this.usageTimeVariableName]: this.usageTimeVariableName in res ? res[this.usageTimeVariableName] : 0,
       });
     });
   }
@@ -87,13 +82,10 @@ export default class DysisBackgroundTracking {
         // Retrieve the total and increment usage time from the extension's local storage
         chrome.storage.local.get(
           [
-            this.usageTimeTotalVariableName,
-            this.usageTimeIncrementVariableName,
+            this.usageTimeVariableName,
           ], (res) => {
             // Create local variables from the retrieved local storage
-            let usageTimeTotal: number = res[this.usageTimeTotalVariableName];
-            // Note for increment: The increment time is the one that will be synced with the server
-            let usageTimeIncrement: number = res[this.usageTimeIncrementVariableName];
+            let usageTime: number = res[this.usageTimeVariableName];
             // Asyncly get the active tab
             this.isCurrentActiveTab().then((isCurrentActiveTab) => {
               // Usage times should only increase if the following conditions for a 'tick' are met:
@@ -101,23 +93,21 @@ export default class DysisBackgroundTracking {
               // 2) The browser state is as active (can also be idle or locked)
               if (isCurrentActiveTab && this.browserActivityState === 'active') {
                 // Increase the usage times by one 'tick'
-                usageTimeTotal = usageTimeTotal + this.trackingIntervalInSeconds;
-                usageTimeIncrement = usageTimeIncrement + this.trackingIntervalInSeconds;
+                usageTime = usageTime + this.trackingIntervalInSeconds;
                 // Log a tick to the console if set in globalConfig
                 if (dysisConfig.debug.displayUsageTimeTicks) {
-                  console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTimeTotal} s)`)
+                  console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTime} s)`)
                 }
                 // Set the new increased usage times
                 chrome.storage.local.set({
-                  [this.usageTimeTotalVariableName]: usageTimeTotal,
-                  [this.usageTimeIncrementVariableName]: usageTimeIncrement,
+                  [this.usageTimeVariableName]: usageTime,
               });
             }
           });
           // Sync according according to the given sync interval
-          if (usageTimeTotal !== 0 && usageTimeTotal % this.syncIntervalInSeconds === 0) {
+          if (usageTime !== 0 && usageTime % this.syncIntervalInSeconds === 0) {
             // The code that will be executed to sync the time
-            this.syncUsageTime();
+            this.syncUsageTime(usageTime);
             if (dysisConfig.debug.displaySyncingInformation) {
               console.log('Dysis syncing ...');
             }
@@ -130,32 +120,19 @@ export default class DysisBackgroundTracking {
     });    
   }
 
-  protected async syncUsageTime() {
-    console.log('Inside sync usage time');
-    chrome.storage.local.get(
-      [
-        this.usageTimeIncrementVariableName,
-      ], async (res) => {
-        let usageTimeIncrement: number = res[this.usageTimeIncrementVariableName];
-        const response = await DysisRequest.post(
-          'tracking/update',
-          {
-            'participantName': this.participantName,
-            'usageTimeIncrement': usageTimeIncrement,
-          }
-        )
-        console.log(response);
-        if (response) {
-          chrome.storage.local.set({
-            [this.usageTimeIncrementVariableName]: 0,
-          });
-        } else {
-          console.log('Sync error:')
-          console.log(response);
-        }
+  protected async syncUsageTime(usageTime: number) {
+    const response = await DysisRequest.post(
+      'tracking/update/dysis',
+      {
+        'participantID': this.participantID,
+        'totalUsageTime': usageTime,
       }
     )
-    
+    if (response) {
+      console.log(response);
+    } else {
+      throw new Error(response);
+    }
   } 
 
   protected async isCurrentActiveTab(): Promise<boolean> {
@@ -175,5 +152,4 @@ export default class DysisBackgroundTracking {
       priority: 2
     })
   }
-
 }

@@ -5,55 +5,71 @@ import {Container} from '@mui/material';
 
 import './DysisOptions.css'
 
-import {DysisRequest} from '../contentScript/DysisRequest';
+import {DysisRequest} from '../DysisRequest';
 
 export const DysisOptions = (): JSX.Element => {
 
   const [participant, setParticipant] = useState({
-    name: '',
-    installationDate: '',
+    firstName: '',
+    lastName: '',
+    id: null,
     agreedToTerms: false,
-    submitted: true,
+    submitted: false,
+    installationDate: '',
   });
 
-  useEffect(() => { 
+  useEffect(() => {
     chrome.storage.local.get([
-      "dysisParticipantName",
-      "dysisInstallationDate",
+      "dysisParticipantFirstName",
+      "dysisParticipantLastName",
+      "dysisParticipantID",
       "dysisParticipantAgreedToTerms",
-      "dysisParticipantSubmitted"
+      "dysisParticipantSubmitted",
+      "dysisInstallationDate",
     ], (res) => {
       setParticipant({
-        name: res.dysisParticipantName,
-        installationDate: res.dysisInstallationDate,
+        firstName: res.dysisParticipantFirstName,
+        lastName: res.dysisParticipantLastName,
+        id: res.dysisParticipantID,
         agreedToTerms: res.dysisParticipantAgreedToTerms,
         submitted: res.dysisParticipantSubmitted,
+        installationDate: res.dysisInstallationDate,
       })
   })}, []);
   
 
-  const handleChange = (event) => {
+  const handleChange = (event: any) => {
     setParticipant({ ...participant, [event.target.name]: event.target.value });
   };
 
   const canSubmit = () => {
-    return (participant.agreedToTerms && participant.name !== '' && !participant.submitted);
+    return (
+      participant.agreedToTerms 
+      && participant.firstName !== '' 
+      && participant.lastName !== ''
+      && !participant.submitted);
   }
 
-  const handleSubmit = () => {
-    console.log('Submitted')
-    setParticipant({ ...participant, submitted: true})
-    chrome.storage.local.set({
-      dysisParticipantName: participant.name,
-      dysisParticipantAgreedToTerms: participant.agreedToTerms,
-      dysisParticipantSubmitted: true,
-    });
-    DysisRequest.post(
+  const handleSubmit = async ()  => {
+    const response = await DysisRequest.post(
       'tracking/create',
       {
-        "participantName": participant.name,
+        "participantFirstName": participant.firstName,
+        "participantLastName": participant.lastName,
+        "participantAgreedToTerms": participant.agreedToTerms,
+        "participantSubmitted": participant.submitted,
+        "participantInstallationDate": participant.installationDate,
       }
     )
+    if (response) {
+      chrome.storage.local.set({
+        dysisParticipantFirstName: participant.firstName,
+        dysisParticipantLastName: participant.lastName,
+        dysisParticipantID: response.data.participantID,
+        dysisParticipantAgreedToTerms: participant.agreedToTerms,
+        dysisParticipantSubmitted: true,
+      });
+    }
   }
   
   const toggleButton = () => {
@@ -66,7 +82,9 @@ export const DysisOptions = (): JSX.Element => {
       <Typography variant="h1" component="h1">Dysis</Typography>
       <Typography variant="h2" component="h2">Study Participation</Typography>
       <FormGroup>
-        <TextField id="form-participant-input-name" label="Participant name" variant="standard" value={participant.name} disabled={participant.submitted} onChange={handleChange} name="name"/>
+        <TextField id="form-participant-input-fist-name" label="Participant first name" variant="standard" value={participant.firstName} required={true} disabled={participant.submitted} onChange={handleChange} name="firstName"/>
+        <TextField id="form-participant-input-last-name" label="Participant last name" variant="standard" value={participant.lastName} required={true} disabled={participant.submitted} onChange={handleChange} name="lastName"/>
+        <TextField id="form-participant-input-last-name" label="Extension installation date" variant="standard" value={new Date(participant.installationDate).toLocaleString() } disabled={true} onChange={handleChange} name="installationDate"/>
         <FormControlLabel label ="Agree to study terms" control={<Checkbox checked={participant.agreedToTerms} disabled={participant.submitted} onChange={toggleButton} />}></FormControlLabel>
         <Button id="form-participant-button" onClick={handleSubmit} disabled={!canSubmit()}>Submit</Button>
       </FormGroup>
