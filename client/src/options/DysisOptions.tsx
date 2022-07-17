@@ -28,12 +28,12 @@ export const DysisOptions = (): JSX.Element => {
 
   useEffect(() => {
     chrome.storage.local.get([
-      "dysisParticipantFirstName",
-      "dysisParticipantLastName",
-      "dysisParticipantID",
-      "dysisParticipantAgreedToTerms",
-      "dysisParticipantSubmitted",
-      "dysisInstallationDate",
+      'dysisParticipantFirstName',
+      'dysisParticipantLastName',
+      'dysisParticipantID',
+      'dysisParticipantAgreedToTerms',
+      'dysisParticipantSubmitted',
+      'dysisInstallationDate',
     ], (res) => {
       setParticipant({
         firstName: res.dysisParticipantFirstName,
@@ -62,11 +62,11 @@ export const DysisOptions = (): JSX.Element => {
     const response = await DysisRequest.post(
       'tracking/create',
       {
-        "participantFirstName": participant.firstName,
-        "participantLastName": participant.lastName,
-        "participantAgreedToTerms": participant.agreedToTerms,
-        "participantSubmitted": true,
-        "participantInstallationDate": participant.installationDate,
+        'participantFirstName': participant.firstName,
+        'participantLastName': participant.lastName,
+        'participantAgreedToTerms': participant.agreedToTerms,
+        'participantSubmitted': true,
+        'participantInstallationDate': participant.installationDate,
       }
     )
     setParticipant({ ...participant, submitted: true});
@@ -92,7 +92,7 @@ export const DysisOptions = (): JSX.Element => {
       <Typography 
         variant="h1" 
         component="h1">
-          Dysis
+        Dysis
       </Typography>
       <Typography
         variant="h2"
@@ -107,13 +107,15 @@ export const DysisOptions = (): JSX.Element => {
           value={participant.firstName}
           required={true} 
           disabled={participant.submitted}
-          onChange={handleChange} name="firstName"/>
+          onChange={handleChange} 
+          name="firstName"/>
         <TextField
           id="form-participant-input-last-name"
           label="Participant last name"
           variant="standard"
           value={participant.lastName}
-          required={true} disabled={participant.submitted}
+          required={true} 
+          disabled={participant.submitted}
           onChange={handleChange}
           name="lastName"/>
         <TextField id="form-participant-input-last-name"
@@ -123,20 +125,28 @@ export const DysisOptions = (): JSX.Element => {
           disabled={true}
           onChange={handleChange}
           name="installationDate"/>
-        <FormControlLabel label ="Agree to study terms"
-          control={<Checkbox checked={participant.agreedToTerms}
-          disabled={participant.submitted} onChange={toggleButton} />}></FormControlLabel>
-        <Grid justifyContent="flex-end">
-          <Button  id="form-participant-button"
+        <FormControlLabel 
+          label ="Agree to study terms"
+          control={
+            <Checkbox 
+            checked={participant.agreedToTerms}
+            disabled={participant.submitted}
+            onChange={toggleButton}/>
+          }></FormControlLabel>
+        <Grid 
+          justifyContent="flex-end">
+          <Button
+            id="form-participant-button"
             onClick={handleSubmit}
-            disabled={!canSubmit()}>{ participant.submitted ? 'Submitted' : 'Submit'}</Button>
+            disabled={!canSubmit()}>{participant.submitted ? "Submitted" : "Submit"}</Button>
         </Grid>
         <Typography
           marginTop={2}
           variant="caption"
           display="block"
-          gutterBottom color='lightgray'>
-            If you want to withdraw from the study please contact your study coordinator.
+          gutterBottom 
+          color='lightgray'>
+          If you want to withdraw from the study please contact your study coordinator.
         </Typography>
       </FormGroup>
       </Container>

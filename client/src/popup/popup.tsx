@@ -1,11 +1,12 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import './popup.css'
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+
+import {DysisPopup} from './DysisPopup';
 
 const App: React.FC<{}> = () => {
   return (
-    <div>
-      <img src="icon.png" />
+    <div style={{width: '300px', height: '300px', padding: '10px 0px'}}>
+      <DysisPopup></DysisPopup>
     </div>
   )
 }
