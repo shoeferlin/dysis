@@ -1,14 +1,14 @@
 import React from 'react';
 
-import './DysisPopup.css'
+import {Typography, Grid, Divider, Link} from '@mui/material';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
 
 import {DysisPopupBehavior} from './DysisPopupBehavior';
 import {DysisPopupInterests} from './DysisPopupInterests';
 import {DysisPopupActivity} from './DysisPopupActivity';
+import {DysisTag} from './DysisTag';
 
-import {Typography, Grid, Divider, Link} from '@mui/material';
-
-import {createTheme, ThemeProvider} from '@mui/material/styles';
+import './DysisPopup.css'
 
 const theme = createTheme({
   typography: {
@@ -18,7 +18,6 @@ const theme = createTheme({
 });
 
 export const DysisPopup = (): JSX.Element => {
-
 
   return (
     <React.Fragment>
@@ -60,13 +59,12 @@ export const DysisPopup = (): JSX.Element => {
               variant="body1"
               component="p"
               alignContent="center">
-              Powered by
-              <Link
-                href="https://perspectiveapi.com/">
-                Perspective API
-              </Link>
+              Powered by <Link href="https://perspectiveapi.com/">Perspective API</Link>
               </Typography>
             </span>
+          </Grid>
+          <Grid item xs={12}>
+            <DysisTag type='behavior' label='toxicity' value={60} unit='%'></DysisTag>
           </Grid>
         </Grid>
       </ThemeProvider>

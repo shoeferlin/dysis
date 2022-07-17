@@ -54,7 +54,6 @@ export const DysisPopupBehavior = (): JSX.Element => {
         <Slider
           aria-label="Custom marks"
           defaultValue={[0, 10]}
-          getAriaValueText={valuetext}
           step={1}
           min={0}
           max={10}
