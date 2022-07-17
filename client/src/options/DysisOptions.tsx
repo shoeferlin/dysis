@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react'
 
-import {Typography, TextField, Button, FormGroup, Checkbox, FormControlLabel} from '@mui/material'
-import {Container} from '@mui/material';
+import {
+  Typography,
+  TextField,
+  Button,
+  FormGroup,
+  Checkbox,
+  FormControlLabel,
+  Container,
+  Grid
+} from '@mui/material'
 
 import './DysisOptions.css'
 
@@ -79,15 +87,57 @@ export const DysisOptions = (): JSX.Element => {
 
   return (
     <React.Fragment>
-      <Container maxWidth="lg">
-      <Typography variant="h1" component="h1">Dysis</Typography>
-      <Typography variant="h2" component="h2">Study Participation</Typography>
+      <Container 
+        maxWidth="lg">
+      <Typography 
+        variant="h1" 
+        component="h1">
+          Dysis
+      </Typography>
+      <Typography
+        variant="h2"
+        component="h2">
+        Study Participation
+      </Typography>
       <FormGroup>
-        <TextField id="form-participant-input-fist-name" label="Participant first name" variant="standard" value={participant.firstName} required={true} disabled={participant.submitted} onChange={handleChange} name="firstName"/>
-        <TextField id="form-participant-input-last-name" label="Participant last name" variant="standard" value={participant.lastName} required={true} disabled={participant.submitted} onChange={handleChange} name="lastName"/>
-        <TextField id="form-participant-input-last-name" label="Extension installation date" variant="standard" value={new Date(participant.installationDate).toLocaleString() } disabled={true} onChange={handleChange} name="installationDate"/>
-        <FormControlLabel label ="Agree to study terms" control={<Checkbox checked={participant.agreedToTerms} disabled={participant.submitted} onChange={toggleButton} />}></FormControlLabel>
-        <Button id="form-participant-button" onClick={handleSubmit} disabled={!canSubmit()}>Submit</Button>
+        <TextField
+          id="form-participant-input-fist-name"
+          label="Participant first name"
+          variant="standard"
+          value={participant.firstName}
+          required={true} 
+          disabled={participant.submitted}
+          onChange={handleChange} name="firstName"/>
+        <TextField
+          id="form-participant-input-last-name"
+          label="Participant last name"
+          variant="standard"
+          value={participant.lastName}
+          required={true} disabled={participant.submitted}
+          onChange={handleChange}
+          name="lastName"/>
+        <TextField id="form-participant-input-last-name"
+          label="Extension installation date"
+          variant="standard"
+          value={new Date(participant.installationDate).toLocaleString()}
+          disabled={true}
+          onChange={handleChange}
+          name="installationDate"/>
+        <FormControlLabel label ="Agree to study terms"
+          control={<Checkbox checked={participant.agreedToTerms}
+          disabled={participant.submitted} onChange={toggleButton} />}></FormControlLabel>
+        <Grid justifyContent="flex-end">
+          <Button  id="form-participant-button"
+            onClick={handleSubmit}
+            disabled={!canSubmit()}>{ participant.submitted ? 'Submitted' : 'Submit'}</Button>
+        </Grid>
+        <Typography
+          marginTop={2}
+          variant="caption"
+          display="block"
+          gutterBottom color='lightgray'>
+            If you want to withdraw from the study please contact your study coordinator.
+        </Typography>
       </FormGroup>
       </Container>
     </React.Fragment>

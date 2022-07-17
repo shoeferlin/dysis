@@ -98,7 +98,7 @@ export default class DysisBackgroundTracking {
               [this.backgroundTimeVariableName]: backgroundTime,
             });
             // Sync according according to the given sync interval based on background time
-            if (backgroundTime !== 0 && backgroundTime % this.syncIntervalInSeconds === 0) {
+            if (usageTime !== 0 && usageTime % this.syncIntervalInSeconds === 0) {
               // This code that be executed to sync the usage time
               this.syncUsageTime(usageTime);
               if (dysisConfig.debug.displaySyncing) {
