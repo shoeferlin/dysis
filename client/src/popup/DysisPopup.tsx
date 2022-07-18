@@ -35,23 +35,32 @@ export const DysisPopup = (): JSX.Element => {
               Dysis
             </Typography>
             <Typography 
-              variant="body1" 
+              variant="h6" 
               gutterBottom
-              component="p">
+              component="h6">
               Know who you are about to interact with online.
             </Typography>
           </Grid>
-          <Grid item xs={12}>
-            <Divider></Divider>
+          <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
+            <Divider variant="fullWidth" />
           </Grid>
           <Grid item xs={12}>
             <DysisPopupBehavior></DysisPopupBehavior>
           </Grid>
+          <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
+            <Divider variant="fullWidth" />
+          </Grid>
           <Grid item xs={12}>
             <DysisPopupInterests></DysisPopupInterests>
           </Grid>
+          <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
+            <Divider variant="fullWidth" />
+          </Grid>
           <Grid item xs={12}>
             <DysisPopupActivity></DysisPopupActivity>
+          </Grid>
+          <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
+            <Divider variant="fullWidth" />
           </Grid>
           <Grid item xs={12}>
             <span>
