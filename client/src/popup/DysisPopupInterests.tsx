@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Typography, Avatar, Grid, Box, Slider} from '@mui/material';
+import {Typography, Avatar, Grid} from '@mui/material';
 
 import InterestsOutlinedIcon from '@mui/icons-material/InterestsOutlined';
 
@@ -20,11 +20,11 @@ export const DysisPopupInterests = (): JSX.Element => {
         component="h5">
         Interests
       </Typography>
-      <Grid item xs={12}>
+      <Grid item xs={12} marginBottom={1}>
         <span
           style={{
             borderRadius: '8px 8px 8px 8px',
-            margin: '5px 3px',
+            margin: '5px',
             padding: '2px 4px',
           }}>
           <span

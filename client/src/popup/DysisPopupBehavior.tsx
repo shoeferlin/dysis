@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Typography, Avatar, Grid, Box, Slider, Divider} from '@mui/material';
+import {Typography, Avatar, Grid, Divider} from '@mui/material';
 
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 

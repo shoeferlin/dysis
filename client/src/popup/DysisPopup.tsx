@@ -8,8 +8,6 @@ import {DysisPopupInterests} from './DysisPopupInterests';
 import {DysisPopupActivity} from './DysisPopupActivity';
 import {DysisTag} from './DysisTag';
 
-import './DysisPopup.css'
-
 const theme = createTheme({
   typography: {
     // Tell MUI what's the font-size on the html element is.
@@ -29,6 +27,7 @@ export const DysisPopup = (): JSX.Element => {
           <Grid item xs={12} 
             textAlign="center">
             <Typography
+              style={{fontWeight: 600}}
               variant="h4" 
               gutterBottom
               component="h4">
@@ -62,18 +61,19 @@ export const DysisPopup = (): JSX.Element => {
           <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
             <Divider variant="fullWidth" />
           </Grid>
-          <Grid item xs={12}>
-            <span>
+          <Grid item xs={12} margin={1} textAlign="center">
               <Typography
               variant="body1"
               component="p"
               alignContent="center">
-              Powered by <Link href="https://perspectiveapi.com/">Perspective API</Link>
+              Browser extension built by Simon Höferlin <Link href="https://github.com/shoeferlin/">(GitHub)</Link>
               </Typography>
-            </span>
-          </Grid>
-          <Grid item xs={12}>
-            <DysisTag type='behavior' label='toxicity' value={60} unit='%'></DysisTag>
+              <Typography
+              variant="caption"
+              component="p"
+              alignContent="center">
+              Behavioral analytics powered by <Link href="https://perspectiveapi.com/">Perspective API</Link>
+              </Typography>
           </Grid>
         </Grid>
       </ThemeProvider>
