@@ -115,7 +115,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             paddingTop={"4px"}
             variant="body2"
             color="#333333">
-            Unlikely to apply
+            Unlikely applies
           </Typography>
         </Grid>
         <Grid item xs={4} textAlign="center">
@@ -145,7 +145,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             paddingTop={"4px"}
             variant="body2"
             color="#333333">
-            Likely to apply
+            Likely applies
           </Typography>
         </Grid>
       </Grid>
