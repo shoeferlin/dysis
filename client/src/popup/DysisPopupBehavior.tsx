@@ -149,7 +149,6 @@ export const DysisPopupBehavior = (): JSX.Element => {
           </Typography>
         </Grid>
       </Grid>
-
     </Grid>
   )
 }

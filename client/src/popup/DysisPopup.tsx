@@ -6,7 +6,6 @@ import {createTheme, ThemeProvider} from '@mui/material/styles';
 import {DysisPopupBehavior} from './DysisPopupBehavior';
 import {DysisPopupInterests} from './DysisPopupInterests';
 import {DysisPopupActivity} from './DysisPopupActivity';
-import {DysisTag} from './DysisTag';
 
 const theme = createTheme({
   typography: {
