@@ -32,7 +32,7 @@ export default class TrackingRouter {
         .isBoolean().withMessage('Value needs to be a boolean'),
     body('participantInstallationDate')
         .exists().withMessage('Value is required')
-        .isNumeric().withMessage('Value needs to be a number'),
+        .isString().withMessage('Value needs to be a string (ISO date string)'),
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request

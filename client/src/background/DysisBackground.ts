@@ -9,7 +9,7 @@ export default class DysisBackground {
   protected dysisParticipantID: string;
   protected dysisParticipantAgreedToTerms: boolean = false;
   protected dysisParticipantSubmitted: boolean = false;
-  protected dysisInstallationDate: number;
+  protected dysisInstallationDate: string;
 
   constructor() {
     console.log('Dysis background script initiated ...')
@@ -25,8 +25,9 @@ export default class DysisBackground {
   protected onInstalled() {
     chrome.runtime.onInstalled.addListener(() => {
       console.log('Dysis extension successfully installed ...')
+      const date: Date = new Date();
       chrome.storage.local.set({
-        dysisInstallationDate: Date.now(),
+        dysisInstallationDate: date.toISOString(),
       });
     })
     chrome.runtime.onInstalled.addListener(function (object) {

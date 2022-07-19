@@ -6,7 +6,7 @@ const participantSchema = new mongoose.Schema(
       lastName: {type: String, required: true},
       agreedToTerms: {type: Boolean, required: true},
       submitted: {type: Boolean, required: true},
-      installationDate: {type: Number, required: true},
+      installationDate: {type: String, required: true},
       dysis: {
         totalUsageTime: {type: Number, default: 0}
       }
