@@ -71,7 +71,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
 
       {textLegendBehaviorLabels.map(label => {
         return (
-          <Grid container direction={"row"} alignItems="center" columns={12} marginBottom={1} spacing={0}>
+          <Grid container direction={"row"} alignItems="center" columns={12} marginBottom={1} spacing={0} key={label.name}>
             <Grid item xs={4}>
               <span style={styleDysisTagLegendBehaviorLabels}>{label.name}</span>
             </Grid>
