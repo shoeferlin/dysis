@@ -104,7 +104,7 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '\&#8709 score for submissions', 
-            response.metrics.averageScoreSubmissions)
+            response.metrics.averageScoreSubmissions.toFixed(2).toString())
         )
       }
       if (response?.metrics?.averageScoreComments) {
@@ -112,7 +112,23 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '\&#8709 score for comments',
-            response.metrics.averageScoreComments)
+            response.metrics.averageScoreComments.toFixed(2).toString())
+        )
+      };
+      if (response?.metrics?.totalComments) {
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createMetricsElement(
+            '# of comments',
+            response.metrics.totalComments === 100 ? '> 100' : response.metrics.totalComments)
+        )
+      }
+      if (response?.metrics?.totalSubmissions) {
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createMetricsElement(
+            '# of submissions',
+            response.metrics.totalSubmissions === 100 ? '> 100' : response.metrics.totalSubmissions)
         )
       }
     });
@@ -156,14 +172,14 @@ export class DysisRedditEnrichment {
     </span>`;
   }
 
-  private createMetricsElement(tagName: string, tagValue: number): string {
+  private createMetricsElement(tagName: string, tagValue: string): string {
     return `
     <span class="dysis-tag">
       <span class="dysis-tag-left dysis-tag-metrics">
         ${tagName}
       </span>
       <span class="dysis-tag-right dysis-tag-metrics">
-        ${tagValue.toFixed(2).toString()}
+        ${tagValue}
       </span>
     </span>`;
   }

@@ -296,6 +296,8 @@ async function analyze(identifier: string) {
   redditModel.metrics.averageScoreSubmissions = getAverageOfNumberArray(
       submissionScores,
   );
+  redditModel.metrics.totalComments = commentSubreddits.length;
+  redditModel.metrics.totalSubmissions = submissionSubreddits.length;
 
   redditModel.context.subredditsForComments = getCountOfSubreddits(
       commentSubreddits
