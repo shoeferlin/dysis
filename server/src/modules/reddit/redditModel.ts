@@ -25,6 +25,7 @@ const redditSchema = new mongoose.Schema(
       context: {
         subredditsForSubmissions: [{subreddit: String, count: Number}],
         subredditsForComments: [{subreddit: String, count: Number}],
+        subreddits: [{subreddit: String, count: Number}],
       },
     },
     {

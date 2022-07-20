@@ -59,7 +59,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
         gutterBottom
         component="p"
         align="center">
-        Up to 30 posts from a user (including deleted or blocked posts) are sent to a machine learning algorithm called Perspective which analyzes the content on attributes such as "toxicity" with the goal to "mitigate toxicity and ensure healthy dialogue online" <sup>[1]</sup>.
+        Up to 30 posts from a user (including deleted or blocked posts) are sent to a machine learning algorithm called Perspective <sup>[1]</sup> which analyzes the content.
       </Typography>
 
       <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
@@ -67,7 +67,6 @@ export const DysisPopupBehavior = (): JSX.Element => {
       </Grid>
 
       {/* Behavior labels explained */}
-
 
       {textLegendBehaviorLabels.map(label => {
         return (

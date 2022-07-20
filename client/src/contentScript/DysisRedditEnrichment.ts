@@ -8,6 +8,9 @@ export class DysisRedditEnrichment {
   dysisTagContainer: HTMLElement;
   identifier: String;
 
+  LOWER_LIMIT_FOR_YELLOW_BEHAVIOR_TAG: number = 60;
+  LOWER_LIMIT_FOR_RED_BEHAVIOR_TAG: number = 80;
+
   constructor(hostingElement: HTMLAnchorElement) {
     this.hostingElement = hostingElement;
     this.identifier = DysisReddit.getUsernameParamFromPath(hostingElement.href);
@@ -36,7 +39,13 @@ export class DysisRedditEnrichment {
 
     tagContainer.style.overflowWrap = 'anywhere';
 
-    tagContainer.insertAdjacentHTML('beforeend', `<span class="dysis-tag"><span class="dysis-text"><b>DYSIS</b> loading...  <div class="loader" style="display: inline-block"></div></span></span>`)
+    tagContainer.insertAdjacentHTML(
+      'beforeend',
+      `<span class="dysis-tag">
+        <span class="dysis-text">
+          <b>DYSIS</b> loading...  <div class="loader" style="display: inline-block"></div>
+        </span>
+      </span>`)
   }
 
   private async displayData() {
@@ -47,31 +56,62 @@ export class DysisRedditEnrichment {
 
       tagContainer.innerHTML = '';
 
+      // Create behavioral tags
       if (response?.analytics?.perspective?.toxicity) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('toxicity', response.analytics.perspective.toxicity))
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createBehaviorElement('toxicity', response.analytics.perspective.toxicity)
+        )
       }
       if (response?.analytics?.perspective?.severeToxicity) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('severe toxicity', response.analytics.perspective.severeToxicity))
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createBehaviorElement('severe toxicity', response.analytics.perspective.severeToxicity)
+        )
       }
       if (response?.analytics?.perspective?.insult) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('insult', response.analytics.perspective.insult))
+        tagContainer.insertAdjacentHTML(
+          'beforeend', 
+          this.createBehaviorElement('insult', response.analytics.perspective.insult)
+        )
       }
       if (response?.analytics?.perspective?.identityAttack) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('identity attack', response.analytics.perspective.identityAttack))
+        tagContainer.insertAdjacentHTML(
+          'beforeend', 
+          this.createBehaviorElement('identity attack', response.analytics.perspective.identityAttack)
+        )
       }
       if (response?.analytics?.perspective?.threat) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getBehaviorElement('threat', response.analytics.perspective.threat))
+        tagContainer.insertAdjacentHTML(
+          'beforeend', 
+          this.createBehaviorElement('threat', response.analytics.perspective.threat)
+        )
       }
 
-      for (const interests of response.context.subredditsForComments.slice(0, 10)) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getInterestsElement(interests.subreddit, interests.count))
+      // Create interests tags (max. 10)
+      for (const interests of response.context.subreddits.slice(0, 10)) {
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createInterestsElement(interests.subreddit, interests.count)
+        )
       }
 
+      // Create activity tags
       if (response?.metrics?.averageScoreSubmissions) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getMetricsElement('\&#8709 score for submissions', response.metrics.averageScoreSubmissions))
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createMetricsElement(
+            '\&#8709 score for submissions', 
+            response.metrics.averageScoreSubmissions)
+        )
       }
       if (response?.metrics?.averageScoreComments) {
-        tagContainer.insertAdjacentHTML('beforeend', this.getMetricsElement('\&#8709 score for comments', response.metrics.averageScoreComments))
+        tagContainer.insertAdjacentHTML(
+          'beforeend',
+          this.createMetricsElement(
+            '\&#8709 score for comments',
+            response.metrics.averageScoreComments)
+        )
       }
     });
   }
@@ -81,24 +121,48 @@ export class DysisRedditEnrichment {
     return response.data;
   }
 
-  private getBehaviorElement(tagName: string, tagValue: number): string {
+  private createBehaviorElement(tagName: string, tagValue: number): string {
     let behaviorValueClass: string;
-    if (tagValue >= 0.75) {
+    if (tagValue >= this.LOWER_LIMIT_FOR_RED_BEHAVIOR_TAG) {
       behaviorValueClass = 'dysis-tag-behavior-red';
-    } else if (tagValue >= 0.50) {
+    } else if (tagValue >= this.LOWER_LIMIT_FOR_YELLOW_BEHAVIOR_TAG) {
       behaviorValueClass = 'dysis-tag-behavior-yellow';
     } else {
       behaviorValueClass = 'dysis-tag-behavior-green';
     }
-    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-behavior">${tagName}</span><span class="dysis-tag-right ${behaviorValueClass}">${(tagValue * 100).toFixed(0).toString()}%</span></span>`;
+    return `
+    <span class="dysis-tag">
+      <span class="dysis-tag-left dysis-tag-behavior">
+        ${tagName}
+      </span>
+      <span class="dysis-tag-right ${behaviorValueClass}">
+        ${(tagValue * 100).toFixed(0).toString()}%
+      </span>
+    </span>
+    `;
   }
   
-  private getInterestsElement(tagName: string, tagValue: number): string {
-    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-interests">${tagName}</span><span class="dysis-tag-right dysis-tag-interests">${tagValue.toString()}x</span></span>`;
+  private createInterestsElement(tagName: string, tagValue: number): string {
+    return `
+    <span class="dysis-tag">
+      <span class="dysis-tag-left dysis-tag-interests">
+        ${tagName}
+      </span>
+      <span class="dysis-tag-right dysis-tag-interests">
+        ${tagValue.toString()}x
+      </span>
+    </span>`;
   }
 
-  private getMetricsElement(tagName: string, tagValue: number): string {
-    return `<span class="dysis-tag"><span class="dysis-tag-left dysis-tag-metrics">${tagName}</span><span class="dysis-tag-right dysis-tag-metrics">${tagValue.toFixed(2).toString()}</span></span>`;
+  private createMetricsElement(tagName: string, tagValue: number): string {
+    return `
+    <span class="dysis-tag">
+      <span class="dysis-tag-left dysis-tag-metrics">
+        ${tagName}
+      </span>
+      <span class="dysis-tag-right dysis-tag-metrics">
+        ${tagValue.toFixed(2).toString()}
+      </span>
+    </span>`;
   }
-  
 }

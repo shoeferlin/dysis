@@ -3,7 +3,7 @@
 import log from '../../helpers/log.js';
 import {body, query} from 'express-validator';
 import {differenceInDays} from 'date-fns';
-import {Request, Response, NextFunction} from 'express';
+import {Request, Response} from 'express';
 import {MongoError} from 'mongodb';
 import sanitizeHtml from 'sanitize-html';
 
@@ -26,7 +26,7 @@ import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
-const VALIDITY_PERIOD = 90;
+const VALIDITY_PERIOD = 14;
 const VALIDITY_DEBUG = false;
 
 /**
@@ -159,7 +159,9 @@ export default class RedditController {
             // Update entry
             log.info('ANALYSIS', 'Updating');
             const data = await analyze(identifier);
+            console.log(data)
             await redditData.updateOne({identifier}, data);
+            console.log(redditData)
             respondWithSuccessAndData(
                 res,
                 await redditData,
@@ -210,6 +212,7 @@ async function analyze(identifier: string) {
     context: {
       subredditsForComments?: {subreddit: string; count: number}[],
       subredditsForSubmissions?: {subreddit: string; count: number}[],
+      subreddits?: {subreddit: string; count: number}[],
     },
     analytics: {
       perspective: {
@@ -301,6 +304,12 @@ async function analyze(identifier: string) {
       submissionSubreddits
   );
 
+  let mergedSubreddits: string[] = [];
+  mergedSubreddits = mergedSubreddits.concat(submissionSubreddits, commentSubreddits)
+  redditModel.context.subreddits = getCountOfSubreddits(
+      mergedSubreddits
+  )
+
   return redditModel;
 }
 
@@ -364,12 +373,12 @@ function sortRedditPostsByCreatedUTC(arrayOfRedditPosts: PushshiftRedditPost[]) 
  */
 function beautifyRedditText(text: string) {
  return text
-  // Remove quotes (indicated through '> Lorem ipsum')
+    // Remove quotes (indicated through '> Lorem ipsum')
     .replace(/^(>.+)$/g, '')
-  // Remove links (indicated through '[text](url)')
+    // Remove links (indicated through '[text](url)')
     .replace(/(\[.+\]\(.+\))/g, '')
     .replace(/(\(http\S+\))/g, '')
     .replace(/(\(www\S+\))/g, '')
-  // Remove line breaks, tabs and similar
+    // Remove line breaks, tabs and similar
     .replace(/[\n\r\t\s]+/g, ' ');
 }
