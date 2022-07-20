@@ -43,7 +43,7 @@ export const DysisPopupInterests = (): JSX.Element => {
               color: 'white',
               backgroundColor: 'darkblue'
             }}>
-            no. of postings
+            no. of posts
           </span>
         </span>
       </Grid>
@@ -52,7 +52,7 @@ export const DysisPopupInterests = (): JSX.Element => {
         gutterBottom
         component="p"
         align="center">
-        Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+        Up to 100 posts from a user are analyzed to display which topics a user is interested in.
       </Typography>    
     </Grid>
   )

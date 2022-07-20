@@ -73,10 +73,23 @@ export const DysisPopup = (): JSX.Element => {
               Browser extension built by Simon Höferlin <Link href="#" onClick={() => createNewTab('https://github.com/shoeferlin/')}>(GitHub)</Link>
               </Typography>
               <Typography
+              marginTop={1}
               variant="caption"
               component="p"
               alignContent="center">
-              Behavioral analytics powered by <Link href="#" onClick={() => createNewTab('https://perspectiveapi.com/')}>Perspective API</Link>
+              Behavioral analytics powered by:
+              </Typography>
+              <Typography
+              variant="caption"
+              component="p"
+              alignContent="center">
+              [1] <Link href="#" onClick={() => createNewTab('https://perspectiveapi.com/')}>Perspective API</Link>
+              </Typography>
+              <Typography
+              variant="caption"
+              component="p"
+              alignContent="center">
+              [2] <Link href="#" onClick={() => createNewTab('https://developers.perspectiveapi.com/s/about-the-api-attributes-and-languages')}>Perspective API (Attributes & Languages)</Link>
               </Typography>
           </Grid>
         </Grid>
