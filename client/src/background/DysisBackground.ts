@@ -4,12 +4,12 @@ import {dysisConfig} from '../DysisConfig';
 
 export default class DysisBackground {
 
-  protected dysisParticipantFirstName: string;
-  protected dysisParticipantLastName: string;
-  protected dysisParticipantID: string;
-  protected dysisParticipantAgreedToTerms: boolean = false;
-  protected dysisParticipantSubmitted: boolean = false;
-  protected dysisInstallationDate: string;
+  private dysisParticipantFirstName: string;
+  private dysisParticipantLastName: string;
+  private dysisParticipantID: string;
+  private dysisParticipantAgreedToTerms: boolean = false;
+  private dysisParticipantSubmitted: boolean = false;
+  private dysisInstallationDate: string;
 
   constructor() {
     console.log('Dysis background script initiated ...')
@@ -22,7 +22,7 @@ export default class DysisBackground {
     }
   }
 
-  protected onInstalled() {
+  private onInstalled() {
     // On installation event listener listening for installation event
     chrome.runtime.onInstalled.addListener(() => {
       console.log('Dysis extension successfully installed ...')
@@ -48,7 +48,7 @@ export default class DysisBackground {
     })
   }
 
-  protected setDefaultValues() {
+  private setDefaultValues() {
     chrome.storage.local.get(
       [
         'dysisParticipantFirstName',
@@ -68,7 +68,7 @@ export default class DysisBackground {
     });
   }
 
-  protected getLocalStorageValues() {
+  private getLocalStorageValues() {
     chrome.storage.local.get(
       [
         'dysisParticipantFirstName',
@@ -91,11 +91,11 @@ export default class DysisBackground {
     );
   }
 
-  protected afterGetLocalStorageValues() {
+  private afterGetLocalStorageValues() {
     this.initTrackers();
   }
 
-  protected initTrackers() {
+  private initTrackers() {
     if (this.dysisParticipantAgreedToTerms && this.dysisParticipantSubmitted) {
       new DysisBackgroundTracking(
         'reddit',
@@ -105,7 +105,7 @@ export default class DysisBackground {
     }
   }
 
-  protected localStorageCallback(changes: chrome.storage.StorageChange, namespace: chrome.storage.AreaName, self: DysisBackground) {
+  private localStorageCallback(changes: chrome.storage.StorageChange, namespace: chrome.storage.AreaName, self: DysisBackground) {
     for (let [key] of Object.entries(changes)) {
       if (namespace === 'local' && key === 'dysisParticipantSubmitted') {
         self.getLocalStorageValues();
@@ -114,13 +114,13 @@ export default class DysisBackground {
     }
   }
   
-  protected createListenerForLocalStorageChanges() {
+  private createListenerForLocalStorageChanges() {
     chrome.storage.onChanged.addListener((changes, namespace) => {
       this.localStorageCallback(changes, namespace, this)
     });
   }
 
-  protected debugDisplayMutationRecords() {
+  private debugDisplayMutationRecords() {
     chrome.storage.onChanged.addListener(function (changes, namespace) {
       for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
         console.log(
