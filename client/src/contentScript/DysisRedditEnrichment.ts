@@ -11,6 +11,7 @@ export class DysisRedditEnrichment {
 
   LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
   LOWER_LIMIT_FOR_BEHAVIOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
+  MAX_NUMBER_OF_SUBREDDITS: number = dysisConfig.reddit.interests.maxNumberOfDisplayedInterests;
 
   constructor(hostingElement: HTMLAnchorElement) {
     this.hostingElement = hostingElement;
@@ -90,7 +91,7 @@ export class DysisRedditEnrichment {
       }
 
       // Create interests tags (max. 10)
-      for (const interests of response.context.subreddits.slice(0, 10)) {
+      for (const interests of response.context.subreddits.slice(0, this.MAX_NUMBER_OF_SUBREDDITS)) {
         tagContainer.insertAdjacentHTML(
           'beforeend',
           this.createInterestsElement(interests.subreddit, interests.count)

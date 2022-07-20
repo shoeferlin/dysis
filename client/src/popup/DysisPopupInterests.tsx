@@ -8,7 +8,7 @@ import {dysisConfig} from '../DysisConfig';
 export const DysisPopupInterests = (): JSX.Element => {
 
   const MAX_NUMBER_OF_DISPLAYED_INTEREST: number = 
-    dysisConfig.reddit.interests.maxNumberOfDisplayedInterest;
+    dysisConfig.reddit.interests.maxNumberOfDisplayedInterests;
 
   return (
     <Grid container item
