@@ -23,17 +23,29 @@ export default class DysisBackground {
   }
 
   protected onInstalled() {
+    // On installation event listener listening for installation event
     chrome.runtime.onInstalled.addListener(() => {
       console.log('Dysis extension successfully installed ...')
-      const date: Date = new Date();
-      chrome.storage.local.set({
-        dysisInstallationDate: date.toISOString(),
-      });
+      // Get local storage values to check if participant already takes part in study (agreed to terms and submitted)
+      chrome.storage.local.get(
+      [
+        'dysisInstallationDate',
+        'dysisParticipantAgreedToTerms',
+        'dysisParticipantSubmitted',
+      ], (res) => {
+        // If there is no installation date set (because never installed or removed and installed instead of simple re-install) set installation date
+        if (!res.dysisInstallationDate) {
+          const date: Date = new Date();
+          chrome.storage.local.set({
+            dysisInstallationDate: date.toISOString(),
+          });
+        }
+        // If participant does not yet take part in study and (re-) installs extension, open options view
+        if (!res.dysisParticipantAgreedToTerms && !res.dysisParticipantSubmitted) {
+          chrome.tabs.create({url: `chrome-extension://${chrome.runtime.id}/options.html`}, () => {});
+        }
+      })
     })
-    chrome.runtime.onInstalled.addListener(function (object) {
-    chrome.tabs.create({url: `chrome-extension://${chrome.runtime.id}/options.html`}, function (tab) {
-      });
-    });
   }
 
   protected setDefaultValues() {
