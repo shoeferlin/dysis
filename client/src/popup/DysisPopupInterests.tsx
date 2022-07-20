@@ -1,10 +1,14 @@
 import React from 'react';
 
 import {Typography, Avatar, Grid} from '@mui/material';
-
 import InterestsOutlinedIcon from '@mui/icons-material/InterestsOutlined';
 
+import {dysisConfig} from '../DysisConfig';
+
 export const DysisPopupInterests = (): JSX.Element => {
+
+  const MAX_NUMBER_OF_DISPLAYED_INTEREST: number = 
+    dysisConfig.reddit.interests.maxNumberOfDisplayedInterest;
 
   return (
     <Grid container item
@@ -52,8 +56,8 @@ export const DysisPopupInterests = (): JSX.Element => {
         gutterBottom
         component="p"
         align="center">
-        Up to 100 posts from a user are analyzed to display which topics a user is interested in.
-      </Typography>    
+        The top {MAX_NUMBER_OF_DISPLAYED_INTEREST} subreddits with the most posts (submissions and comments, including deleted or blocked) are displayed to indicate what the user is interested in.
+      </Typography>
     </Grid>
   )
 }

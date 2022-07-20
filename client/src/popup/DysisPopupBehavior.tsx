@@ -1,10 +1,14 @@
 import React from 'react';
 
 import {Typography, Avatar, Grid, Divider} from '@mui/material';
-
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 
+import {dysisConfig} from '../DysisConfig';
+
 export const DysisPopupBehavior = (): JSX.Element => {
+
+  const LOWER_LIMIT_FOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
+  const LOWER_LIMIT_FOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
 
   const styleDysisTagLegendBehaviorLabels = {
     borderRadius: '8px 8px 8px 8px',
@@ -59,7 +63,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
         gutterBottom
         component="p"
         align="center">
-        Up to 30 posts from a user (including deleted or blocked posts) are sent to a machine learning algorithm called Perspective <sup>[1]</sup> which analyzes the content.
+        The latest posts from a user (including deleted or blocked posts) are analyzed by a machine learning algorithm named Perspective <sup>[1]</sup>.
       </Typography>
 
       <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>
@@ -97,7 +101,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
           margin="5px 0px"
           variant="body1"
           color="black">
-          If for instance "toxicity" is "80%" then 8 out of 10 people would argue that a recent comment from this user included parts which are toxic.
+          If for instance "toxicity" is "80%" then 8 out of 10 people would argue that a recent post from this user included parts which are toxic.
         </Typography>
       </Grid>
   
@@ -109,7 +113,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             padding: '2px 4px',
             color: 'white', 
             backgroundColor: 'green'
-          }}>0% to 59%</span>
+          }}>0% to {LOWER_LIMIT_FOR_UNCERTAIN - 1}%</span>
           <Typography
             paddingTop={"4px"}
             variant="body2"
@@ -124,7 +128,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             padding: '2px 4px',
             color: 'white', 
             backgroundColor: 'rgb(180, 180, 4)'
-          }}>60% to 79%</span>
+          }}>{LOWER_LIMIT_FOR_UNCERTAIN}% to {LOWER_LIMIT_FOR_LIKELY - 1}%</span>
           <Typography
             paddingTop={"4px"}
             variant="body2"
@@ -139,7 +143,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             padding: '2px 4px',
             color: 'white', 
             backgroundColor: 'red'
-          }}>80% to 100%</span>
+          }}>{LOWER_LIMIT_FOR_LIKELY}% to 100%</span>
           <Typography
             paddingTop={"4px"}
             variant="body2"
@@ -148,6 +152,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
           </Typography>
         </Grid>
       </Grid>
+      
     </Grid>
   )
 }

@@ -1,5 +1,6 @@
 import {DysisReddit} from './DysisReddit';
 import {DysisRequest} from '../DysisRequest';
+import {dysisConfig} from '../DysisConfig';
 
 export class DysisRedditEnrichment {
 
@@ -8,8 +9,8 @@ export class DysisRedditEnrichment {
   dysisTagContainer: HTMLElement;
   identifier: String;
 
-  LOWER_LIMIT_FOR_YELLOW_BEHAVIOR_TAG: number = 60;
-  LOWER_LIMIT_FOR_RED_BEHAVIOR_TAG: number = 80;
+  LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
+  LOWER_LIMIT_FOR_BEHAVIOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
 
   constructor(hostingElement: HTMLAnchorElement) {
     this.hostingElement = hostingElement;
@@ -123,9 +124,9 @@ export class DysisRedditEnrichment {
 
   private createBehaviorElement(tagName: string, tagValue: number): string {
     let behaviorValueClass: string;
-    if (tagValue >= this.LOWER_LIMIT_FOR_RED_BEHAVIOR_TAG) {
+    if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_LIKELY) {
       behaviorValueClass = 'dysis-tag-behavior-red';
-    } else if (tagValue >= this.LOWER_LIMIT_FOR_YELLOW_BEHAVIOR_TAG) {
+    } else if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN) {
       behaviorValueClass = 'dysis-tag-behavior-yellow';
     } else {
       behaviorValueClass = 'dysis-tag-behavior-green';

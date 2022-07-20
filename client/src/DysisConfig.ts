@@ -1,4 +1,13 @@
 export const dysisConfig = {
+  reddit: {
+    behavior: {
+      lowerLimitForUncertain: 60,
+      lowerLimitForLikely: 80,
+    },
+    interests: {
+      maxNumberOfDisplayedInterest: 10,
+    }
+  },
   sync: {
     showNotificationWhenSyncing: true,
     defaultTrackingIntervalInSeconds: 1,
@@ -12,5 +21,5 @@ export const dysisConfig = {
     displayEnrichmentInstancesCreated: false,
     displaySyncingInformation: false,
     displaySyncing: true,
-  }
+  },
 }

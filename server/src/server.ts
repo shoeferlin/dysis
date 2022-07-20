@@ -53,7 +53,6 @@ app.use('', router);
 
 // Catch all resources not found
 router.all('*', function(_, res) {
-  console.log('I am herre')
   log.warn('RESPONSE', 'Resource not found');
   res.status(404).json({status: false, message: 'Resource not found'});
 });
