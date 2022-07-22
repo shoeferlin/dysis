@@ -40,9 +40,30 @@ export default class RedditController {
       .isString().withMessage('Value needs to be string'),
     validate,
     async(req: Request, res: Response) => {
-      const selectedBehavior = `analytics.perspective.${req.query.behavior}`
+      const selectedBehavior = `${req.query.behavior}`
+      let highest = {};
       try {
-        const highest = await redditModel.find({}).sort({selectedBehavior: 'desc'}).limit(100);
+        switch(selectedBehavior) {
+          case('toxicity'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.toxicity": -1}).limit(100);
+            break;
+          } case('severeToxicity'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.severeToxicity": -1}).limit(100);
+            break;
+          } case('insult'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.insult": -1}).limit(100);
+            break;
+          } case('threat'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.threat": -1}).limit(100);
+            break;
+          } case('profanity'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.profanity": -1}).limit(100);
+            break;
+          } case('identityAttack'): {
+            highest = await redditModel.find({}).sort({"analytics.perspective.identityAttack": -1}).limit(100);
+            break;
+          }
+        }
         respondWithSuccessAndData(res, highest, `Reddit data sorted by highest ${req.query.behavior}`)
       } catch(error) {
         console.log(error)
