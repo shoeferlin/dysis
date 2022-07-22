@@ -8,8 +8,6 @@ import {Request, Response} from 'express';
 import {
   respondWithSuccessAndData,
   respondWithErrorNotFound,
-  respondWithTooManyRequests,
-  respondWithError,
   respondWithNoContent,
 } from '../../helpers/response.js';
 import {
@@ -35,6 +33,55 @@ const VALIDITY_DEBUG = false;
  * @param next
  */
 export default class RedditController {
+
+  static highest = [
+    query('behavior')
+      .exists().withMessage('Value is required')
+      .isString().withMessage('Value needs to be string'),
+    validate,
+    async(req: Request, res: Response) => {
+      const selectedBehavior = `analytics.perspective.${req.query.behavior}`
+      try {
+        const highest = await redditModel.find({}).sort({selectedBehavior: 'desc'}).limit(100);
+        respondWithSuccessAndData(res, highest, `Reddit data sorted by highest ${req.query.behavior}`)
+      } catch(error) {
+        console.log(error)
+      }
+    }
+  ]
+
+  static average = [
+    query('behavior')
+      .exists().withMessage('Value is required')
+      .isString().withMessage('Value needs to be string'),
+    validate,
+    async(req: Request, res: Response) => {
+      const selectedBehavior = `$analytics.perspective.${req.query.behavior}`
+      const label = req.query.behavior
+      try {
+        const average = await redditModel.aggregate([
+          { $group : { _id : null, label : { $avg : selectedBehavior } } }
+        ]);
+        respondWithSuccessAndData(res, average, `Reddit average of ${req.query.behavior}`)
+      } catch(error) {
+        console.log(error)
+      }
+    }
+  ]
+
+  static all = [
+    async(req: Request, res: Response) => {
+      try {
+        const all = await redditModel.find({});
+        respondWithSuccessAndData(res, all, `Reddit all data`)
+      } catch(error) {
+        console.log(error)
+      }
+    }
+  ]
+
+  
+
   static analyze = [
     query('identifier')
         .exists().withMessage('Value is required')

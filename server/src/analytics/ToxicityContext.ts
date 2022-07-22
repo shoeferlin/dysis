@@ -26,5 +26,4 @@ export class ToxicityContext {
     const toxicityStrategyTensorflow = new ToxicityStrategyTensorflow()
     console.log(await toxicityStrategyTensorflow.analyze(text))
   }
-
 }
