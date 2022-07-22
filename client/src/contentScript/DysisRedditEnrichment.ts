@@ -25,7 +25,6 @@ export class DysisRedditEnrichment {
     this.createContainerElement();
     this.displayLoading();
     this.displayData();
-    // this.observe();
   }
 
   private createContainerElement() {
@@ -54,32 +53,6 @@ export class DysisRedditEnrichment {
           <b>DYSIS</b> loading...  <div class="loader" style="display: inline-block"></div>
         </span>
       </span>`)
-  }
-
-  private observe() {
-    console.log(`Observing for ${this.identifier}`)
-    setTimeout(
-      (self = this) => {
-        console.log(`Inside timeout for ${self.identifier}`)
-        if (self.instanceIsInViewport()) {
-          console.log(`Inside timeout for ${self.identifier} - Displaying data`)
-          self.displayData();
-        } else {
-          const interval = setInterval(
-            (self_interval = self) => {
-              console.log(`Inside interval for ${self_interval.identifier}`)
-              if (self_interval.instanceIsInViewport()) {
-                clearInterval(interval);
-                console.log(`Inside interval for ${self_interval.identifier} - Displaying data`)
-                self_interval.displayData();
-              }
-            },
-            1000
-          )
-        }
-      },
-      100
-    )
   }
 
   private async displayData() {
