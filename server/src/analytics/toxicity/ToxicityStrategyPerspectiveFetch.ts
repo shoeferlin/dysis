@@ -34,6 +34,7 @@ export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
       identityAttack: tensorflowToxicity.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,
       insult: tensorflowToxicity.attributeScores?.INSULT.summaryScore?.value ?? null,
       threat: tensorflowToxicity.attributeScores?.THREAT.summaryScore?.value ?? null,
+      profanity: tensorflowToxicity.attributeScores?.PROFANITY.summaryScore?.value ?? null,
     }
     return toxicity;
   }

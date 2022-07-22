@@ -22,8 +22,8 @@ export const dysisConfig = {
   reddit: {
     timeoutUntilAnElementIsInViewportInMilliseconds: 125,
     behavior: {
-      lowerLimitForUncertain: 60,
-      lowerLimitForLikely: 80,
+      lowerLimitForUncertainInPercent: 60,
+      lowerLimitForLikelyInPercent: 80,
     },
     interests: {
       maxNumberOfDisplayedInterests: 10,

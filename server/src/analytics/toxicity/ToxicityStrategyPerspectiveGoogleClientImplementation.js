@@ -17,10 +17,10 @@ export async function analyzeRequest(text, googleApiKey) {
       requestedAttributes: {
         TOXICITY: {},
         SEVERE_TOXICITY: {},
-        PROFANITY: {},
         IDENTITY_ATTACK: {},
         THREAT: {},
         INSULT: {},
+        PROFANITY: {},
       },
       doNotStore: true,
     };

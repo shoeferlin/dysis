@@ -34,6 +34,7 @@ export class ToxicityStrategyPerspectiveGoogleClient implements ToxicityStategyI
       identityAttack: googleClientToxicity.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,
       insult: googleClientToxicity.attributeScores?.INSULT.summaryScore?.value ?? null,
       threat: googleClientToxicity.attributeScores?.THREAT.summaryScore?.value ?? null,
+      profanity: googleClientToxicity.attributeScores?.PROFANITY.summaryScore?.value ?? null,
     }
     return toxicity;
   }

@@ -9,6 +9,8 @@ import {
   respondWithSuccessAndData,
   respondWithErrorNotFound,
   respondWithTooManyRequests,
+  respondWithError,
+  respondWithNoContent,
 } from '../../helpers/response.js';
 import {
   getSubmissionsFromRedditUserOnPushshift,
@@ -50,7 +52,7 @@ export default class RedditController {
               lastTimeUpdated);
           if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
             // Update entry
-            log.info('ANALYSIS', 'Updating');
+            log.info(`ANALYSIS`, `Updating (${identifier})`);
             try {
               const data = await analyze(identifier);
               await redditData.updateOne({identifier}, data);
@@ -60,12 +62,12 @@ export default class RedditController {
                 'Updated analysis for an existing Reddit user',
               );
             } catch (error: any) {
-              log.error('ANALYSIS', error.toString());
-              respondWithTooManyRequests(res, 'Analysis APIs overloaded')
+              log.error(`ANALYSIS`, error.toString());
+              respondWithNoContent(res, 'Analysis APIs overloaded')
             }
           } else {
             // Keep entry
-            log.info('ANALYSIS', 'Keeping');
+            log.info(`ANALYSIS`, `Keeping (${identifier})`);
             respondWithSuccessAndData(
                 res,
                 redditData,
@@ -75,7 +77,7 @@ export default class RedditController {
           }
         } else {
           // Entry does not exist
-          log.info('ANALYSIS', 'Creating');
+          log.info(`ANALYSIS`, `Creating (${identifier})`);
           try {
             const data = await analyze(identifier);
             redditData = await redditModel.create(data);
@@ -85,8 +87,8 @@ export default class RedditController {
               'Created analysis for a new Reddit user',
             );
           } catch (error: any) {
-            log.error('ANALYSIS', error.toString());
-            respondWithTooManyRequests(res, 'Analysis APIs overloaded')
+            log.error(`ANALYSIS`, error.toString() + ` (${identifier})`);
+            respondWithNoContent(res, 'Analysis APIs overloaded')
           }
         }
       } catch (error) {
@@ -135,7 +137,7 @@ async function analyze(identifier: string) {
     },
   }
 
-  log.info('ANALYSIS', `Analyzing information for ${identifier}`);
+  log.info(`ANALYSIS`, `Analyzing information (${identifier})`);
 
   const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
       identifier,
@@ -152,12 +154,14 @@ async function analyze(identifier: string) {
 
   if (textSnippets !== '') {
     const perspective = await ToxicityContext.analyze(textSnippets);
+    log.info(`ANALYSIS`, `Toxicity (${identifier})`)
     console.log(perspective);
     redditModel.analytics.perspective.toxicity = perspective.toxicity;
     redditModel.analytics.perspective.severeToxicity = perspective.severeToxicity;
     redditModel.analytics.perspective.threat = perspective.threat;
     redditModel.analytics.perspective.identityAttack = perspective.identityAttack;
     redditModel.analytics.perspective.insult = perspective.insult;
+    redditModel.analytics.perspective.profanity = perspective.profanity;
   }
 
   redditModel.metrics.totalSubmissions = submissions.data.length;

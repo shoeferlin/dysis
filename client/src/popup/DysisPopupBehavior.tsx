@@ -7,8 +7,8 @@ import {dysisConfig} from '../DysisConfig';
 
 export const DysisPopupBehavior = (): JSX.Element => {
 
-  const LOWER_LIMIT_FOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
-  const LOWER_LIMIT_FOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
+  const LOWER_LIMIT_FOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertainInPercent;
+  const LOWER_LIMIT_FOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikelyInPercent;
 
   const styleDysisTagLegendBehaviorLabels = {
     borderRadius: '8px 8px 8px 8px',
@@ -38,6 +38,10 @@ export const DysisPopupBehavior = (): JSX.Element => {
     {
       name: 'threat',
       definition: 'Describes an intention to inflict pain, injury, or violence against an individual or group.',
+    },
+    {
+      name: 'profanity',
+      definition: 'Swear words, curse words, or other obscene or profane language.'
     }
   ]
   
@@ -142,7 +146,7 @@ export const DysisPopupBehavior = (): JSX.Element => {
             margin: '2px',
             padding: '2px 4px',
             color: 'white', 
-            backgroundColor: 'red'
+            backgroundColor: 'rgb(169, 1, 1)'
           }}>{LOWER_LIMIT_FOR_LIKELY}% to 100%</span>
           <Typography
             paddingTop={"4px"}

@@ -10,7 +10,7 @@ import {DysisPopupActivity} from './DysisPopupActivity';
 const theme = createTheme({
   typography: {
     // Tell MUI what's the font-size on the html element is.
-    htmlFontSize: 20,
+    htmlFontSize: 21,
   },
 });
 
@@ -32,15 +32,13 @@ export const DysisPopup = (): JSX.Element => {
             <Typography
               style={{fontWeight: 600}}
               variant="h4" 
-              gutterBottom
               component="h4">
               Dysis
             </Typography>
             <Typography 
               variant="h6" 
-              gutterBottom
               component="h6">
-              Know who you are about to interact with online.
+              Know who you are about to interact with online
             </Typography>
           </Grid>
           <Grid item xs={12} width="100%" paddingBottom={"5px"} paddingTop={"5px"}>

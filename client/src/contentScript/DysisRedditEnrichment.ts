@@ -11,8 +11,8 @@ export class DysisRedditEnrichment {
 
   numberOfRequestAttempts: number = 0;
 
-  LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
-  LOWER_LIMIT_FOR_BEHAVIOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
+  LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN_IN_PERCENT: number = dysisConfig.reddit.behavior.lowerLimitForUncertainInPercent;
+  LOWER_LIMIT_FOR_BEHAVIOR_LIKELY_IN_PERCENT: number = dysisConfig.reddit.behavior.lowerLimitForLikelyInPercent;
   MAX_NUMBER_OF_SUBREDDITS: number = dysisConfig.reddit.interests.maxNumberOfDisplayedInterests;
   LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS: number = dysisConfig.requests.lowerBoundForFailedRequestTimeoutInSeconds;
   UPPER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS: number = dysisConfig.requests.upperBoundForFailedRequestTimeoutInSeconds
@@ -95,6 +95,12 @@ export class DysisRedditEnrichment {
           this.createBehaviorElement('threat', response.analytics.perspective.threat)
         )
       }
+      if (response?.analytics?.perspective?.profanity) {
+        tagContainer.insertAdjacentHTML(
+          'beforeend', 
+          this.createBehaviorElement('profanity', response.analytics.perspective.threat)
+        )
+      }
 
       // Create interests tags (max. 10)
       for (const interests of response.context.subreddits.slice(0, this.MAX_NUMBER_OF_SUBREDDITS)) {
@@ -163,9 +169,9 @@ export class DysisRedditEnrichment {
 
   private createBehaviorElement(tagName: string, tagValue: number): string {
     let behaviorValueClass: string;
-    if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_LIKELY) {
+    if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_LIKELY_IN_PERCENT / 100) {
       behaviorValueClass = 'dysis-tag-behavior-red';
-    } else if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN) {
+    } else if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN_IN_PERCENT / 100) {
       behaviorValueClass = 'dysis-tag-behavior-yellow';
     } else {
       behaviorValueClass = 'dysis-tag-behavior-green';
