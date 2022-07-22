@@ -101,8 +101,6 @@ export default class RedditController {
     }
   ]
 
-  
-
   static analyze = [
     query('identifier')
         .exists().withMessage('Value is required')
