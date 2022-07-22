@@ -1,7 +1,8 @@
 import axios, { AxiosPromise } from 'axios';
 import dotenv from 'dotenv';
 
-import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface';
+import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface.js';
+import {limitByteSizeOfText} from '../../helpers/utils.js';
 
 export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
 
@@ -17,6 +18,7 @@ export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
   }
 
   async analyze(text: string): Promise<ToxicityI> {
+    text = limitByteSizeOfText(text, 20480, 10)
     const response = await this.postRequestToGooglePerspectiveAPI(text);
     if (response.statusText === 'OK') {
       return this.googlePerspectiveAdapter(response.data);

@@ -259,7 +259,6 @@ function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], commen
   return textSnippets;
 }
 
-// TODO: Probably time consuming, check for efficiency
 function sortRedditPostsByCreatedUTC(arrayOfRedditPosts: PushshiftRedditPost[]) {
   return arrayOfRedditPosts.sort((a: PushshiftRedditPost, b: PushshiftRedditPost) => b.created_utc - a.created_utc);
 }

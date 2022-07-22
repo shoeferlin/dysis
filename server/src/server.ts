@@ -1,5 +1,5 @@
 // External imports
-import express, { NextFunction } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -8,6 +8,8 @@ import cors from 'cors';
 import log from './helpers/log.js';
 import errorHandler from './middleware/errorHandler.js';
 import router from './router.js';
+
+import {limitByteSizeOfText} from './helpers/utils.js';
 
 // Constants
 dotenv.config();

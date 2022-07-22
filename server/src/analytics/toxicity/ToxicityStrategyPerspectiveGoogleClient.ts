@@ -1,7 +1,8 @@
 import {analyzeRequest} from './ToxicityStrategyPerspectiveGoogleClientImplementation.js';
 import dotenv from 'dotenv';
 
-import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface';
+import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface.js';
+import {limitByteSizeOfText} from '../../helpers/utils.js';
 
 export class ToxicityStrategyPerspectiveGoogleClient implements ToxicityStategyI {
 
@@ -17,6 +18,7 @@ export class ToxicityStrategyPerspectiveGoogleClient implements ToxicityStategyI
   }
 
   async analyze(text: string): Promise<ToxicityI> {
+    text = limitByteSizeOfText(text, 20480, 10)
     const response = await analyzeRequest(text, this.googleApiKey);
     if (response) {
       return this.googleClientAdapter(response.data);
