@@ -21,7 +21,7 @@ import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 14;
-const VALIDITY_DEBUG = true;
+const VALIDITY_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model

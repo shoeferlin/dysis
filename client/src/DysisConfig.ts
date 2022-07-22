@@ -1,8 +1,8 @@
 export const dysisConfig = {
   requests: {
-    lowerBoundForFailedRequestTimeoutInSeconds: 2,
-    upperBoundForFailedRequestTimeoutInSeconds: 5,
-    maxNumberOfRequestAttempts: null,
+    lowerBoundForFailedRequestTimeoutInSeconds: 5,
+    upperBoundForFailedRequestTimeoutInSeconds: 10,
+    maxNumberOfRequestAttempts: 3,
   },
   sync: {
     showNotificationWhenSyncing: true,
@@ -20,6 +20,7 @@ export const dysisConfig = {
     displayRequestTimeoutsAndRetries: true,
   },
   reddit: {
+    timeoutUntilAnElementIsInViewportInMilliseconds: 125,
     behavior: {
       lowerLimitForUncertain: 60,
       lowerLimitForLikely: 80,

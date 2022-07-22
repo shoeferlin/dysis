@@ -98,12 +98,13 @@ export class DysisReddit implements DysisAbstract {
       (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => {
         for (const entry of entries) {
           // Condition checks if element is going inside viewport
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && entry.target instanceof HTMLAnchorElement) {
             // To avoid firing for rapid scrolling the following timeout is used
             // which only means relevant code is called when the element is for longer
             // than the timeout value in ms in the view
             setTimeout(
               (self = this) => {
+                // Check if after the timeout time has passed the element is still visible
                 if (self.isInViewport(entry.target) && entry.target instanceof HTMLAnchorElement) {
                   // Create a Dysis Enrichment for the specified target which went into viewport
                   new DysisRedditEnrichment(entry.target);
@@ -111,7 +112,7 @@ export class DysisReddit implements DysisAbstract {
                   observer.unobserve(entry.target);
                 }
               },
-              200,
+              dysisConfig.reddit.timeoutUntilAnElementIsInViewportInMilliseconds,
             )
           }
         }
