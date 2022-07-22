@@ -50,6 +50,7 @@ export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
           THREAT: {},
           INSULT: {},
         },
+        'doNotStore': true,
       },
       { 
         headers: {

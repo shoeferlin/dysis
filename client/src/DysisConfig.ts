@@ -1,4 +1,9 @@
 export const dysisConfig = {
+  requests: {
+    lowerBoundForFailedRequestTimeoutInSeconds: 2,
+    upperBoundForFailedRequestTimeoutInSeconds: 5,
+    maxNumberOfRequestAttempts: null,
+  },
   sync: {
     showNotificationWhenSyncing: true,
     defaultTrackingIntervalInSeconds: 1,
@@ -12,6 +17,7 @@ export const dysisConfig = {
     displayEnrichmentInstancesCreated: false,
     displaySyncingInformation: false,
     displaySyncing: true,
+    displayRequestTimeoutsAndRetries: true,
   },
   reddit: {
     behavior: {

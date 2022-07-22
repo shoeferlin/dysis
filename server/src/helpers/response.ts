@@ -104,3 +104,12 @@ export function respondWithErrorUnauthorized(res: Response, msg: string = 'Unaut
   };
   return res.status(401).json(response);
 };
+
+export function respondWithTooManyRequests(res: Response, msg: string = 'Too many requests'): Response {
+  log.warn('RESPONSE', 'Too many requests');
+  const response = {
+    success: false,
+    message: msg,
+  }
+  return res.status(429).json(response);
+}

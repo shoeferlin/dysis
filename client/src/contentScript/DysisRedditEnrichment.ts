@@ -9,9 +9,14 @@ export class DysisRedditEnrichment {
   dysisTagContainer: HTMLElement;
   identifier: String;
 
+  numberOfRequestAttempts: number = 0;
+
   LOWER_LIMIT_FOR_BEHAVIOR_UNCERTAIN: number = dysisConfig.reddit.behavior.lowerLimitForUncertain;
   LOWER_LIMIT_FOR_BEHAVIOR_LIKELY: number = dysisConfig.reddit.behavior.lowerLimitForLikely;
   MAX_NUMBER_OF_SUBREDDITS: number = dysisConfig.reddit.interests.maxNumberOfDisplayedInterests;
+  LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS: number = dysisConfig.requests.lowerBoundForFailedRequestTimeoutInSeconds;
+  UPPER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS: number = dysisConfig.requests.upperBoundForFailedRequestTimeoutInSeconds
+  MAX_NUMBER_OF_REQUEST_ATTEMPTS: number = dysisConfig.requests.maxNumberOfRequestAttempts;
 
   constructor(hostingElement: HTMLAnchorElement) {
     this.hostingElement = hostingElement;
@@ -20,6 +25,7 @@ export class DysisRedditEnrichment {
     this.createContainerElement();
     this.displayLoading();
     this.displayData();
+    // this.observe();
   }
 
   private createContainerElement() {
@@ -50,7 +56,34 @@ export class DysisRedditEnrichment {
       </span>`)
   }
 
+  private observe() {
+    console.log(`Observing for ${this.identifier}`)
+    setTimeout(
+      (self = this) => {
+        console.log(`Inside timeout for ${self.identifier}`)
+        if (self.instanceIsInViewport()) {
+          console.log(`Inside timeout for ${self.identifier} - Displaying data`)
+          self.displayData();
+        } else {
+          const interval = setInterval(
+            (self_interval = self) => {
+              console.log(`Inside interval for ${self_interval.identifier}`)
+              if (self_interval.instanceIsInViewport()) {
+                clearInterval(interval);
+                console.log(`Inside interval for ${self_interval.identifier} - Displaying data`)
+                self_interval.displayData();
+              }
+            },
+            1000
+          )
+        }
+      },
+      100
+    )
+  }
+
   private async displayData() {
+    this.numberOfRequestAttempts++;
     await this.requestData().then((response) => {
       const tagContainer = this.dysisTagContainer
 
@@ -131,6 +164,22 @@ export class DysisRedditEnrichment {
             response.metrics.totalSubmissions === 100 ? '> 100' : response.metrics.totalSubmissions)
         )
       }
+    }).catch(() => {
+      const timeoutInMiliseconds: number = this.getRandomNumber(
+        this.LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
+        this.UPPER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
+      )
+      setTimeout(
+        (self = this) => {
+          if (self.numberOfRequestAttempts <= self.MAX_NUMBER_OF_REQUEST_ATTEMPTS) {
+            if (dysisConfig.debug.displayRequestTimeoutsAndRetries) {
+              console.log(`Dysis requesting data again for ${self.identifier}`)
+            };
+            self.displayData();
+          }
+        },
+        timeoutInMiliseconds,
+      );
     });
   }
 
@@ -182,5 +231,16 @@ export class DysisRedditEnrichment {
         ${tagValue}
       </span>
     </span>`;
+  }
+
+  private getRandomNumber(minInMilliseconds: number, maxInMillisconds: number): number {
+    return Math.random() * (maxInMillisconds - minInMilliseconds) + minInMilliseconds;
+  }
+
+  private instanceIsInViewport(): boolean {
+    const bounding = this.hostingElement.getBoundingClientRect();
+    const result = bounding.top >= 0 && bounding.left >= 0 && bounding.right <= window.innerWidth && bounding.bottom <= window.innerHeight
+    console.log(`elementIsInViewport for "${this.identifier}: ${result}`)
+    return result;
   }
 }

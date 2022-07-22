@@ -1,33 +1,27 @@
 /* eslint-disable require-jsdoc */
 
 import log from '../../helpers/log.js';
-import {body, query} from 'express-validator';
+import {query} from 'express-validator';
 import {differenceInDays} from 'date-fns';
 import {Request, Response} from 'express';
-import {MongoError} from 'mongodb';
-import sanitizeHtml from 'sanitize-html';
 
 import {
   respondWithSuccessAndData,
   respondWithErrorNotFound,
-  respondWithError,
+  respondWithTooManyRequests,
 } from '../../helpers/response.js';
 import {
   getSubmissionsFromRedditUserOnPushshift,
   getCommentsFromRedditUserOnPushshift,
 } from '../../sources/reddit/pushshift.js';
-import {getRandomInt} from '../../helpers/utils.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
-import {getByteSize} from '../../helpers/utils.js';
-import {perspectiveAnalysis} from '../../analytics/toxicity/archive/perspective.js';
-import {tensorflowToxicity} from '../../analytics/toxicity/tensorflowToxicity.js';
 import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 14;
-const VALIDITY_DEBUG = false;
+const VALIDITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -39,107 +33,6 @@ const VALIDITY_DEBUG = false;
  * @param next
  */
 export default class RedditController {
-  /**
-   * Takes multiple identifiers in a post body and sends array of results
-   * (array can be empty if no results are found)
-   * Creates an reddit object
-   * @param res response instance
-   * @param res response instance
-   */
-  static get = [
-    // Validations using express-validator
-    body('identifiers')
-        .exists().withMessage('identifiers in request body required')
-        .isArray().withMessage('identifiers must be an array'),
-    body('identifiers.*')
-        .isString().withMessage('identifier must be of type string'),
-    // Using own helper to check for generated validation errors
-    validate,
-    // Actual controller method handling valid request
-    async (req: Request, res: Response) => {
-      const identifiers = req.body.identifiers;
-      const data = await redditModel.find({identifier: identifiers});
-      if (data !== null) {
-        respondWithSuccessAndData(
-            res,
-            data,
-        );
-      } else {
-        respondWithErrorNotFound(res);
-      }
-    },
-  ];
-
-  /**
-   * Gets one reddit instance
-   * @param res response instance
-   * @param res response instance
-   */
-  static getOne = [
-    // Validations using express-validator
-    query('identifier')
-        .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
-    // Using own helper to check for generated validation errors
-    validate,
-    // Actual controller method handling valid request
-    async (req: Request, res: Response) => {
-      const identifier = req.query.identifier;
-      const data = await redditModel
-          .findOne({identifier: identifier}).exec();
-      if (data !== null) {
-        respondWithSuccessAndData(
-            res,
-            data,
-        );
-      } else {
-        respondWithSuccessAndData(
-            res,
-            data,
-            'No information for given identifier',
-        );
-      }
-    },
-  ];
-
-  /**
-   * Creates an reddit object
-   * @param req request instance
-   * @param res response instance
-   */
-  static createOne = [
-    body('identifier')
-        .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
-    validate,
-    async (req: Request, res: Response) => {
-      const identifier = req.body.identifier;
-      try {
-        const data = await redditModel.create(
-            {
-              identifier,
-              liwcAnalytical: getRandomInt(99),
-              liwcEmotionalTone: getRandomInt(99),
-            },
-        );
-        respondWithSuccessAndData(
-            res,
-            data,
-            'Created new element',
-        );
-      } catch (err) {
-        if (err instanceof MongoError && err.code === 11000) {
-          respondWithError(res, 'Identifier already exists');
-        } else if (err instanceof Error) {
-          log.error('DATABASE ERROR', err.toString());
-          respondWithError(res)
-        } else {
-          console.log(err)
-        }
-      }
-    },
-  ];
-
   static analyze = [
     query('identifier')
         .exists().withMessage('Value is required')
@@ -158,16 +51,18 @@ export default class RedditController {
           if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
             // Update entry
             log.info('ANALYSIS', 'Updating');
-            const data = await analyze(identifier);
-            console.log(data)
-            await redditData.updateOne({identifier}, data);
-            console.log(redditData)
-            respondWithSuccessAndData(
+            try {
+              const data = await analyze(identifier);
+              await redditData.updateOne({identifier}, data);
+              respondWithSuccessAndData(
                 res,
                 await redditData,
                 'Updated analysis for an existing Reddit user',
-            );
-            return;
+              );
+            } catch (error: any) {
+              log.error('ANALYSIS', error.toString());
+              respondWithTooManyRequests(res, 'Analysis APIs overloaded')
+            }
           } else {
             // Keep entry
             log.info('ANALYSIS', 'Keeping');
@@ -181,13 +76,18 @@ export default class RedditController {
         } else {
           // Entry does not exist
           log.info('ANALYSIS', 'Creating');
-          const data = await analyze(identifier);
-          redditData = await redditModel.create(data);
-          respondWithSuccessAndData(
+          try {
+            const data = await analyze(identifier);
+            redditData = await redditModel.create(data);
+            respondWithSuccessAndData(
               res,
               await redditData,
               'Created analysis for a new Reddit user',
-          );
+            );
+          } catch (error: any) {
+            log.error('ANALYSIS', error.toString());
+            respondWithTooManyRequests(res, 'Analysis APIs overloaded')
+          }
         }
       } catch (error) {
         log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
@@ -247,14 +147,10 @@ async function analyze(identifier: string) {
   );
   const comments = commentsResponse.data;
 
-  // console.log(submissions.data)
-  // console.log(comments.data)
-
   const textSnippets = getTextSnippetsOfRedditPosts(submissions.data, comments.data)
       .slice(0, 30).join('; ');
 
   if (textSnippets !== '') {
-    // const perspective = await perspectiveAnalysis(textSnippets);
     const perspective = await ToxicityContext.analyze(textSnippets);
     console.log(perspective);
     redditModel.analytics.perspective.toxicity = perspective.toxicity;
