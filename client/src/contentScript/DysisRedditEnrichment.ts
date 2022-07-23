@@ -19,6 +19,9 @@ export class DysisRedditEnrichment {
   MAX_NUMBER_OF_REQUEST_ATTEMPTS: number = dysisConfig.requests.maxNumberOfRequestAttempts;
 
   constructor(hostingElement: HTMLAnchorElement) {
+    if (window.location.pathname.includes('/user/')) {
+      return;
+    }
     this.hostingElement = hostingElement;
     this.identifier = DysisReddit.getUsernameParamFromPath(hostingElement.href);
     console.log(`Dysis User Enrichment created for "${this.identifier}"...`)
@@ -31,8 +34,8 @@ export class DysisRedditEnrichment {
     const dysisContainer = document.createElement('div');
     dysisContainer.classList.add('dysis');
 
-    this.hostingElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
-    this.hostingElement.parentElement.classList.add('dysis-hosting-element');
+    this.hostingElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
+    this.hostingElement.parentElement.parentElement.parentElement.classList.add('dysis-hosting-element');
     
     this.dysisContainer = dysisContainer;   
 
@@ -143,6 +146,10 @@ export class DysisRedditEnrichment {
             response.metrics.totalSubmissions === 100 ? '> 100' : response.metrics.totalSubmissions)
         )
       }
+
+      // Create button
+      this.createButton();
+
     }).catch(() => {
       const timeoutInMiliseconds: number = this.getRandomNumber(
         this.LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
@@ -160,6 +167,17 @@ export class DysisRedditEnrichment {
         timeoutInMiliseconds,
       );
     });
+  }
+
+  private createButton() {
+    const tagContainer = this.dysisTagContainer;
+    const button = document.createElement('button');
+    button.classList.add('dysis-button');
+    button.innerHTML = '<tag class="dysis-button-tag">Show examples values ...</tag>'
+    button.addEventListener('click', () => {
+      console.log(`Dysis button clicked for ${this.identifier}`);
+    })
+    tagContainer.append(button);
   }
 
   private async requestData(): Promise<any> {
@@ -195,7 +213,7 @@ export class DysisRedditEnrichment {
         ${tagName}
       </span>
       <span class="dysis-tag-right dysis-tag-interests">
-        ${tagValue.toString()}x
+        ${tagValue.toString()}
       </span>
     </span>`;
   }

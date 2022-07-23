@@ -32,14 +32,6 @@
   flex-wrap: wrap;
 }
 
-.dysis-text {
-  background-color: black;
-  color: white;
-  padding: 1px 4px;
-  border-radius: 8px 8px 8px 8px;
-  font-size: 9px;
-}
-
 /** Form Tag **/
 
 .dysis-tag {
@@ -48,13 +40,13 @@
 }
 
 .dysis-tag-left {
-  padding: 1px 4px;
+  padding: 2px 4px;
   border-radius: 8px 0px 0px 8px;
   font-size: 9px;
 }
 
 .dysis-tag-right {
-  padding: 1px 4px;
+  padding: 2px 4px;
   border-radius: 0px 8px 8px 0px;
   font-size: 9px;
 }
@@ -103,6 +95,24 @@
 .dysis-tag-metrics.dysis-tag-right {
   background-color: rgb(106 43 216);
   color: white;
+}
+
+/** Button **/
+.dysis-button {
+  margin: 2px;
+  white-space: nowrap;
+}
+
+.dysis-button-tag {
+  border: solid 1px blue;
+  font-size: 9px;
+  color: black;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.dysis-button-tag:hover {
+  background-color: lightgrey;
 }
 
 /** Misc **/
