@@ -6,12 +6,13 @@ import {validateAuthentication} from './../../helpers/authenticate.js';
 const redditRouter: express.Router = express.Router();
 
 redditRouter.get('/', redditController.analyze);
+redditRouter.get('/detailed', redditController.analyzeWithExamples);
 
 redditRouter.use(validateAuthentication);
-/** Authentication required below */
+/** Authentication required for routes below */
 
-redditRouter.get('/highest', redditController.highest)
-redditRouter.get('/average', redditController.average)
-redditRouter.get('/all', redditController.all)
+redditRouter.get('/highest', redditController.highest);
+redditRouter.get('/average', redditController.average);
+redditRouter.get('/all', redditController.all);
 
 export default redditRouter;

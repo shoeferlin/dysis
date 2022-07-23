@@ -32,6 +32,14 @@
   flex-wrap: wrap;
 }
 
+.dysis-text {
+  background-color: black;
+  color: white;
+  padding: 1px 4px;
+  border-radius: 8px 8px 8px 8px;
+  font-size: 9px;
+}
+
 /** Form Tag **/
 
 .dysis-tag {

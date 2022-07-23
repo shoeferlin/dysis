@@ -34,6 +34,83 @@ const VALIDITY_DEBUG = false;
  */
 export default class RedditController {
 
+  static analyze = [
+    query('identifier')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be string'),
+    validate,
+    async (req: Request, res: Response) => {
+      const identifier = req.query.identifier as string;
+      try {
+        let redditData = await redditModel.findOne({identifier});
+        if (redditData !== null) {
+          // Entry exists
+          const lastTimeUpdated = new Date(redditData.updatedAt);
+          const daysSinceLastUpdate = differenceInDays(
+              Date.now(),
+              lastTimeUpdated);
+          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
+            // Update entry
+            log.info(`ANALYSIS`, `Updating (${identifier})`);
+            try {
+              const data = await analyze(identifier);
+              await redditData.updateOne({identifier}, data);
+              respondWithSuccessAndData(
+                res,
+                await redditData,
+                'Updated analysis for an existing Reddit user',
+              );
+            } catch (error: any) {
+              log.error(`ANALYSIS`, error.toString());
+              respondWithNoContent(res, 'Analysis APIs overloaded')
+            }
+          } else {
+            // Keep entry
+            log.info(`ANALYSIS`, `Keeping (${identifier})`);
+            respondWithSuccessAndData(
+                res,
+                redditData,
+                'Kept analysis for an existing Reddit user',
+            );
+            return;
+          }
+        } else {
+          // Entry does not exist
+          log.info(`ANALYSIS`, `Creating (${identifier})`);
+          try {
+            const data = await analyze(identifier);
+            redditData = await redditModel.create(data);
+            respondWithSuccessAndData(
+              res,
+              await redditData,
+              'Created analysis for a new Reddit user',
+            );
+          } catch (error: any) {
+            log.error(`ANALYSIS`, error.toString() + ` (${identifier})`);
+            respondWithNoContent(res, 'Analysis APIs overloaded')
+          }
+        }
+      } catch (error) {
+        log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
+        respondWithErrorNotFound(res, `Error for identifier: ${req.query.identifier}`);
+        console.log(error);
+      }
+    },
+  ];
+  
+  static analyzeWithExamples = [
+     query('identifier')
+        .exists().withMessage('Value is required')
+        .isString().withMessage('Value needs to be string'),
+    validate,
+    async (req: Request, res: Response) => {
+      respondWithSuccessAndData(
+        res,
+        {},
+      )
+    }
+  ];
+
   static highest = [
     query('behavior')
       .exists().withMessage('Value is required')
@@ -100,70 +177,6 @@ export default class RedditController {
       }
     }
   ]
-
-  static analyze = [
-    query('identifier')
-        .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
-    validate,
-    async (req: Request, res: Response) => {
-      const identifier = req.query.identifier as string;
-      try {
-        let redditData = await redditModel.findOne({identifier});
-        if (redditData !== null) {
-          // Entry exists
-          const lastTimeUpdated = new Date(redditData.updatedAt);
-          const daysSinceLastUpdate = differenceInDays(
-              Date.now(),
-              lastTimeUpdated);
-          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
-            // Update entry
-            log.info(`ANALYSIS`, `Updating (${identifier})`);
-            try {
-              const data = await analyze(identifier);
-              await redditData.updateOne({identifier}, data);
-              respondWithSuccessAndData(
-                res,
-                await redditData,
-                'Updated analysis for an existing Reddit user',
-              );
-            } catch (error: any) {
-              log.error(`ANALYSIS`, error.toString());
-              respondWithNoContent(res, 'Analysis APIs overloaded')
-            }
-          } else {
-            // Keep entry
-            log.info(`ANALYSIS`, `Keeping (${identifier})`);
-            respondWithSuccessAndData(
-                res,
-                redditData,
-                'Kept analysis for an existing Reddit user',
-            );
-            return;
-          }
-        } else {
-          // Entry does not exist
-          log.info(`ANALYSIS`, `Creating (${identifier})`);
-          try {
-            const data = await analyze(identifier);
-            redditData = await redditModel.create(data);
-            respondWithSuccessAndData(
-              res,
-              await redditData,
-              'Created analysis for a new Reddit user',
-            );
-          } catch (error: any) {
-            log.error(`ANALYSIS`, error.toString() + ` (${identifier})`);
-            respondWithNoContent(res, 'Analysis APIs overloaded')
-          }
-        }
-      } catch (error) {
-        log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
-        respondWithErrorNotFound(res, `Error for identifier: ${req.query.identifier}`);
-        console.log(error);
-      }
-    },
-  ];
 }
 
 async function analyze(identifier: string) {
