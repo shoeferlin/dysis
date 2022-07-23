@@ -208,14 +208,17 @@ export class DysisRedditEnrichment {
   
   private createInterestsElement(tagName: string, tagValue: number): string {
     return `
-    <span class="dysis-tag">
-      <span class="dysis-tag-left dysis-tag-interests">
-        ${tagName}
+    <a href="https://www.reddit.com/r/${tagName}" target="_blank">
+      <span class="dysis-tag">
+        <span class="dysis-tag-left dysis-tag-interests">
+          ${tagName}
+        </span>
+        <span class="dysis-tag-right dysis-tag-interests">
+          ${tagValue.toString()}
+        </span>
       </span>
-      <span class="dysis-tag-right dysis-tag-interests">
-        ${tagValue.toString()}
-      </span>
-    </span>`;
+    </a>`;
+
   }
 
   private createMetricsElement(tagName: string, tagValue: string): string {
