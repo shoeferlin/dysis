@@ -40,13 +40,13 @@
 }
 
 .dysis-tag-left {
-  padding: 2px 4px;
+  padding: 1px 4px;
   border-radius: 8px 0px 0px 8px;
   font-size: 9px;
 }
 
 .dysis-tag-right {
-  padding: 2px 4px;
+  padding: 1px 4px;
   border-radius: 0px 8px 8px 0px;
   font-size: 9px;
 }
@@ -99,20 +99,13 @@
 
 /** Button **/
 .dysis-button {
-  margin: 1px;
-  white-space: nowrap;
-}
-
-.dysis-button-tag {
-  border: solid 1px blue;
   font-size: 9px;
-  color: black;
-  padding: 1px 4px;
-  border-radius: 4px;
+  margin: 0px 4px;
 }
 
-.dysis-button-tag:hover {
-  background-color: lightgrey;
+.dysis-button:hover {
+  color: black;
+  text-decoration: underline 1px darkgray;
 }
 
 /** Misc **/

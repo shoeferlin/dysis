@@ -171,9 +171,9 @@ export class DysisRedditEnrichment {
 
   private createButton() {
     const tagContainer = this.dysisTagContainer;
-    const button = document.createElement('tag');
+    const button = document.createElement('button');
     button.classList.add('dysis-button');
-    button.innerHTML = '<tag class="dysis-button-tag">Show examples values ...</tag>'
+    button.innerText = 'Show example comments...';
     button.addEventListener('click', () => {
       console.log(`Dysis button clicked for ${this.identifier}`);
     })
