@@ -21,7 +21,7 @@ import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
 const VALIDITY_PERIOD = 14;
-const VALIDITY_DEBUG = false;
+const VALIDITY_DEBUG = true;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -104,6 +104,8 @@ export default class RedditController {
         .isString().withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
+      const identifier = req.query.identifier as string;
+      getDetailedAnalysis(identifier);
       respondWithSuccessAndData(
         res,
         {},
@@ -294,6 +296,130 @@ async function analyze(identifier: string) {
   return redditModel;
 }
 
+async function getDetailedAnalysis(identifier: string) {
+  new Promise(async (resolve, reject) => {
+
+  })
+  const NUMBER_OF_POSTS_TO_CONSIDER = 30;
+
+  log.info(`ANALYSIS WITH EXAMPLES`, `Analyzing information (${identifier})`);
+
+  const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
+      identifier,
+  );
+  const submissions: PushshiftRedditPost[] = submissionsResponse.data.data;
+
+  const commentsResponse = await getCommentsFromRedditUserOnPushshift(
+      identifier,
+  );
+  const comments: PushshiftRedditPost[] = commentsResponse.data.data;
+
+  let posts: PushshiftRedditPost[] = [];
+  posts = posts.concat(submissions, comments);
+
+  posts = sortRedditPostsByCreatedUTC(posts);
+
+  posts = posts.slice(0, NUMBER_OF_POSTS_TO_CONSIDER);
+
+  const detailedAnalysis: {
+    text: string,
+    behavior: {
+      toxicity: number,
+      severeToxicity: number,
+      insult: number,
+      identityAttack: number,
+      threat: number,
+      profanity: number,
+    }
+  }[] = [];
+  for (const post of posts) {
+    let postText: string = '';
+    if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
+      const text = beautifyRedditText(post.selftext);
+      if (text !== '') {
+        postText = text;
+      }
+    } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
+      const text = beautifyRedditText(post.body)
+      if (text !== '') {
+        postText = text;
+      }
+    }
+    if (postText !== '') {
+      try {
+        const behaviorResult = await ToxicityContext.analyze(postText);
+        let postAnalysis = {
+          text: postText,
+          behavior: {
+            toxicity: behaviorResult.toxicity ? behaviorResult.toxicity : 0,
+            severeToxicity: behaviorResult.severeToxicity ? behaviorResult.severeToxicity : 0,
+            insult: behaviorResult.insult ? behaviorResult.insult : 0,
+            identityAttack: behaviorResult.identityAttack ? behaviorResult.identityAttack : 0,
+            threat: behaviorResult.threat ? behaviorResult.threat : 0,
+            profanity: behaviorResult.profanity ? behaviorResult.profanity : 0,
+          }
+        }
+        detailedAnalysis.push(postAnalysis);
+      } catch(error) {
+        console.log(error);
+      }
+    }
+  }
+
+  setTimeout(
+    () => {
+      console.log(detailedAnalysis);
+    },
+    10_000
+  )
+
+  const attributes = ['toxicity', 'severeToxicity', 'insult', 'identityAttack', 'threat', 'profanity'];
+  
+  const maxToxicity = detailedAnalysis.reduce((max, current) => max.behavior.toxicity > current.behavior.toxicity ? max : current);
+  const maxSevereToxicity = detailedAnalysis.reduce((max, current) => max.behavior.severeToxicity > current.behavior.severeToxicity ? max : current);
+  const maxInsult = detailedAnalysis.reduce((max, current) => max.behavior.insult > current.behavior.insult ? max : current);
+  const maxIdentityAttack = detailedAnalysis.reduce((max, current) => max.behavior.identityAttack > current.behavior.identityAttack ? max : current);
+  const maxThreat = detailedAnalysis.reduce((max, current) => max.behavior.threat > current.behavior.threat ? max : current);
+  const maxProfanity = detailedAnalysis.reduce((max, current) => max.behavior.profanity > current.behavior.profanity ? max : current);
+  
+  const date = new Date();
+  let exemplaryComments = {};
+  exemplaryComments = {
+    toxicity: {
+      text: maxToxicity.text,
+      value: maxToxicity.behavior.toxicity,
+      updatedAt: date.toISOString(),
+    },
+    severeToxicity: {
+      text: maxSevereToxicity.text,
+      value: maxSevereToxicity.behavior.severeToxicity,
+      updatedAt: date.toISOString(),
+    },
+    insult: {
+      text: maxInsult.text,
+      value: maxInsult.behavior.insult,
+      updatedAt: date.toISOString(),
+    },
+    identityAttack: {
+      text: maxIdentityAttack.text,
+      value: maxIdentityAttack.behavior.identityAttack,
+      updatedAt: date.toISOString(),
+    },
+    threat: {
+      text: maxThreat.text,
+      value: maxThreat.behavior.threat,
+      updatedAt: date.toISOString(),
+    },
+    profanity: {
+      text: maxProfanity.text,
+      value: maxProfanity.behavior.profanity,
+      updatedAt: date.toISOString(),
+    },
+  }
+
+  console.log(exemplaryComments);
+}
+
 function getAverageOfNumberArray(numberArray: number[]): number {
   if (numberArray.length === 0) {
     return 0;
@@ -333,10 +459,14 @@ function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], commen
   for (const post of posts) {
     if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
       const text = beautifyRedditText(post.selftext);
-      if (text !== '') textSnippets.push(text);
+      if (text !== '') {
+        textSnippets.push(text);
+      }
     } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
       const text = beautifyRedditText(post.body)
-      if (text !== '') textSnippets.push(text);
+      if (text !== '') {
+        textSnippets.push(text);
+      }
     }
   }
   return textSnippets;
