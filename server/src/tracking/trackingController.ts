@@ -78,8 +78,26 @@ export default class TrackingRouter {
         } else {
           participant.dysis.totalUsageTime = req.body.totalUsageTime;
           participant.save();
-          respondWithSuccess(res, 'Updated participant')
+          respondWithSuccess(
+            res,
+            'Updated participant')
         }
+      } catch (error) {
+        console.log(error);
+        respondWithError(res);
+      }
+    }
+  ];
+
+  static all = [
+    async (req: Request, res: Response) => {
+      try {
+        const participants = await participantModel.find({});
+        respondWithSuccessAndData(
+          res,
+          participants,
+          `Retrieved participant data`,
+        )
       } catch (error) {
         console.log(error);
         respondWithError(res);
