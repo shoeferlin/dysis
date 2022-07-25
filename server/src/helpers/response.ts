@@ -78,7 +78,7 @@ export function respondWithTooManyRequests(res: Response, msg: string = 'Too man
 }
 
 export function respondWithNoContent(res: Response, msg: string = 'No content'): Response {
-  log.warn('RESPONSE', 'No conent');
+  log.warn('RESPONSE', 'No content');
   const response = {
     success: false,
     message: msg,
