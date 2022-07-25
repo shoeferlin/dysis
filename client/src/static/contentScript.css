@@ -1,6 +1,6 @@
 /** Loading Animation **/
 
-.loader {
+.dysis-loader {
   
   border: 2px solid #f3f3f3; /* Light Gray */
   border-top: 2px solid #BF0000; /* Red */
@@ -15,7 +15,7 @@
   100% { transform: rotate(360deg); }
 }
 
-.loaderContainer {
+.dysis-loaderContainer {
   display: 'inline-block'
 }
 
@@ -85,6 +85,10 @@
   cursor: help;
 } 
 
+.dysis-tag-behavior-example {
+  font-size: 9px;
+}
+
 /** Interests Tags **/
 
 .dysis-tag-interests.dysis-tag-left {
@@ -101,7 +105,7 @@
 
 .dysis-tag-metrics.dysis-tag-left {
   background-color: rgb(209 185 251);
-  color: black;
+  color: rgb(48, 48, 48);
 }
 
 .dysis-tag-metrics.dysis-tag-right {

@@ -9,7 +9,8 @@ export class DysisRedditEnrichment {
   dysisTagContainer: HTMLElement;
   identifier: String;
 
-  examples: {
+  behaviorExamplesRequested: boolean = false;
+  behaviorExamples: {
     toxicity: {
       text: string, 
       value: number
@@ -80,9 +81,10 @@ export class DysisRedditEnrichment {
       'beforeend',
       `<span class="dysis-tag">
         <span class="dysis-text">
-          <b>DYSIS</b> loading...  <div class="loader" style="display: inline-block"></div>
+          <b>DYSIS</b> loading...  <div class="dysis-loader" style="display: inline-block"></div>
         </span>
-      </span>`)
+      </span>`
+    )
   }
 
   private async displayData() {
@@ -260,21 +262,27 @@ export class DysisRedditEnrichment {
     outerSpanElement.appendChild(leftSpanElement);
     outerSpanElement.appendChild(rightSpanElement);
 
-    outerAnchorElement.addEventListener('click', async () => {
-      window.event.preventDefault();
-      
-      console.log(`Dysis behavior tag clicked for ${tagLabel} of ${this.identifier}`);
-
-      const exampleText: string = await this.getExample(tagName);
-      if (!outerAnchorElement.lastElementChild.classList.contains('dysis-tag-example')) {
-        const exampleSpanElement: HTMLSpanElement = document.createElement('span');
-        exampleSpanElement.classList.add('dysis-tag-example')
-        exampleSpanElement.innerText = exampleText;
-        outerAnchorElement.appendChild(exampleSpanElement);
-      } else {
-        outerAnchorElement.removeChild(outerAnchorElement.lastElementChild);
+    outerAnchorElement.addEventListener(
+      'click', 
+      async () => {
+        window.event.preventDefault();
+        console.log(`Dysis behavior tag clicked for ${tagLabel} of ${this.identifier}`);
+        
+        if (!outerAnchorElement.lastElementChild.classList.contains('dysis-tag-behavior-example')) {
+          const exampleSpanElement: HTMLSpanElement = document.createElement('span');
+          exampleSpanElement.classList.add('dysis-tag-behavior-example')
+          exampleSpanElement.insertAdjacentHTML(
+            'beforeend',
+            `  loading detailed analysis... <div class="dysis-loader" style="display: inline-block"></div>  `
+          );
+          outerAnchorElement.appendChild(exampleSpanElement);
+          const exampleText: string = await this.getExampleComment(tagName);
+          exampleSpanElement.innerText = exampleText;
+        } else {
+          outerAnchorElement.removeChild(outerAnchorElement.lastElementChild);
+        }
       }
-    })
+    );
 
     return outerAnchorElement;
 
@@ -334,16 +342,22 @@ export class DysisRedditEnrichment {
     return result;
   }
 
-  private async getExample(behavior: string): Promise<string> {
-    if (this.examples === null) {
-      const examplesResponse = await DysisRequest.get(
-        `/api/reddit/detailed?identifier=${this.identifier}`
-      )
-      this.examples = examplesResponse.data;
-      console.log(this.examples[behavior])
-      return this.examples[behavior].text;
+  private async requestDetailedData(): Promise<any> {
+    const result = await DysisRequest.get(
+      `/api/reddit/detailed?identifier=${this.identifier}`
+    )
+    return result.data;
+  }
+
+  private async getExampleComment(behavior: string): Promise<string> {
+    this.behaviorExamplesRequested = true;
+    if (this.behaviorExamples === null) {
+      this.behaviorExamplesRequested = true;
+      this.behaviorExamples = await this.requestDetailedData();
+      console.log(this.behaviorExamples[behavior])
+      return this.behaviorExamples[behavior].text;
     } else {
-      return this.examples[behavior].text;
+      return this.behaviorExamples[behavior].text;
     }
   }
 }
