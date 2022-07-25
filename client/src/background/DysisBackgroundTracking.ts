@@ -54,8 +54,10 @@ export default class DysisBackgroundTracking {
         this.usageTimeVariableName,
       ], (res) => {
       chrome.storage.local.set({
-        [this.backgroundTimeVariableName]: this.backgroundTimeVariableName in res ? res[this.backgroundTimeVariableName]: 0,
-        [this.usageTimeVariableName]: this.usageTimeVariableName in res ? res[this.usageTimeVariableName] : 0,
+        [this.backgroundTimeVariableName]: 
+          this.backgroundTimeVariableName in res ? res[this.backgroundTimeVariableName]: 0,
+        [this.usageTimeVariableName]: 
+          this.usageTimeVariableName in res ? res[this.usageTimeVariableName] : 0,
       });
     });
   }
@@ -115,7 +117,7 @@ export default class DysisBackgroundTracking {
                 usageTime = usageTime + this.trackingIntervalInSeconds;
                 // Log a tick to the console if set in globalConfig
                 if (dysisConfig.debug.displayUsageTimeTicks) {
-                  console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTime} s)`)
+                  console.log(`Tick for ${this.trackingSiteName} (Total usage time: ${usageTime}s)`)
                 }
                 // Set the new increased usage times
                 chrome.storage.local.set({

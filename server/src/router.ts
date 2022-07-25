@@ -7,9 +7,6 @@ import {
   AuthenticationController,
 } from './helpers/authenticate.js';
 
-import {body} from 'express-validator';
-import validate from './helpers/validate.js';
-
 import moduleRouter from './modules/moduleRouter.js';
 import trackingRouter from './tracking/trackingRouter.js';
 

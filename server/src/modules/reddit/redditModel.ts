@@ -12,6 +12,33 @@ const redditSchema = new mongoose.Schema(
           profanity: {type: Number},
           insult: {type: Number},
         },
+        perspectiveExamples: {
+          examplesUpdatedAt: {type: Date},
+          toxicity: {
+            value: {type: Number},
+            text: {type: String}
+          },
+          severeToxicity: {
+            value: {type: Number},
+            text: {type: String}
+          },
+          threat: {
+            value: {type: Number},
+            text: {type: String}
+          },
+          identityAttack: {
+            value: {type: Number},
+            text: {type: String}
+          },
+          profanity: {
+            value: {type: Number},
+            text: {type: String}
+          },
+          insult: {
+            value: {type: Number},
+            text: {type: String}
+          },
+        },
         liwc: {},
       },
       metrics: {
