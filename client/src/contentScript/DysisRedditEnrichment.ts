@@ -238,7 +238,12 @@ export class DysisRedditEnrichment {
 
   private instanceIsInViewport(): boolean {
     const bounding = this.hostingElement.getBoundingClientRect();
-    const result = bounding.top >= 0 && bounding.left >= 0 && bounding.right <= window.innerWidth && bounding.bottom <= window.innerHeight
+    const result = (
+      bounding.top >= 0 
+      && bounding.left >= 0 
+      && bounding.right <= window.innerWidth
+      && bounding.bottom <= window.innerHeight
+    )
     console.log(`elementIsInViewport for "${this.identifier}: ${result}`)
     return result;
   }

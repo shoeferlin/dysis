@@ -23,7 +23,7 @@
 
 .dysis-hosting-element {
   flex-wrap: wrap;
-  display: inline-flex !important
+  /* display: inline-flex !important COMMENT: Not required when twice parentElement used */
 }
 
 .dysis-tag-container {
