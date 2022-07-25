@@ -11,8 +11,6 @@ import {
   Grid
 } from '@mui/material'
 
-import './DysisOptions.css'
-
 import {DysisRequest} from '../DysisRequest';
 
 export const DysisOptions = (): JSX.Element => {
