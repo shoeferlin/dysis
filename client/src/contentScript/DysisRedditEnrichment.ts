@@ -196,10 +196,6 @@ export class DysisRedditEnrichment {
             response.metrics.totalSubmissions === 100 ? '> 100' : response.metrics.totalSubmissions)
         )
       }
-
-      // Create button
-      this.createButton();
-
     }).catch(() => {
       const timeoutInMiliseconds: number = this.getRandomNumber(
         this.LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
@@ -217,17 +213,6 @@ export class DysisRedditEnrichment {
         timeoutInMiliseconds,
       );
     });
-  }
-
-  private createButton() {
-    const tagContainer = this.dysisTagContainer;
-    const button = document.createElement('button');
-    button.classList.add('dysis-button');
-    button.innerText = 'Show example comments...';
-    button.addEventListener('click', () => {
-      console.log(`Dysis button clicked for ${this.identifier}`);
-    })
-    tagContainer.append(button);
   }
 
   private async requestData(): Promise<any> {
@@ -286,19 +271,7 @@ export class DysisRedditEnrichment {
         }
       }
     );
-
     return outerAnchorElement;
-
-    // return `
-    // <span class="dysis-tag">
-    //   <span class="dysis-tag-left dysis-tag-behavior">
-    //     ${tagName}
-    //   </span>
-    //   <span class="dysis-tag-right ${behaviorValueClass}">
-    //     ${(tagValue * 100).toFixed(0).toString()}%
-    //   </span>
-    // </span>
-    // `;
   }
   
   private createInterestsElement(tagName: string, tagValue: number): string {
