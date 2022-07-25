@@ -50,9 +50,6 @@ export class DysisRedditEnrichment {
   MAX_NUMBER_OF_REQUEST_ATTEMPTS: number = dysisConfig.requests.maxNumberOfRequestAttempts;
 
   constructor(hostingElement: HTMLAnchorElement) {
-    if (window.location.pathname.includes('/user/')) {
-      return;
-    }
     this.hostingElement = hostingElement;
     this.identifier = DysisReddit.getUsernameParamFromPath(hostingElement.href);
     console.log(`Dysis User Enrichment created for "${this.identifier}"...`)
