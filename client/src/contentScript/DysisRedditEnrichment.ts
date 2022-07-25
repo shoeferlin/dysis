@@ -323,6 +323,7 @@ export class DysisRedditEnrichment {
     const result = DysisRequest.get(
       `/api/reddit/detailed?identifier=${this.identifier}`
     )
+    console.log(result);
     return result;
   }
  
