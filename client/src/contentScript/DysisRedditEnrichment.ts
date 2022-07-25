@@ -9,33 +9,36 @@ export class DysisRedditEnrichment {
   dysisTagContainer: HTMLElement;
   identifier: String;
 
-  behaviorExamplesRequested: boolean = false;
-  behaviorExamples: {
-    toxicity: {
-      text: string, 
-      value: number
+  behaviorExamplesPromise: Promise<{
+    success: string,
+    message: string,
+    data: {
+      toxicity: {
+        text: string, 
+        value: number
+      },
+      severeToxicity: {
+        text: string, 
+        value: number
+      },
+      insult: {
+        text: string, 
+        value: number
+      },
+      identityAttack: {
+        text: string, 
+        value: number
+      },
+      threat: {
+        text: string, 
+        value: number
+      },
+      profanity: {
+        text: string, 
+        value: number
+      },
     },
-    severeToxicity: {
-      text: string, 
-      value: number
-    },
-    insult: {
-      text: string, 
-      value: number
-    },
-    identityAttack: {
-      text: string, 
-      value: number
-    },
-    threat: {
-      text: string, 
-      value: number
-    },
-    profanity: {
-      text: string, 
-      value: number
-    },
-  } = null;
+  }> = null;
 
   numberOfRequestAttempts: number = 0;
 
@@ -343,21 +346,21 @@ export class DysisRedditEnrichment {
   }
 
   private async requestDetailedData(): Promise<any> {
-    const result = await DysisRequest.get(
+    console.log('requestDetailedData()')
+    const result = DysisRequest.get(
       `/api/reddit/detailed?identifier=${this.identifier}`
     )
-    return result.data;
+    return result;
   }
-
+ 
   private async getExampleComment(behavior: string): Promise<string> {
-    this.behaviorExamplesRequested = true;
-    if (this.behaviorExamples === null) {
-      this.behaviorExamplesRequested = true;
-      this.behaviorExamples = await this.requestDetailedData();
-      console.log(this.behaviorExamples[behavior])
-      return this.behaviorExamples[behavior].text;
+    if (this.behaviorExamplesPromise === null) {
+      this.behaviorExamplesPromise = this.requestDetailedData();
+      const behaviorExamples = await this.behaviorExamplesPromise;
+      return behaviorExamples.data[behavior].text;
     } else {
-      return this.behaviorExamples[behavior].text;
+      const behaviorExamples = await this.behaviorExamplesPromise;
+      return behaviorExamples.data[behavior].text;
     }
   }
 }
