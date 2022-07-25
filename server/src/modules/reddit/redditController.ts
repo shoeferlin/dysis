@@ -98,7 +98,7 @@ export default class RedditController {
     },
   ];
   
-  static analyzeWithExamples = [
+  static analyzeDetailed = [
      query('identifier')
         .exists().withMessage('Value is required')
         .isString().withMessage('Value needs to be string'),
@@ -106,7 +106,7 @@ export default class RedditController {
     async (req: Request, res: Response) => {
       try {
         const identifier = req.query.identifier as string;
-        const analysis = await analyzeWithExamples(identifier);
+        const analysis = await analyzeDetailed(identifier);
         respondWithSuccessAndData(
           res,
           analysis,
@@ -334,7 +334,7 @@ async function analyze(identifier: string) {
   return redditModel;
 }
 
-async function analyzeWithExamples(identifier: string) {
+async function analyzeDetailed(identifier: string) {
   const detailedAnalysis = await getDetailedAnalysis(identifier);
   console.log(detailedAnalysis);
   

@@ -6,7 +6,7 @@ import {validateAuthentication} from './../../helpers/authenticate.js';
 const redditRouter: express.Router = express.Router();
 
 redditRouter.get('/', redditController.analyze);
-redditRouter.get('/detailed', redditController.analyzeWithExamples);
+redditRouter.get('/detailed', redditController.analyzeDetailed);
 
 redditRouter.use(validateAuthentication);
 /** Authentication required for routes below */
