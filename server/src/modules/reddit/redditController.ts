@@ -20,8 +20,11 @@ import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
-const VALIDITY_PERIOD_IN_HOURS = 24 * 14;
-const VALIDITY_DEBUG = false;
+const VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
+const VALIDITY_ANALYSIS_DEBUG = false;
+
+const VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS = 24 * 14;
+const VALIDITY_DETAILED_ANALYSIS_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -45,12 +48,12 @@ export default class RedditController {
         let redditData = await redditModel.findOne({identifier});
         if (redditData !== null) {
           // Entry exists
-          const lastTimeUpdated = parseISO(redditData.updatedAt);
+          const lastTimeUpdated = redditData.updatedAt;
           const hoursSinceLastUpdate = differenceInHours(
               Date.now(),
               lastTimeUpdated
             );
-          if (hoursSinceLastUpdate > VALIDITY_PERIOD_IN_HOURS || VALIDITY_DEBUG) {
+          if (hoursSinceLastUpdate > VALIDITY_PERIOD_ANALYSIS_IN_HOURS || VALIDITY_ANALYSIS_DEBUG) {
             // Update entry
             log.info(`ANALYSIS`, `Updating (${identifier})`);
             try {
@@ -110,20 +113,27 @@ export default class RedditController {
         let redditData = await redditModel.findOne({identifier});
         // Entry exists
         if (redditData !== null) {
-          const lastTimeUpdated = new Date(redditData.analytics.perspectiveExamples.examplesUpdatedAt);
+          const lastTimeUpdated = redditData.analytics.perspectiveExamples.examplesUpdatedAt;
+          console.log('lastTime: ' + lastTimeUpdated)
           const hoursSinceLastUpdate = differenceInHours(
             Date.now(),
             lastTimeUpdated
           );
+          console.log(lastTimeUpdated)
+          console.log(redditData);
+          console.log(identifier)
           // Update examples
           if (
-            hoursSinceLastUpdate > VALIDITY_PERIOD_IN_HOURS 
-            || VALIDITY_DEBUG
+            redditData.analytics.perspectiveExamples.examplesUpdatedAt === null 
+            || hoursSinceLastUpdate > VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS 
+            || VALIDITY_DETAILED_ANALYSIS_DEBUG
           ) {
             log.info(`DETAILED ANALYSIS`, `Updating (${identifier})`);
             try {
+
               const analysis = await analyzeDetailed(identifier);
               redditData.analytics.perspectiveExamples = analysis;
+              console.log(redditData);
               await redditData.save();
               respondWithSuccessAndData(
                 res,
@@ -137,7 +147,7 @@ export default class RedditController {
               )
             }
           // Keep examples
-          }  else {
+          } else {
             log.info(`DETAILED ANALYSIS`, `Keeping (${identifier})`);
             respondWithSuccessAndData(
               res,
@@ -379,12 +389,38 @@ async function analyze(identifier: string) {
   return redditModel;
 }
 
-async function analyzeDetailed(identifier: string) {
+async function analyzeDetailed(identifier: string): Promise<DetailedAnalysis> {
   const detailedAnalysis = await getDetailedAnalysis(identifier);
   console.log(detailedAnalysis);
   
   if (detailedAnalysis.length === 0) {
-    return {};
+    return {
+      examplesUpdatedAt: null,
+      toxicity: {
+        text: null,
+        value: null,
+      },
+      severeToxicity: {
+        text: null,
+        value: null,
+      },
+      insult: {
+        text: null,
+        value: null,
+      },
+      profanity: {
+        text: null,
+        value: null,
+      }, 
+      identityAttack: {
+        text: null,
+        value: null,
+      },
+      threat: {
+        text: null,
+        value: null,
+      }
+    };
   }
 
   const attributes = ['toxicity', 'severeToxicity', 'insult', 'identityAttack', 'threat', 'profanity'];
@@ -397,9 +433,8 @@ async function analyzeDetailed(identifier: string) {
   const maxProfanity = detailedAnalysis.reduce((max, current) => max.behavior.profanity > current.behavior.profanity ? max : current);
   
   const date = new Date();
-  let exemplaryComments = {};
-  exemplaryComments = {
-    examplesUpdatedAt: date.toISOString(),
+  let exemplaryComments: DetailedAnalysis = {
+    examplesUpdatedAt: date,
     toxicity: {
       text: maxToxicity.text,
       value: maxToxicity.behavior.toxicity,
@@ -585,3 +620,31 @@ function beautifyRedditText(text: string) {
     // Remove line breaks, tabs and similar
     .replace(/[\n\r\t\s]+/g, ' ');
 }
+
+interface DetailedAnalysis {
+    examplesUpdatedAt: Date | null,
+    toxicity: {
+      text: string | null,
+      value: number | null,
+    },
+    severeToxicity: {
+      text: string | null,
+      value: number | null,
+    },
+    insult: {
+      text: string | null,
+      value: number | null,
+    },
+    identityAttack: {
+      text: string | null,
+      value: number | null,
+    },
+    threat: {
+      text: string | null,
+      value: number | null,
+    },
+    profanity: {
+      text: string | null,
+      value: number | null,
+    },
+  }
