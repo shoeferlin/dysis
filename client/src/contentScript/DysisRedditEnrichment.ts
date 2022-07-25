@@ -1,7 +1,6 @@
 import {DysisReddit} from './DysisReddit';
 import {DysisRequest} from '../DysisRequest';
 import {dysisConfig} from '../DysisConfig';
-import { AnchorHTMLAttributes } from 'react';
 
 export class DysisRedditEnrichment {
 
@@ -9,6 +8,33 @@ export class DysisRedditEnrichment {
   dysisContainer: HTMLElement;
   dysisTagContainer: HTMLElement;
   identifier: String;
+
+  examples: {
+    toxicity: {
+      text: string, 
+      value: number
+    },
+    severeToxicity: {
+      text: string, 
+      value: number
+    },
+    insult: {
+      text: string, 
+      value: number
+    },
+    identityAttack: {
+      text: string, 
+      value: number
+    },
+    threat: {
+      text: string, 
+      value: number
+    },
+    profanity: {
+      text: string, 
+      value: number
+    },
+  } = null;
 
   numberOfRequestAttempts: number = 0;
 
@@ -71,32 +97,56 @@ export class DysisRedditEnrichment {
       // Create behavioral tags
       if (response?.analytics?.perspective?.toxicity) {
         tagContainer.appendChild(
-          this.createBehaviorElement('toxicity', response.analytics.perspective.toxicity)
+          this.createBehaviorElement(
+            'toxicity',
+            'toxicity',
+            response.analytics.perspective.toxicity
+          )
         )
       }
       if (response?.analytics?.perspective?.severeToxicity) {
         tagContainer.appendChild(
-          this.createBehaviorElement('severe toxicity', response.analytics.perspective.severeToxicity)
+          this.createBehaviorElement(
+            'severe toxicity',
+            'severeToxicity',
+            response.analytics.perspective.severeToxicity
+          )
         )
       }
       if (response?.analytics?.perspective?.insult) {
         tagContainer.appendChild( 
-          this.createBehaviorElement('insult', response.analytics.perspective.insult)
+          this.createBehaviorElement(
+            'insult',
+            'insult',
+            response.analytics.perspective.insult
+          )
         )
       }
       if (response?.analytics?.perspective?.identityAttack) {
         tagContainer.appendChild( 
-          this.createBehaviorElement('identity attack', response.analytics.perspective.identityAttack)
+          this.createBehaviorElement(
+            'identity attack',
+            'identityAttack',
+            response.analytics.perspective.identityAttack
+          )
         )
       }
       if (response?.analytics?.perspective?.threat) {
         tagContainer.appendChild( 
-          this.createBehaviorElement('threat', response.analytics.perspective.threat)
+          this.createBehaviorElement(
+            'threat',
+            'threat',
+            response.analytics.perspective.threat
+          )
         )
       }
       if (response?.analytics?.perspective?.profanity) {
         tagContainer.appendChild( 
-          this.createBehaviorElement('profanity', response.analytics.perspective.threat)
+          this.createBehaviorElement(
+            'profanity',
+            'profanity',
+            response.analytics.perspective.threat
+          )
         )
       }
 
@@ -180,7 +230,7 @@ export class DysisRedditEnrichment {
     return response.data;
   }
 
-  private createBehaviorElement(tagName: string, tagValue: number): HTMLSpanElement {
+  private createBehaviorElement(tagLabel: string, tagName: string, tagValue: number): HTMLSpanElement {
     let behaviorValueClass: string;
     if (tagValue >= this.LOWER_LIMIT_FOR_BEHAVIOR_LIKELY_IN_PERCENT / 100) {
       behaviorValueClass = 'dysis-tag-behavior-red';
@@ -199,7 +249,7 @@ export class DysisRedditEnrichment {
     const leftSpanElement: HTMLSpanElement = document.createElement('span');
     leftSpanElement.classList.add('dysis-tag-left');
     leftSpanElement.classList.add('dysis-tag-behavior');
-    leftSpanElement.innerText = `${tagName}`;
+    leftSpanElement.innerText = `${tagLabel}`;
 
     const rightSpanElement: HTMLSpanElement = document.createElement('span');
     rightSpanElement.classList.add('dysis-tag-right');
@@ -211,17 +261,15 @@ export class DysisRedditEnrichment {
     outerSpanElement.appendChild(rightSpanElement);
 
     outerAnchorElement.addEventListener('click', async () => {
+      window.event.preventDefault();
       
-      console.log(`Dysis behavior tag clicked for ${tagName} of ${this.identifier}`);
+      console.log(`Dysis behavior tag clicked for ${tagLabel} of ${this.identifier}`);
 
-      const example = await DysisRequest.get(
-        `/api/reddit/detailed?identifier=${this.identifier}`
-      )
-
+      const exampleText: string = await this.getExample(tagName);
       if (!outerAnchorElement.lastElementChild.classList.contains('dysis-tag-example')) {
         const exampleSpanElement: HTMLSpanElement = document.createElement('span');
         exampleSpanElement.classList.add('dysis-tag-example')
-        exampleSpanElement.innerText = example.data.toxicity.text;
+        exampleSpanElement.innerText = exampleText;
         outerAnchorElement.appendChild(exampleSpanElement);
       } else {
         outerAnchorElement.removeChild(outerAnchorElement.lastElementChild);
@@ -284,5 +332,18 @@ export class DysisRedditEnrichment {
     )
     console.log(`elementIsInViewport for "${this.identifier}: ${result}`)
     return result;
+  }
+
+  private async getExample(behavior: string): Promise<string> {
+    if (this.examples === null) {
+      const examplesResponse = await DysisRequest.get(
+        `/api/reddit/detailed?identifier=${this.identifier}`
+      )
+      this.examples = examplesResponse.data;
+      console.log(this.examples[behavior])
+      return this.examples[behavior].text;
+    } else {
+      return this.examples[behavior].text;
+    }
   }
 }
