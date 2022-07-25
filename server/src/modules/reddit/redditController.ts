@@ -20,8 +20,8 @@ import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
-const VALIDITY_PERIOD_IN_HOURS = 72;
-const VALIDITY_DEBUG = true;
+const VALIDITY_PERIOD_IN_HOURS = 24 * 14;
+const VALIDITY_DEBUG = false;
 
 /**
  * Controller class managing incoming requests to the respective model
@@ -124,22 +124,40 @@ export default class RedditController {
       try {
         switch(selectedBehavior) {
           case('toxicity'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.toxicity": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.toxicity": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           } case('severeToxicity'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.severeToxicity": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.severeToxicity": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           } case('insult'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.insult": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.insult": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           } case('threat'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.threat": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.threat": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           } case('profanity'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.profanity": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.profanity": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           } case('identityAttack'): {
-            highest = await redditModel.find({}).sort({"analytics.perspective.identityAttack": -1}).limit(100);
+            highest = await redditModel.find({})
+              .sort({"analytics.perspective.identityAttack": -1})
+              .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
+              .limit(100);
             break;
           }
         }
