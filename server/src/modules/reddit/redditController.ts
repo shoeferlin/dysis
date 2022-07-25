@@ -2,7 +2,7 @@
 
 import log from '../../helpers/log.js';
 import {query} from 'express-validator';
-import {differenceInDays} from 'date-fns';
+import {differenceInHours, differenceInDays} from 'date-fns';
 import {Request, Response} from 'express';
 
 import {
@@ -20,7 +20,7 @@ import {getCountOfSubreddits} from '../../helpers/utils.js'
 import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
 import {ToxicityContext} from '../../analytics/ToxicityContext.js';
 
-const VALIDITY_PERIOD = 14;
+const VALIDITY_PERIOD_IN_HOURS = 72;
 const VALIDITY_DEBUG = true;
 
 /**
@@ -46,10 +46,10 @@ export default class RedditController {
         if (redditData !== null) {
           // Entry exists
           const lastTimeUpdated = new Date(redditData.updatedAt);
-          const daysSinceLastUpdate = differenceInDays(
+          const hoursSinceLastUpdate = differenceInHours(
               Date.now(),
               lastTimeUpdated);
-          if (daysSinceLastUpdate > VALIDITY_PERIOD || VALIDITY_DEBUG) {
+          if (hoursSinceLastUpdate > VALIDITY_PERIOD_IN_HOURS || VALIDITY_DEBUG) {
             // Update entry
             log.info(`ANALYSIS`, `Updating (${identifier})`);
             try {
