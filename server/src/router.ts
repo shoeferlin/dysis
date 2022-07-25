@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 
 import {requestLogger} from './middleware/requestLogger.js';
 import {respondWithSuccess} from './helpers/response.js';
@@ -6,9 +7,6 @@ import {
   validateAuthentication,
   AuthenticationController,
 } from './helpers/authenticate.js';
-
-import {body} from 'express-validator';
-import validate from './helpers/validate.js';
 
 import moduleRouter from './modules/moduleRouter.js';
 import trackingRouter from './tracking/trackingRouter.js';
@@ -24,6 +22,12 @@ router.use(requestLogger);
 // Default request
 router.get('/', (_, res) => {
   res.send(`Sever is running`);
+});
+
+// Serve favicon
+router.get('/favicon.ico', (req, res) => {
+  console.log(process.cwd())
+  return res.sendFile(path.join(process.cwd(), 'dist/assets/iconRound.ico'));
 });
 
 // Forward to module router

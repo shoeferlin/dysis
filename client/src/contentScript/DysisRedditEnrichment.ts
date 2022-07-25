@@ -218,7 +218,6 @@ export class DysisRedditEnrichment {
         </span>
       </span>
     </a>`;
-
   }
 
   private createMetricsElement(tagName: string, tagValue: string): string {

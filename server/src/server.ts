@@ -9,8 +9,6 @@ import log from './helpers/log.js';
 import errorHandler from './middleware/errorHandler.js';
 import router from './router.js';
 
-import {limitByteSizeOfText} from './helpers/utils.js';
-
 // Constants
 dotenv.config();
 const ENV: NodeJS.ProcessEnv = process.env;
