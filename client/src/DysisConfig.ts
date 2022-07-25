@@ -1,4 +1,7 @@
 export const dysisConfig = {
+  server: {
+    baseUrl: 'https://dysis-server.herokuapp.com/'
+  },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
     upperBoundForFailedRequestTimeoutInSeconds: 10,
@@ -7,17 +10,17 @@ export const dysisConfig = {
   sync: {
     showNotificationWhenSyncing: true,
     defaultTrackingIntervalInSeconds: 1,
-    defaultSyncIntervalInSeconds: 10,
+    defaultSyncIntervalInSeconds: 60,
   },
   debug: {
     displayMutationRecords: false,
     displayLocalStorageChanges: false,
-    displayUsageTimeTicks: true,
+    displayUsageTimeTicks: false,
     displayEnrichmentDataObjects: false,
     displayEnrichmentInstancesCreated: false,
     displaySyncingInformation: false,
-    displaySyncing: true,
-    displayRequestTimeoutsAndRetries: true,
+    displaySyncing: false,
+    displayRequestTimeoutsAndRetries: false,
   },
   reddit: {
     timeoutUntilAnElementIsInViewportInMilliseconds: 125,
