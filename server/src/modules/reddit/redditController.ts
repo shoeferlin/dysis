@@ -7,8 +7,8 @@ import {Request, Response} from 'express';
 
 import {
   respondWithSuccessAndData,
-  respondWithErrorNotFound,
   respondWithNoContent,
+  respondWithError,
 } from '../../helpers/response.js';
 import {
   getSubmissionsFromRedditUserOnPushshift,
@@ -40,8 +40,8 @@ export default class RedditController {
         .isString().withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
-      const identifier = req.query.identifier as string;
       try {
+        const identifier = req.query.identifier as string;
         let redditData = await redditModel.findOne({identifier});
         if (redditData !== null) {
           // Entry exists
@@ -92,7 +92,7 @@ export default class RedditController {
         }
       } catch (error) {
         log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
-        respondWithErrorNotFound(res, `Error for identifier: ${req.query.identifier}`);
+        respondWithError(res, `Error for identifier: ${req.query.identifier}`);
         console.log(error);
       }
     },
@@ -104,12 +104,17 @@ export default class RedditController {
         .isString().withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
-      const identifier = req.query.identifier as string;
-      const analysis = await analyzeWithExamples(identifier);
-      respondWithSuccessAndData(
-        res,
-        analysis,
-      )
+      try {
+        const identifier = req.query.identifier as string;
+        const analysis = await analyzeWithExamples(identifier);
+        respondWithSuccessAndData(
+          res,
+          analysis,
+        )
+      } catch (error) {
+        console.log(error);
+        respondWithError(res);
+      }
     }
   ];
 
@@ -119,9 +124,9 @@ export default class RedditController {
       .isString().withMessage('Value needs to be string'),
     validate,
     async(req: Request, res: Response) => {
-      const selectedBehavior = `${req.query.behavior}`
-      let highest = {};
       try {
+        const selectedBehavior = `${req.query.behavior}`
+        let highest = {};
         switch(selectedBehavior) {
           case('toxicity'): {
             highest = await redditModel.find({})
@@ -161,9 +166,14 @@ export default class RedditController {
             break;
           }
         }
-        respondWithSuccessAndData(res, highest, `Reddit data sorted by highest ${req.query.behavior}`)
+        respondWithSuccessAndData(
+          res, 
+          highest, 
+          `Reddit data sorted by highest ${req.query.behavior}`
+          )
       } catch(error) {
         console.log(error)
+        respondWithError(res);
       }
     }
   ]
@@ -174,15 +184,20 @@ export default class RedditController {
       .isString().withMessage('Value needs to be string'),
     validate,
     async(req: Request, res: Response) => {
-      const selectedBehavior = `$analytics.perspective.${req.query.behavior}`
-      const label = req.query.behavior
       try {
+        const selectedBehavior = `$analytics.perspective.${req.query.behavior}`
+        const label = req.query.behavior
         const average = await redditModel.aggregate([
           { $group : { _id : null, label : { $avg : selectedBehavior } } }
         ]);
-        respondWithSuccessAndData(res, average, `Reddit average of ${req.query.behavior}`)
-      } catch(error) {
+        respondWithSuccessAndData(
+          res,
+          average,
+          `Reddit average of ${req.query.behavior}`
+        )
+      } catch (error) {
         console.log(error)
+        respondWithError(res);
       }
     }
   ]
@@ -191,9 +206,14 @@ export default class RedditController {
     async(req: Request, res: Response) => {
       try {
         const all = await redditModel.find({});
-        respondWithSuccessAndData(res, all, `Reddit all data`)
+        respondWithSuccessAndData(
+          res, 
+          all, 
+          `Reddit all data`
+        );
       } catch(error) {
         console.log(error)
+        respondWithError(res);
       }
     }
   ]
