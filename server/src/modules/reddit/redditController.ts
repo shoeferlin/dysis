@@ -337,6 +337,11 @@ async function analyze(identifier: string) {
 async function analyzeWithExamples(identifier: string) {
   const detailedAnalysis = await getDetailedAnalysis(identifier);
   console.log(detailedAnalysis);
+  
+  if (detailedAnalysis.length === 0) {
+    return {};
+  }
+
   const attributes = ['toxicity', 'severeToxicity', 'insult', 'identityAttack', 'threat', 'profanity'];
   
   const maxToxicity = detailedAnalysis.reduce((max, current) => max.behavior.toxicity > current.behavior.toxicity ? max : current);
