@@ -1,5 +1,4 @@
 import express from 'express';
-import path from 'path';
 
 import {requestLogger} from './middleware/requestLogger.js';
 import {respondWithSuccess} from './helpers/response.js';
@@ -22,12 +21,6 @@ router.use(requestLogger);
 // Default request
 router.get('/', (_, res) => {
   res.send(`Sever is running`);
-});
-
-// Serve favicon
-router.get('/favicon.ico', (req, res) => {
-  console.log(process.cwd())
-  return res.sendFile(path.join(process.cwd(), 'dist/assets/iconRound.ico'));
 });
 
 // Forward to module router
