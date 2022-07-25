@@ -13,7 +13,7 @@ const redditSchema = new mongoose.Schema(
           insult: {type: Number},
         },
         perspectiveExamples: {
-          examplesUpdatedAt: {type: Date},
+          examplesUpdatedAt: {type: String},
           toxicity: {
             value: {type: Number},
             text: {type: String}
