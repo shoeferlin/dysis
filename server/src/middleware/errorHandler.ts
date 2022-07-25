@@ -6,5 +6,9 @@ import {Response} from 'express';
  * @param {Response} res
  */
 export default function errorHandler(res: Response) {
-  respondWithError(res);
+  try {
+    respondWithError(res);
+  } catch (globalError) {
+    console.log(globalError);
+  }
 };
