@@ -5,7 +5,11 @@ import {Request, Response} from 'express';
 import participantModel from './participantModel.js';
 
 import validate from '../helpers/validate.js';
-import {respondWithError, respondWithSuccess, respondWithSuccessAndData} from '../helpers/response.js';
+import {
+  respondWithError,
+  respondWithSuccess,
+  respondWithSuccessAndData
+} from '../helpers/response.js';
 
 
 export default class TrackingRouter {
@@ -72,7 +76,9 @@ export default class TrackingRouter {
     validate,
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.findOne({id: req.body.participantID});
+        const participant = await participantModel.findOne({_id: req.body.participantID});
+        console.log(req.body.participantID);
+        console.log(participant);
         if (participant === null) {
           respondWithError(res, 'Could not find participant')
         } else {

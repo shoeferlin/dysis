@@ -14,7 +14,6 @@ export default class DysisBackgroundTracking {
   private usageTimeVariableName: string;
 
   private browserActivityState: string = 'active'
-
   private participantID: string;
 
   constructor(

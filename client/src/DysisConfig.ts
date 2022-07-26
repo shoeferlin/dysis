@@ -1,6 +1,7 @@
 export const dysisConfig = {
   server: {
-    baseUrl: 'https://dysis-server.herokuapp.com/'
+    // baseUrl: 'https://dysis-server.herokuapp.com/'
+    baseUrl: 'http://localhost:8080/'
   },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
@@ -10,7 +11,7 @@ export const dysisConfig = {
   sync: {
     showNotificationWhenSyncing: true,
     defaultTrackingIntervalInSeconds: 1,
-    defaultSyncIntervalInSeconds: 60 * 15,
+    defaultSyncIntervalInSeconds: 10,
   },
   debug: {
     displayMutationRecords: false,
