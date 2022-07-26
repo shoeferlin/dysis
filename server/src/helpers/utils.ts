@@ -1,5 +1,3 @@
-import Blob from 'cross-blob';
-
 /**
  * Returns random number between 0 and int max
  * @param {number} max indicates the maximum integer range

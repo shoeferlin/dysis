@@ -1,9 +1,6 @@
-/* eslint-disable require-jsdoc */
-
-import log from '../../helpers/log.js';
-import {query} from 'express-validator';
-import {differenceInHours, parseISO} from 'date-fns';
-import {Request, Response} from 'express';
+import { query } from 'express-validator';
+import { differenceInHours } from 'date-fns';
+import { Request, Response } from 'express';
 
 import {
   respondWithSuccessAndData,
@@ -16,9 +13,10 @@ import {
 } from '../../sources/reddit/pushshift.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
-import {getCountOfSubreddits} from '../../helpers/utils.js'
-import {PushshiftRedditPost} from '../../sources/reddit/pushshift.d.js';
-import {ToxicityContext} from '../../analytics/ToxicityContext.js';
+import { getCountOfSubreddits } from '../../helpers/utils.js';
+import { PushshiftRedditPost } from '../../sources/reddit/pushshift.d.js';
+import { ToxicityContext } from '../../analytics/ToxicityContext.js';
+import log from '../../helpers/log.js';
 
 const VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
 const VALIDITY_ANALYSIS_DEBUG = false;
