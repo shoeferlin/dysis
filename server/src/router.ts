@@ -8,7 +8,7 @@ import {
 } from './helpers/authenticate.js';
 
 import moduleRouter from './modules/moduleRouter.js';
-import trackingRouter from './tracking/trackingRouter.js';
+import participantRouter from './participant/participantRouter.js';
 
 import {PerspectiveController} from './analytics/toxicity/PerspectiveController.js';
 import {PushshiftController} from './sources/reddit/pushshift.js';
@@ -27,7 +27,7 @@ router.get('/', (_, res) => {
 router.use('/api', moduleRouter);
 
 // Forward to tracking router
-router.use('/tracking', trackingRouter)
+router.use('/tracking', participantRouter)
 
 // Receive authentication token by using .env environment user and password
 router.get('/authenticate', AuthenticationController.authenticate);

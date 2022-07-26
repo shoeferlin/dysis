@@ -12,7 +12,7 @@ import {
 } from '../helpers/response.js';
 
 
-export default class TrackingRouter {
+export default class ParticipantRouter {
   /**
    * Takes multiple identifiers in a post body and sends array of results
    * (array can be empty if no results are found)
@@ -77,8 +77,6 @@ export default class TrackingRouter {
     async (req: Request, res: Response) => {
       try {
         const participant = await participantModel.findOne({_id: req.body.participantID});
-        console.log(req.body.participantID);
-        console.log(participant);
         if (participant === null) {
           respondWithError(res, 'Could not find participant')
         } else {
