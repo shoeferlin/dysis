@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import redditController from './redditController.js';
-import {validateAuthentication} from './../../helpers/authenticate.js';
+import { validateAuthentication } from '../../helpers/authenticate.js';
 
 const redditRouter: express.Router = express.Router();
 

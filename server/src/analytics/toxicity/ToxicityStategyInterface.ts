@@ -1,8 +1,3 @@
-
-export interface ToxicityStategyI {
-  analyze(text: string): Promise<ToxicityI>;
-}
-
 export interface ToxicityI {
   toxicity?: number,
   severeToxicity?: number,
@@ -12,4 +7,9 @@ export interface ToxicityI {
   sexualExplicit?: number,
   threat?: number,
   profanity?: number,
+}
+
+export interface ToxicityStategyI {
+  // eslint-disable-next-line no-unused-vars
+  analyze(text: string): Promise<ToxicityI>;
 }

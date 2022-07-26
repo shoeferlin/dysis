@@ -1,5 +1,3 @@
-/* eslint-disable require-jsdoc */
-
 import { body } from 'express-validator';
 import { Request, Response } from 'express';
 import participantModel from './participantModel.js';
@@ -85,7 +83,7 @@ export default class ParticipantRouter {
       .exists()
       .withMessage('Value is required')
       .isNumeric()
-      .withMessage('Value needs to be UTC number'),
+      .withMessage('Value needs to be number'),
     validate,
     async (req: Request, res: Response) => {
       try {

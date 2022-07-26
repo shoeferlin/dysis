@@ -1,7 +1,7 @@
 import jsonwebtoken from 'jsonwebtoken';
-import {body} from 'express-validator';
+import { body } from 'express-validator';
 import dotenv from 'dotenv';
-import {Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 
 import {
   respondWithErrorUnauthorized,
@@ -22,16 +22,16 @@ const secret: string = ENV.TOKEN_SECRET ? ENV.TOKEN_SECRET : '';
  */
 export function generateAccessToken(username: string) {
   return jsonwebtoken.sign(
-      // Payload
-      {
-        username: username,
-      },
-      // Secret token
-      secret,
-      // Configurations such as expiry
-      {
-        expiresIn: '14d',
-      },
+    // Payload
+    {
+      username,
+    },
+    // Secret token
+    secret,
+    // Configurations such as expiry
+    {
+      expiresIn: '14d',
+    },
   );
 }
 
@@ -42,20 +42,20 @@ export function generateAccessToken(username: string) {
  * @param next
  */
 export function validateAuthentication(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers['authorization'];
+  const token = req.headers.authorization;
   if (token === null || token === undefined) {
-    respondWithErrorUnauthorized(res)
-  };
-  jsonwebtoken.verify(token ? token : '', secret, (err: any, data: any) => {
+    respondWithErrorUnauthorized(res);
+  }
+  jsonwebtoken.verify(token || '', secret, (err: any, data: any) => {
     if (err) {
       log.warn('ERROR', err.toString());
       return respondWithErrorUnauthorized(res);
-    };
+    }
     log.info('AUTHENTICATED', data.username);
     res.locals.user = data.username;
-    next();
+    return next();
   });
-};
+}
 
 /**
  * Simple controller for authentication that can be re-factored if this
@@ -66,16 +66,18 @@ export function validateAuthentication(req: Request, res: Response, next: NextFu
 export class AuthenticationController {
   static authenticate = [
     body('username')
-        .exists().isString(),
+      .exists()
+      .isString(),
     body('password')
-        .exists().isString(),
+      .exists()
+      .isString(),
     validate,
     (req: Request, res: Response) => {
       // Simple super user validation with .env variables
       const adminUsername = ENV.ADMIN_USERNAME;
       const adminPassword = ENV.ADMIN_PASSWORD;
-      if (req.body.username === adminUsername &&
-          req.body.password === adminPassword
+      if (req.body.username === adminUsername
+          && req.body.password === adminPassword
       ) {
         const data = {
           token: generateAccessToken(req.body.username),
@@ -83,8 +85,7 @@ export class AuthenticationController {
         respondWithSuccessAndData(res, data);
       } else {
         respondWithErrorUnauthorized(res, 'Wrong credentials provided');
-      };
+      }
     },
   ];
 }
-

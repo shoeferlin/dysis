@@ -1,49 +1,46 @@
 import axios, { AxiosPromise } from 'axios';
 import dotenv from 'dotenv';
 
-import {ToxicityStategyI, ToxicityI} from './ToxicityStategyInterface.js';
-import {limitByteSizeOfText} from '../../helpers/utils.js';
+import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
+import { limitByteSizeOfText } from '../../helpers/utils.js';
 
-export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
-
+export default class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
   private googleApiKey: string;
 
   constructor() {
     dotenv.config();
     if (!process.env.GOOGLE_API_KEY) {
-      throw new Error('Google API key not set in .env-file')
+      throw new Error('Google API key not set in .env-file');
     } else {
-      this.googleApiKey = process.env.GOOGLE_API_KEY
+      this.googleApiKey = process.env.GOOGLE_API_KEY;
     }
   }
 
   async analyze(text: string): Promise<ToxicityI> {
-    text = limitByteSizeOfText(text, 20480, 10)
-    const response = await this.postRequestToGooglePerspectiveAPI(text);
+    const limitedText = limitByteSizeOfText(text, 20480, 10);
+    const response = await this.postRequestToGooglePerspectiveAPI(limitedText);
     if (response.statusText === 'OK') {
       return this.googlePerspectiveAdapter(response.data);
-    } else {
-      throw Error('Error while calling perspective API')
     }
+    throw Error('Error while calling perspective API');
   }
 
-  private googlePerspectiveAdapter(tensorflowToxicity: any): ToxicityI {
+  private googlePerspectiveAdapter(input: any): ToxicityI {
     const toxicity: ToxicityI = {
-      toxicity: tensorflowToxicity.attributeScores?.TOXICITY?.summaryScore.value ?? null,
-      severeToxicity: tensorflowToxicity.attributeScores?.SEVERE_TOXICITY?.summaryScore.value ?? null,
-      identityAttack: tensorflowToxicity.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,
-      insult: tensorflowToxicity.attributeScores?.INSULT.summaryScore?.value ?? null,
-      threat: tensorflowToxicity.attributeScores?.THREAT.summaryScore?.value ?? null,
-      profanity: tensorflowToxicity.attributeScores?.PROFANITY.summaryScore?.value ?? null,
-    }
+      toxicity: input.attributeScores?.TOXICITY?.summaryScore.value ?? null,
+      severeToxicity: input.attributeScores?.SEVERE_TOXICITY?.summaryScore.value ?? null,
+      identityAttack: input.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,
+      insult: input.attributeScores?.INSULT.summaryScore?.value ?? null,
+      threat: input.attributeScores?.THREAT.summaryScore?.value ?? null,
+      profanity: input.attributeScores?.PROFANITY.summaryScore?.value ?? null,
+    };
     return toxicity;
   }
-
 
   postRequestToGooglePerspectiveAPI(text: string): AxiosPromise<any> {
     return axios.post(
       `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${this.googleApiKey}`,
-      { 
+      {
         comment: { text },
         requestedAttributes: {
           TOXICITY: {},
@@ -53,14 +50,14 @@ export class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
           THREAT: {},
           INSULT: {},
         },
-        'doNotStore': true,
+        doNotStore: true,
       },
-      { 
+      {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',
           'Access-Control-Allow-Origin': '*',
-        }
+        },
       },
-    )
+    );
   }
 }

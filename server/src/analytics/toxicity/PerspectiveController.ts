@@ -1,34 +1,36 @@
-import {Request, Response} from 'express';
-import {body} from 'express-validator';
+import { Request, Response } from 'express';
+import { body } from 'express-validator';
 
 import validate from '../../helpers/validate.js';
-import {respondWithSuccessAndData} from '../../helpers/response.js';
+import { respondWithSuccessAndData } from '../../helpers/response.js';
 
-import {ToxicityContext} from '../ToxicityContext.js';
+import ToxicityContext from '../ToxicityContext.js';
 
-export class PerspectiveController {
+export default class PerspectiveController {
   static analyzeComment = [
     // Validations using express-validator
     body('text')
-        .exists().withMessage('text in request body required')
-        .isString().withMessage('text must be a string'),
+      .exists()
+      .withMessage('text in request body required')
+      .isString()
+      .withMessage('text must be a string'),
     // Using own helper to check for generated validation errors
     validate,
     // Actual controller method handling valid request
     async (req: Request, res: Response) => {
-      const text = req.body.text;
+      const { text } = req.body;
       try {
         const analysis = await ToxicityContext.analyze(text);
         const data = {
           perspective: analysis,
         };
         respondWithSuccessAndData(
-            res,
-            data,
-            'Perspective returned the following data',
+          res,
+          data,
+          'Perspective returned the following data',
         );
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     },
   ];

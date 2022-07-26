@@ -1,5 +1,4 @@
-/* eslint-disable require-jsdoc */
-import {google} from 'googleapis';
+import { google } from 'googleapis';
 
 const DISCOVERY_URL = 'https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1';
 
@@ -8,8 +7,8 @@ async function getClient() {
   return client;
 }
 
-export async function analyzeRequest(text, googleApiKey) {
-  return new Promise(async function(resolve, reject) {
+export default async function analyzeRequest(text, googleApiKey) {
+  return new Promise(async (resolve, reject) => {
     const request = {
       comment: {
         text,
@@ -26,16 +25,16 @@ export async function analyzeRequest(text, googleApiKey) {
     };
     const client = await getClient();
     client.comments.analyze(
-        {
-          key: googleApiKey,
-          resource: request,
-        },
-        (error, response) => {
-          if (error) {
-            reject(error);
-          }
-          resolve(response);
-        },
+      {
+        key: googleApiKey,
+        resource: request,
+      },
+      (error, response) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(response);
+      },
     );
   });
 }
