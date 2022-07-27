@@ -9,9 +9,9 @@ export const dysisConfig = {
     maxNumberOfRequestAttempts: 3,
   },
   sync: {
-    showNotificationWhenSyncing: true,
+    showNotificationWhenSyncing: false,
     defaultTrackingIntervalInSeconds: 1,
-    defaultSyncIntervalInSeconds: 10,
+    defaultSyncIntervalInSeconds: 60 * 15,
   },
   debug: {
     displayMutationRecords: false,
@@ -22,6 +22,7 @@ export const dysisConfig = {
     displaySyncingInformation: false,
     displaySyncing: false,
     displayRequestTimeoutsAndRetries: false,
+    displayEnrichmentElementCreated: false,
   },
   reddit: {
     timeoutUntilAnElementIsInViewportInMilliseconds: 125,
