@@ -9,6 +9,7 @@ import errorHandler from './errorHandler.js';
  * @param res
  */
 export default function errorLogger(error: Error, res: Response) {
-  log.error('SERVER ERROR', error.stack ? error.stack : error.toString());
+  log.error('SERVER ERROR', '');
+  console.log(error);
   errorHandler(res);
 }

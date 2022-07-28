@@ -14,6 +14,7 @@ import {
 import {
   PushshiftRedditCommentResponse,
   PushshiftRedditSubmissionResponse,
+// eslint-disable-next-line import/extensions
 } from './pushshift.d';
 
 async function getCommentsFromRedditUserOnPushshift(username: string) {
@@ -72,12 +73,9 @@ class PushshiftController {
           { pushshift: response.data },
           'Pushshift API returned the following data',
         );
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          log.error('ERROR', error.message);
-        } else {
-          console.log('Unexpected error', error);
-        }
+      } catch (error: any) {
+        log.error('PUSHSHIFT', 'Error for method getComments()');
+        console.log(error);
       }
     },
   ];
@@ -115,6 +113,7 @@ class PushshiftController {
           'Pushshift API returned the following data',
         );
       } catch (error) {
+        log.error('PUSHSHIFT', 'Error for method getSubmissions()');
         console.log(error);
       }
     },

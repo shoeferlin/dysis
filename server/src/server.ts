@@ -27,8 +27,9 @@ try {
   ).then(() => {
     log.info('SERVER START', 'Database is connecting ...');
   });
-} catch (err: any) {
-  log.error('ERROR', err.toString());
+} catch (error: any) {
+  log.error('SERVER START', 'Error');
+  console.log(error);
 }
 const db = mongoose.connection;
 if (db.readyState) log.info('SERVER START', 'Database is connected ...');
