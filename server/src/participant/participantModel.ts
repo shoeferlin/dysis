@@ -26,6 +26,6 @@ participantSchema.virtual('dysis.totalUsageTimeInHours').get(function totalUsage
 });
 mongoose.set('toJSON', { virtuals: true });
 
-const participantModel = mongoose.model('participant', participantSchema);
+const ParticipantModel = mongoose.model('participant', participantSchema);
 
-export default participantModel;
+export default ParticipantModel;

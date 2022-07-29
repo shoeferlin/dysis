@@ -8,9 +8,9 @@ import {
   respondWithError,
 } from '../../helpers/response.js';
 import validate from '../../helpers/validate.js';
-import redditModel from './redditModel.js';
+import RedditModel from './RedditModel.js';
 import { getCountOfSubreddits } from '../../helpers/utils.js';
-import ToxicityContext from '../../analytics/ToxicityContext.js';
+import PerspectiveContext from '../../analytics/perspective/PerspectiveContext.js';
 import log from '../../helpers/log.js';
 import PushshiftRedditPost from '../../sources/reddit/PushshiftInterface.js';
 import Pushshift from '../../sources/reddit/Pushshift.js';
@@ -34,7 +34,7 @@ export default class RedditController {
     async (req: Request, res: Response) => {
       try {
         const identifier = req.query.identifier as string;
-        let redditData = await redditModel.findOne({ identifier });
+        let redditData = await RedditModel.findOne({ identifier });
         if (redditData !== null) {
           // Entry exists
           const lastTimeUpdated = redditData.updatedAt;
@@ -74,7 +74,7 @@ export default class RedditController {
           log.info('ANALYSIS', `Creating (${identifier})`);
           try {
             const data = await this.analyzeFunctionality(identifier);
-            redditData = await redditModel.create(data);
+            redditData = await RedditModel.create(data);
             respondWithSuccessAndData(
               res,
               await redditData,
@@ -104,7 +104,7 @@ export default class RedditController {
     async (req: Request, res: Response) => {
       try {
         const identifier = req.query.identifier as string;
-        let redditData = await redditModel.findOne({ identifier });
+        let redditData = await RedditModel.findOne({ identifier });
         // Entry exists
         if (redditData !== null) {
           const lastTimeUpdated = redditData.analytics.perspectiveExamples.examplesUpdatedAt;
@@ -146,7 +146,7 @@ export default class RedditController {
         // Entry does not exist
         } else {
           const data = await this.analyzeFunctionality(identifier);
-          redditData = await redditModel.create(data);
+          redditData = await RedditModel.create(data);
           const analysis = await this.analyzeDetailedFunctionality(identifier);
           redditData.analytics.perspectiveExamples = analysis;
           redditData = await redditData.save();
@@ -175,37 +175,37 @@ export default class RedditController {
         let highest = {};
         switch (selectedBehavior) {
           case ('toxicity'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.toxicity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
           } case ('severeToxicity'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.severeToxicity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
           } case ('insult'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.insult': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
           } case ('threat'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.threat': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
           } case ('profanity'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.profanity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
           } case ('identityAttack'): {
-            highest = await redditModel.find({})
+            highest = await RedditModel.find({})
               .sort({ 'analytics.perspective.identityAttack': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
@@ -238,7 +238,7 @@ export default class RedditController {
         const selectedBehavior = `$analytics.perspective.${req.query.behavior}`;
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const label = req.query.behavior;
-        const average = await redditModel.aggregate([
+        const average = await RedditModel.aggregate([
           { $group: { _id: null, label: { $avg: selectedBehavior } } },
         ]);
         respondWithSuccessAndData(
@@ -256,7 +256,7 @@ export default class RedditController {
   static all = [
     async (_: Request, res: Response) => {
       try {
-        const all = await redditModel.find({});
+        const all = await RedditModel.find({});
         respondWithSuccessAndData(
           res,
           all,
@@ -322,7 +322,7 @@ export default class RedditController {
       .slice(0, 30).join('; ');
 
     if (textSnippets !== '') {
-      const perspective = await ToxicityContext.analyze(textSnippets);
+      const perspective = await PerspectiveContext.analyze(textSnippets);
       log.info('ANALYSIS', `Toxicity (${identifier})`);
       console.log(perspective);
       redditDataModel.analytics.perspective.toxicity = perspective.toxicity;
@@ -564,7 +564,7 @@ export default class RedditController {
         }
         if (postText !== '') {
           try {
-            const behaviorResult = await ToxicityContext.analyze(postText);
+            const behaviorResult = await PerspectiveContext.analyze(postText);
             const postAnalysis = {
               text: postText,
               behavior: {

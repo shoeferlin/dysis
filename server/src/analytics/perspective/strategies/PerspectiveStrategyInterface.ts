@@ -1,4 +1,4 @@
-export interface ToxicityI {
+export interface PerspectiveI {
   toxicity?: number,
   severeToxicity?: number,
   identityAttack?: number,
@@ -9,7 +9,7 @@ export interface ToxicityI {
   profanity?: number,
 }
 
-export interface ToxicityStategyI {
+export interface PerspectiveStrategyI {
   // eslint-disable-next-line no-unused-vars
-  analyze(text: string): Promise<ToxicityI>;
+  analyze(text: string): Promise<PerspectiveI>;
 }

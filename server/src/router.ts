@@ -3,12 +3,12 @@ import express from 'express';
 import { requestLogger } from './middleware/requestLogger.js';
 import { respondWithSuccess } from './helpers/response.js';
 
-import moduleRouter from './modules/moduleRouter.js';
-import participantRouter from './participant/participantRouter.js';
+import ModuleRouter from './modules/ModuleRouter.js';
+import ParticipantRouter from './participant/ParticipantRouter.js';
 
 import AuthenticationController from './authentication/AuthenticationController.js';
 import PushshiftRouter from './sources/reddit/PushshiftRouter.js';
-import PerspectiveRouter from './analytics/toxicity/PerspectiveRouter.js';
+import PerspectiveRouter from './analytics/perspective/PerspectiveRouter.js';
 
 const router = express();
 
@@ -21,10 +21,10 @@ router.get('/', (_, res) => {
 });
 
 // Forward to module router
-router.use('/api', moduleRouter);
+router.use('/api', ModuleRouter);
 
 // Forward to tracking router
-router.use('/tracking', participantRouter);
+router.use('/tracking', ParticipantRouter);
 
 // Receive authentication token by using .env environment user and password
 router.get('', AuthenticationController.authenticate);

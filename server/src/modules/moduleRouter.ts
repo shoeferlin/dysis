@@ -1,16 +1,16 @@
 import express from 'express';
 
-import redditRouter from './reddit/redditRouter.js';
-import zeitRouter from './zeit/zeitRouter.js';
+import RedditRouter from './reddit/RedditRouter.js';
+import ZeitRouter from './zeit/ZeitRouter.js';
 
-const moduleRouter = express();
+const ModuleRouter = express();
 
-moduleRouter.get('', (_, res) => {
+ModuleRouter.get('', (_, res) => {
   res.send('Module API is running');
 });
 
 // Register modules below
-moduleRouter.use('/reddit', redditRouter);
-moduleRouter.use('/zeit', zeitRouter);
+ModuleRouter.use('/reddit', RedditRouter);
+ModuleRouter.use('/zeit', ZeitRouter);
 
-export default moduleRouter;
+export default ModuleRouter;

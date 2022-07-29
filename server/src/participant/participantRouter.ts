@@ -2,14 +2,14 @@ import * as express from 'express';
 import AuthenticationController from '../authentication/AuthenticationController.js';
 import ParticipantController from './ParticipantController.js';
 
-const participantRouter: express.Router = express.Router();
+const ParticipantRouter: express.Router = express.Router();
 
-participantRouter.post('/create', ParticipantController.create);
-participantRouter.post('/update/dysis', ParticipantController.updateDysis);
+ParticipantRouter.post('/create', ParticipantController.create);
+ParticipantRouter.post('/update/dysis', ParticipantController.updateDysis);
 
 /** Authentication required below */
-participantRouter.use(AuthenticationController.validateAuthentication);
+ParticipantRouter.use(AuthenticationController.validateAuthentication);
 
-participantRouter.get('/all', ParticipantController.all);
+ParticipantRouter.get('/all', ParticipantController.all);
 
-export default participantRouter;
+export default ParticipantRouter;

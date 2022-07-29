@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 import { Request, Response } from 'express';
-import participantModel from './participantModel.js';
+import ParticipantModel from './ParticipantModel.js';
 
 import validate from '../helpers/validate.js';
 import {
@@ -49,7 +49,7 @@ export default class ParticipantController {
     // Actual controller method handling valid request
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.create(
+        const participant = await ParticipantModel.create(
           {
             firstName: req.body.participantFirstName,
             lastName: req.body.participantLastName,
@@ -87,7 +87,7 @@ export default class ParticipantController {
     validate,
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.findOne({ _id: req.body.participantID });
+        const participant = await ParticipantModel.findOne({ _id: req.body.participantID });
         if (participant === null) {
           respondWithError(res, 'Could not find participant');
         } else {
@@ -108,7 +108,7 @@ export default class ParticipantController {
   static all = [
     async (_: Request, res: Response) => {
       try {
-        const participants = await participantModel.find({});
+        const participants = await ParticipantModel.find({});
         respondWithSuccessAndData(
           res,
           participants,

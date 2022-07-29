@@ -1,10 +1,10 @@
 import axios, { AxiosPromise } from 'axios';
 
-import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
-import { limitByteSizeOfText } from '../../helpers/utils.js';
+import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
+import { limitByteSizeOfText } from '../../../helpers/utils.js';
 
-export default class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
-  async analyze(text: string): Promise<ToxicityI> {
+export default class PerspectiveStrategyFetch implements PerspectiveStrategyI {
+  async analyze(text: string): Promise<PerspectiveI> {
     const limitedText = limitByteSizeOfText(text, 20480, 10);
     const response = await this.postRequestToGooglePerspectiveAPI(limitedText);
     if (response.statusText === 'OK') {
@@ -13,8 +13,8 @@ export default class ToxicityStrategyPerspectiveFetch implements ToxicityStategy
     throw Error('Error while calling perspective API');
   }
 
-  private googlePerspectiveAdapter(input: any): ToxicityI {
-    const toxicity: ToxicityI = {
+  private googlePerspectiveAdapter(input: any): PerspectiveI {
+    const toxicity: PerspectiveI = {
       toxicity: input.attributeScores?.TOXICITY?.summaryScore.value ?? null,
       severeToxicity: input.attributeScores?.SEVERE_TOXICITY?.summaryScore.value ?? null,
       identityAttack: input.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,

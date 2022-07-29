@@ -65,6 +65,6 @@ redditSchema.virtual('metrics.totalPosts').get(function totalComments() {
 
 mongoose.set('toJSON', { virtuals: true });
 
-const redditModel = mongoose.model('reddit', redditSchema);
+const RedditModel = mongoose.model('reddit', redditSchema);
 
-export default redditModel;
+export default RedditModel;

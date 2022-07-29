@@ -1,9 +1,9 @@
-import analyzeRequest from './ToxicityStrategyPerspectiveGoogleClientImplementation.js';
-import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
-import { limitByteSizeOfText } from '../../helpers/utils.js';
+import analyzeRequest from './PerspectiveStrategyGoogleClientImplementation.js';
+import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
+import { limitByteSizeOfText } from '../../../helpers/utils.js';
 
-export default class ToxicityStrategyPerspectiveGoogleClient implements ToxicityStategyI {
-  async analyze(text: string): Promise<ToxicityI> {
+export default class PerspectiveStrategyGoogleClient implements PerspectiveStrategyI {
+  async analyze(text: string): Promise<PerspectiveI> {
     const limitedText = limitByteSizeOfText(text, 20480, 10);
     const response = await analyzeRequest(limitedText, process.env.GOOGLE_API_KEY);
     if (response) {
@@ -13,7 +13,7 @@ export default class ToxicityStrategyPerspectiveGoogleClient implements Toxicity
   }
 
   private googleClientAdapter(input: any): any {
-    const toxicity: ToxicityI = {
+    const toxicity: PerspectiveI = {
       toxicity: input.attributeScores?.TOXICITY?.summaryScore.value ?? null,
       severeToxicity: input.attributeScores?.SEVERE_TOXICITY?.summaryScore.value ?? null,
       identityAttack: input.attributeScores?.IDENTITY_ATTACK?.summaryScore.value ?? null,

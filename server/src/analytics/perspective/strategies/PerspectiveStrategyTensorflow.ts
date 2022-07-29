@@ -1,13 +1,9 @@
 import toxicity from '@tensorflow-models/toxicity';
 
-import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
+import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
 
-export default class ToxicityStrategyTensorflow implements ToxicityStategyI {
-  constructor() {
-    console.log('Tensorflow Strategy');
-  }
-
-  async analyze(text: string): Promise<ToxicityI> {
+export default class PerspectiveStrategyTensorflow implements PerspectiveStrategyI {
+  async analyze(text: string): Promise<PerspectiveI> {
     const prediction = await this.tensorflowToxicity(text);
     return this.tensorflowToxicityAdapter(prediction);
   }
@@ -20,8 +16,8 @@ export default class ToxicityStrategyTensorflow implements ToxicityStategyI {
     return prediction;
   }
 
-  private tensorflowToxicityAdapter(tensorflowToxicity: any): ToxicityI {
-    const toxicityResult: ToxicityI = { };
+  private tensorflowToxicityAdapter(tensorflowToxicity: any): PerspectiveI {
+    const toxicityResult: PerspectiveI = { };
     tensorflowToxicity.forEach((element: any) => {
       switch (element.label) {
         case ('toxicity'):

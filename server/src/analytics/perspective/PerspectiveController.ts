@@ -4,7 +4,7 @@ import { body } from 'express-validator';
 import validate from '../../helpers/validate.js';
 import { respondWithSuccessAndData } from '../../helpers/response.js';
 
-import ToxicityContext from '../ToxicityContext.js';
+import PerspectiveContext from './PerspectiveContext.js';
 
 export default class PerspectiveController {
   static analyzeComment = [
@@ -20,7 +20,7 @@ export default class PerspectiveController {
     async (req: Request, res: Response) => {
       const { text } = req.body;
       try {
-        const analysis = await ToxicityContext.analyze(text);
+        const analysis = await PerspectiveContext.analyze(text);
         const data = {
           perspective: analysis,
         };
