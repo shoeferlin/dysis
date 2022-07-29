@@ -6,9 +6,18 @@ import log from '../helpers/log.js';
 import validate from '../helpers/validate.js';
 import { respondWithErrorUnauthorized, respondWithSuccessAndData } from '../helpers/response.js';
 
+/**
+ * This Authentication Controller implements a JWT (JSON Web Token) based authentication using the
+ * jsonwebtoken npm package.
+ */
 export default class AuthenticationController {
   static TOKEN_EXPIRES_IN: string = '14d';
 
+  /**
+   * Public authenticate method which is an API implementation for a user to authenticate with
+   * their credentials and returns a token if successfull. Otherwise an unauthorized error is
+   * returned. The received token shall then be used in the header 'authorization'.
+   */
   static authenticate = [
     body('username')
       .exists()
@@ -34,6 +43,12 @@ export default class AuthenticationController {
     },
   ];
 
+  /**
+   * Middleware method validates an authentication. It checks the request for an 'authorization'
+   * header which should contain a valid token. If this middleware method is chained in a request
+   * but does not contain an 'authorization' header or the provided token is invalid. Then the
+   * request is returned with an unauthorized error.
+   */
   static validateAuthentication(req: Request, res: Response, next: NextFunction) {
     const token = req.headers.authorization;
     if (token === null || token === undefined) {
@@ -50,6 +65,10 @@ export default class AuthenticationController {
     });
   }
 
+  /**
+   * Private helper method to generate a valid access token which is provided to the user upon
+   * a successful authentication.
+   */
   private static generateAccessToken(username: string) {
     return jsonwebtoken.sign(
       // Payload

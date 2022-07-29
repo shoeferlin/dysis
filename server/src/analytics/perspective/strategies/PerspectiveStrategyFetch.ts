@@ -3,6 +3,13 @@ import axios, { AxiosPromise } from 'axios';
 import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
 import { limitByteSizeOfText } from '../../../helpers/utils.js';
 
+/**
+ * This implementation of a PerspectiveStrategy uses a direct fetch method call to
+ * a perspective API endpoint with the Google API Key in the params.
+ *
+ * See the cURL example on the official documentation:
+ * https://developers.perspectiveapi.com/s/docs-sample-requests
+ */
 export default class PerspectiveStrategyFetch implements PerspectiveStrategyI {
   async analyze(text: string): Promise<PerspectiveI> {
     const limitedText = limitByteSizeOfText(text, 20480, 10);

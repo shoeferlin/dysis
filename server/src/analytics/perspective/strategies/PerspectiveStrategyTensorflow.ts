@@ -2,6 +2,14 @@ import toxicity from '@tensorflow-models/toxicity';
 
 import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
 
+/**
+ * This implementation of a PerspectiveStrategy uses the a Tensorflow Model running on nodeJS.
+ * It is probably less acurate than the better trained and further developed implementations by
+ * Google. Peformance can be lower.
+ *
+ * See GitHub repository:
+ * https://www.npmjs.com/package/@tensorflow-models/toxicity
+ */
 export default class PerspectiveStrategyTensorflow implements PerspectiveStrategyI {
   async analyze(text: string): Promise<PerspectiveI> {
     const prediction = await this.tensorflowToxicity(text);

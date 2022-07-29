@@ -2,6 +2,13 @@ import analyzeRequest from './PerspectiveStrategyGoogleClientImplementation.js';
 import { PerspectiveStrategyI, PerspectiveI } from './PerspectiveStrategyInterface.js';
 import { limitByteSizeOfText } from '../../../helpers/utils.js';
 
+/**
+ * This implementation of a PerspectiveStrategy uses the provided library as npm package from
+ * Google, the actual implementation is only JavaScript based and imported above.
+ *
+ * See the nodeJS example on the offical documentation:
+ * https://developers.perspectiveapi.com/s/docs-sample-requests
+ */
 export default class PerspectiveStrategyGoogleClient implements PerspectiveStrategyI {
   async analyze(text: string): Promise<PerspectiveI> {
     const limitedText = limitByteSizeOfText(text, 20480, 10);

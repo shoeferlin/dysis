@@ -6,6 +6,10 @@ import { respondWithSuccessAndData } from '../../helpers/response.js';
 
 import PerspectiveContext from './PerspectiveContext.js';
 
+/**
+ * This controller provides a simple endpoint to a chosen PerspectiveStrategy for testing
+ * purposes. The used PerspectiveStrategy can be changed in the PerspectiveContext.
+ */
 export default class PerspectiveController {
   static analyzeComment = [
     // Validations using express-validator

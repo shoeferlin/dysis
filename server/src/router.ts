@@ -3,7 +3,7 @@ import express from 'express';
 import { requestLogger } from './middleware/requestLogger.js';
 import { respondWithSuccess } from './helpers/response.js';
 
-import ModuleRouter from './modules/ModuleRouter.js';
+import moduleRouter from './modules/moduleRouter.js';
 import ParticipantRouter from './participant/ParticipantRouter.js';
 
 import AuthenticationController from './authentication/AuthenticationController.js';
@@ -21,7 +21,7 @@ router.get('/', (_, res) => {
 });
 
 // Forward to module router
-router.use('/api', ModuleRouter);
+router.use('/api', moduleRouter);
 
 // Forward to tracking router
 router.use('/tracking', ParticipantRouter);

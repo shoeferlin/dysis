@@ -12,14 +12,12 @@ import {
 import Pushshift from './Pushshift.js';
 
 /**
- * Controller for handling incoming requests to test the Pushshift API
- * @param req request instance
- * @param res response instance
- */
+ * Controller to provide an endpoint to Pushshift mainly for testing purposes.
+*/
 export default class PushshiftController {
   /**
-   * Perspective API Controller
-   * @param req request instance
+   * Returns up to 100 comments (not submissions) for a specified user
+   * @param req request instance (query: ['username': string])
    * @param res response instance
    */
   static getComments = [
@@ -59,9 +57,9 @@ export default class PushshiftController {
   ];
 
   /**
-   * Perspective API Controller
-   * @param {Request} req request instance
-   * @param {Response} res response instance
+   * Returns up to 100 submissions (not comments) for a specified user.
+   * @param req request instance (query: ['username': string])
+   * @param res response instance
    */
   static getSubmissions = [
     // Validations using express-validator

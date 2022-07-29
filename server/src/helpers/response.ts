@@ -1,6 +1,10 @@
 import { Response } from 'express';
 import log from '../helpers/log.js';
 
+/**
+ * Below you may find multiple frequently used responses
+ */
+
 export function respondWithSuccess(
   res: Response,
   msg: string = 'Request successfull',

@@ -3,6 +3,12 @@ import PerspectiveStrategyGoogleClient from './strategies/PerspectiveStrategyGoo
 
 import log from '../../helpers/log.js';
 
+/**
+ * This Perspective Context is quick implementation of the Strategy Pattern and allows to
+ * use different Strategies to get a Perspective Analysis for a text. Just set the static member
+ * perspectiveStrategy (which needs to implement the PerspectiveStrategyI). By calling the
+ * method analyze() a Perspective Analysis will be returned.
+ */
 export default class PerspectiveContext {
   static perspectiveStrategy: PerspectiveStrategyI = new PerspectiveStrategyGoogleClient();
   // static perspectiveStrategy: PerspectiveStrategyI = new PerspectiveStrategyFetch();
