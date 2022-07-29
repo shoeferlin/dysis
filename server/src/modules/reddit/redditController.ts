@@ -18,11 +18,11 @@ import Pushshift from '../../sources/reddit/Pushshift.js';
 export default class RedditController {
   static VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
 
-  static VALIDITY_ANALYSIS_DEBUG = true;
+  static VALIDITY_ANALYSIS_DEBUG = false;
 
   static VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS = 24 * 14;
 
-  static VALIDITY_DETAILED_ANALYSIS_DEBUG = true;
+  static VALIDITY_DETAILED_ANALYSIS_DEBUG = false;
 
   static analyze = [
     query('identifier')
