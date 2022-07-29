@@ -1,21 +1,9 @@
 import axios, { AxiosPromise } from 'axios';
-import dotenv from 'dotenv';
 
 import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
 import { limitByteSizeOfText } from '../../helpers/utils.js';
 
 export default class ToxicityStrategyPerspectiveFetch implements ToxicityStategyI {
-  private googleApiKey: string;
-
-  constructor() {
-    dotenv.config();
-    if (!process.env.GOOGLE_API_KEY) {
-      throw new Error('Google API key not set in .env-file');
-    } else {
-      this.googleApiKey = process.env.GOOGLE_API_KEY;
-    }
-  }
-
   async analyze(text: string): Promise<ToxicityI> {
     const limitedText = limitByteSizeOfText(text, 20480, 10);
     const response = await this.postRequestToGooglePerspectiveAPI(limitedText);
@@ -37,9 +25,9 @@ export default class ToxicityStrategyPerspectiveFetch implements ToxicityStategy
     return toxicity;
   }
 
-  postRequestToGooglePerspectiveAPI(text: string): AxiosPromise<any> {
+  private postRequestToGooglePerspectiveAPI(text: string): AxiosPromise<any> {
     return axios.post(
-      `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${this.googleApiKey}`,
+      `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${process.env.GOOGLE_API_KEY}`,
       {
         comment: { text },
         requestedAttributes: {

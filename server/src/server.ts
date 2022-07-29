@@ -4,16 +4,13 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
 
-// Internal improts
+// Internal imports
 import log from './helpers/log.js';
 import errorHandler from './middleware/errorHandler.js';
 import router from './router.js';
 
-// Constants
+// Set environment
 dotenv.config();
-const ENV: any = process.env;
-const MONGO_DB_URI: string = ENV.MONGODB_URI ? ENV.MONGODB_URI : '';
-const DEFAULT_PORT: Number = 8080;
 
 // Setup server
 const app = express();
@@ -22,21 +19,20 @@ log.info('SERVER START', 'Started server ...');
 // Connect database
 try {
   await mongoose.connect(
-    MONGO_DB_URI,
+    process.env.MONGODB_URI,
     { autoIndex: true },
   ).then(() => {
     log.info('SERVER START', 'Database is connecting ...');
   });
 } catch (error: any) {
-  log.error('SERVER START', 'Error');
-  console.log(error);
+  log.error('ERROR', error.toString());
 }
 const db = mongoose.connection;
 if (db.readyState) log.info('SERVER START', 'Database is connected ...');
 
 // Listen for error events on database
 db.on('connected', () => log.info('DATABASE', 'Database is connected'));
-db.on('error', (err) => log.error('DATABASE', err));
+db.on('error', (error) => log.error('DATABASE', error));
 db.on('disconnected', () => log.warn('DATABASE', 'Database is disconnected'));
 
 // Configure server
@@ -45,7 +41,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Setup port (get from .env or use default 8080)
-const port = ENV.PORT || DEFAULT_PORT;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   log.info('SERVER START', `Server is listening on port ${port} ...`);
 });

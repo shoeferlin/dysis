@@ -43,9 +43,6 @@ router.get('/protectedContent', (_, res) => {
 router.post('/api/perspective', PerspectiveController.analyzeComment);
 router.get('/api/pushshift/debug', PushshiftController.debug);
 router.get('/api/pushshift/getComments', PushshiftController.getComments);
-router.get(
-  '/api/pushshift/getSubmissions',
-  PushshiftController.getSubmissions,
-);
+router.get('/api/pushshift/getSubmissions', PushshiftController.getSubmissions);
 
 export default router;

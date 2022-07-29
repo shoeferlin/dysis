@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "tsc-watch --onSuccess \"nodemon dist/sever.js\"",
+    "dev": "set NODE_ENV=DEV && tsc-watch --onSuccess \"nodemon dist/sever.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "./node_modules/typescript/bin/tsc",
     "buildDev": "npx tsc",

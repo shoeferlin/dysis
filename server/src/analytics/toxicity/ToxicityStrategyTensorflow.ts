@@ -4,10 +4,6 @@ import { ToxicityStategyI, ToxicityI } from './ToxicityStategyInterface.js';
 
 export default class ToxicityStrategyTensorflow implements ToxicityStategyI {
   constructor() {
-    this.init();
-  }
-
-  init(): void {
     console.log('Tensorflow Strategy');
   }
 
@@ -16,7 +12,7 @@ export default class ToxicityStrategyTensorflow implements ToxicityStategyI {
     return this.tensorflowToxicityAdapter(prediction);
   }
 
-  async tensorflowToxicity(text: string) {
+  private async tensorflowToxicity(text: string) {
     const threshold: number = 0.9;
     const model = await toxicity.load(threshold, []);
     console.log(`Getting Tensorflow Toxicity for:\n'${text}'`);
