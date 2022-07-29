@@ -7,25 +7,22 @@ import {
   respondWithNoContent,
   respondWithError,
 } from '../../helpers/response.js';
-import {
-  getSubmissionsFromRedditUserOnPushshift,
-  getCommentsFromRedditUserOnPushshift,
-} from '../../sources/reddit/pushshift.js';
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 import { getCountOfSubreddits } from '../../helpers/utils.js';
-import PushshiftRedditPost from '../../sources/reddit/pushshiftInterface.js';
 import ToxicityContext from '../../analytics/ToxicityContext.js';
 import log from '../../helpers/log.js';
+import PushshiftRedditPost from '../../sources/reddit/PushshiftInterface.js';
+import Pushshift from '../../sources/reddit/Pushshift.js';
 
 export default class RedditController {
   static VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
 
-  static VALIDITY_ANALYSIS_DEBUG = false;
+  static VALIDITY_ANALYSIS_DEBUG = true;
 
   static VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS = 24 * 14;
 
-  static VALIDITY_DETAILED_ANALYSIS_DEBUG = false;
+  static VALIDITY_DETAILED_ANALYSIS_DEBUG = true;
 
   static analyze = [
     query('identifier')
@@ -311,12 +308,12 @@ export default class RedditController {
 
     log.info('ANALYSIS', `Analyzing information (${identifier})`);
 
-    const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
+    const submissionsResponse = await Pushshift.getSubmissionsFromRedditUserOnPushshift(
       identifier,
     );
     const submissions = submissionsResponse.data;
 
-    const commentsResponse = await getCommentsFromRedditUserOnPushshift(
+    const commentsResponse = await Pushshift.getCommentsFromRedditUserOnPushshift(
       identifier,
     );
     const comments = commentsResponse.data;
@@ -522,12 +519,12 @@ export default class RedditController {
 
       log.info('DETAILED ANALYSIS', `Analyzing information (${identifier})`);
 
-      const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
+      const submissionsResponse = await Pushshift.getSubmissionsFromRedditUserOnPushshift(
         identifier,
       );
       const submissions: PushshiftRedditPost[] = submissionsResponse.data.data;
 
-      const commentsResponse = await getCommentsFromRedditUserOnPushshift(
+      const commentsResponse = await Pushshift.getCommentsFromRedditUserOnPushshift(
         identifier,
       );
       const comments: PushshiftRedditPost[] = commentsResponse.data.data;

@@ -6,9 +6,9 @@ import { respondWithSuccess } from './helpers/response.js';
 import moduleRouter from './modules/moduleRouter.js';
 import participantRouter from './participant/participantRouter.js';
 
-import PerspectiveController from './analytics/toxicity/PerspectiveController.js';
-import { PushshiftController } from './sources/reddit/pushshift.js';
 import AuthenticationController from './authentication/AuthenticationController.js';
+import PushshiftRouter from './sources/reddit/PushshiftRouter.js';
+import PerspectiveRouter from './analytics/toxicity/PerspectiveRouter.js';
 
 const router = express();
 
@@ -27,7 +27,7 @@ router.use('/api', moduleRouter);
 router.use('/tracking', participantRouter);
 
 // Receive authentication token by using .env environment user and password
-router.get('/authenticate', AuthenticationController.authenticate);
+router.get('', AuthenticationController.authenticate);
 
 /**
  *  AUTHENTICATION REQUIRED
@@ -39,10 +39,7 @@ router.get('/protectedContent', (_, res) => {
   respondWithSuccess(res, 'Content which needs authentication');
 });
 
-// Pushshift API
-router.post('/api/perspective', PerspectiveController.analyzeComment);
-router.get('/api/pushshift/debug', PushshiftController.debug);
-router.get('/api/pushshift/getComments', PushshiftController.getComments);
-router.get('/api/pushshift/getSubmissions', PushshiftController.getSubmissions);
+router.use('/api/pushshift', PushshiftRouter);
+router.use('/api/perspective', PerspectiveRouter);
 
 export default router;
