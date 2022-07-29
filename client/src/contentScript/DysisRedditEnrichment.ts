@@ -2,9 +2,16 @@ import {DysisReddit} from './DysisReddit';
 import {DysisRequest} from '../DysisRequest';
 import {dysisConfig} from '../DysisConfig';
 
+/**
+ * DysisRedditEnrichment instances are created for each relevant (i.e. visible) user object 
+ * (i.e. anchor tag element containing a user path) and manage the actual displying of the
+ * Dysis information for a given identifier (i.e. username from the anchor element path).
+ * Thereby this class represents the actual Enrichment for reddit.
+ */
 export class DysisRedditEnrichment {
 
   hostingElement: HTMLAnchorElement;
+  injetionElement: HTMLElement;
   dysisContainer: HTMLElement;
   dysisTagContainer: HTMLElement;
   identifier: String;
@@ -50,8 +57,14 @@ export class DysisRedditEnrichment {
   MAX_NUMBER_OF_REQUEST_ATTEMPTS: number = dysisConfig.requests.maxNumberOfRequestAttempts;
 
   constructor(hostingElement: HTMLAnchorElement) {
-    this.hostingElement = hostingElement;
     this.identifier = DysisReddit.getUsernameParamFromPath(hostingElement.href);
+    this.hostingElement = hostingElement;
+    if (hostingElement.parentElement.id?.includes('UserInfoTooltip')) {
+      console.log(`Tooltip for ${this.identifier}`)
+      this.injetionElement = hostingElement.parentElement.parentElement;
+    } else {
+      this.injetionElement = hostingElement;
+    };
     if (dysisConfig.debug.displayEnrichmentInstancesCreated) {
       console.log(`Dysis User Enrichment created for "${this.identifier}"...`)
     }
@@ -64,8 +77,8 @@ export class DysisRedditEnrichment {
     const dysisContainer = document.createElement('div');
     dysisContainer.classList.add('dysis');
 
-    this.hostingElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
-    this.hostingElement.parentElement.parentElement.parentElement.classList.add('dysis-hosting-element');
+    this.injetionElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
+    this.injetionElement.parentElement.parentElement.parentElement.classList.add('dysis-hosting-element');
     
     this.dysisContainer = dysisContainer;   
 
@@ -305,7 +318,7 @@ export class DysisRedditEnrichment {
   }
 
   private instanceIsInViewport(): boolean {
-    const bounding = this.hostingElement.getBoundingClientRect();
+    const bounding = this.injetionElement.getBoundingClientRect();
     const result = (
       bounding.top >= 0 
       && bounding.left >= 0 
