@@ -1,8 +1,6 @@
-/* eslint-disable require-jsdoc */
-
 import { body } from 'express-validator';
 import { Request, Response } from 'express';
-import participantModel from './participantModel.js';
+import ParticipantModel from './ParticipantModel.js';
 
 import validate from '../helpers/validate.js';
 import {
@@ -11,16 +9,22 @@ import {
   respondWithSuccessAndData,
 } from '../helpers/response.js';
 
-export default class ParticipantRouter {
+/**
+ * Controller for participants which take part in the study and agreed to the terms.
+ */
+export default class ParticipantController {
   /**
-   * Takes multiple identifiers in a post body and sends array of results
-   * (array can be empty if no results are found)
-   * Creates an reddit object
-   * @param res response instance
+   * Creates a new study participant which is required.
+   * @param req request instance (body: [
+   *  'participantFirstName': string,
+   *  'participantLastName': string,
+   *  'participantAgreedToTerms': boolean,
+   *  'participantSubmitted': boolean,
+   *  'participantInstallationDate': string (ISODate),
+   * ])
    * @param res response instance
    */
   static create = [
-    // Validations using express-validator
     body('participantFirstName')
       .exists()
       .withMessage('Value is required')
@@ -46,12 +50,10 @@ export default class ParticipantRouter {
       .withMessage('Value is required')
       .isString()
       .withMessage('Value needs to be a string (ISO date string)'),
-    // Using own helper to check for generated validation errors
     validate,
-    // Actual controller method handling valid request
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.create(
+        const participant = await ParticipantModel.create(
           {
             firstName: req.body.participantFirstName,
             lastName: req.body.participantLastName,
@@ -75,6 +77,14 @@ export default class ParticipantRouter {
     },
   ];
 
+  /**
+   * Updates the totalUsageTime of a participant.
+   * @param req request instance (body: [
+   *  'participantID': string,
+   *  'totalUsageTime': number,
+   * ])
+   * @param res response instance
+   */
   static updateDysis = [
     body('participantID')
       .exists()
@@ -85,11 +95,11 @@ export default class ParticipantRouter {
       .exists()
       .withMessage('Value is required')
       .isNumeric()
-      .withMessage('Value needs to be UTC number'),
+      .withMessage('Value needs to be number'),
     validate,
     async (req: Request, res: Response) => {
       try {
-        const participant = await participantModel.findOne({ _id: req.body.participantID });
+        const participant = await ParticipantModel.findOne({ _id: req.body.participantID });
         if (participant === null) {
           respondWithError(res, 'Could not find participant');
         } else {
@@ -107,10 +117,16 @@ export default class ParticipantRouter {
     },
   ];
 
+  /**
+   * Returns all participant mainly used to observe the study progress. Access should only be
+   * granted with authentication (see router).
+   * @param req request instance
+   * @param res response instance
+   */
   static all = [
     async (_: Request, res: Response) => {
       try {
-        const participants = await participantModel.find({});
+        const participants = await ParticipantModel.find({});
         respondWithSuccessAndData(
           res,
           participants,

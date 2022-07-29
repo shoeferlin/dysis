@@ -1,5 +1,5 @@
-import {respondWithError} from '../helpers/response.js';
-import {Response} from 'express';
+import { Response } from 'express';
+import { respondWithError } from '../helpers/response.js';
 
 /**
  * Middleware function to handle errors occuring by sending error response
@@ -11,4 +11,4 @@ export default function errorHandler(res: Response) {
   } catch (globalError) {
     console.log(globalError);
   }
-};
+}

@@ -1,16 +1,15 @@
 import * as express from 'express';
+import AuthenticationController from '../authentication/AuthenticationController.js';
+import ParticipantController from './ParticipantController.js';
 
-import trackingController from './participantController.js';
-import {validateAuthentication} from '../helpers/authenticate.js';
+const ParticipantRouter: express.Router = express.Router();
 
-const participantRouter: express.Router = express.Router();
+ParticipantRouter.post('/create', ParticipantController.create);
+ParticipantRouter.post('/update/dysis', ParticipantController.updateDysis);
 
-participantRouter.post('/create', trackingController.create);
-participantRouter.post('/update/dysis', trackingController.updateDysis);
-
-participantRouter.use(validateAuthentication);
 /** Authentication required below */
+ParticipantRouter.use(AuthenticationController.validateAuthentication);
 
-participantRouter.get('/all', trackingController.all)
+ParticipantRouter.get('/all', ParticipantController.all);
 
-export default participantRouter;
+export default ParticipantRouter;

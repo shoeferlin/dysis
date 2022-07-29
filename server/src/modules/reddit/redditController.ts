@@ -7,642 +7,689 @@ import {
   respondWithNoContent,
   respondWithError,
 } from '../../helpers/response.js';
-import {
-  getSubmissionsFromRedditUserOnPushshift,
-  getCommentsFromRedditUserOnPushshift,
-} from '../../sources/reddit/pushshift.js';
 import validate from '../../helpers/validate.js';
-import redditModel from './redditModel.js';
+import RedditModel from './RedditModel.js';
 import { getCountOfSubreddits } from '../../helpers/utils.js';
-import { PushshiftRedditPost } from '../../sources/reddit/pushshift.d.js';
-import { ToxicityContext } from '../../analytics/ToxicityContext.js';
+import PerspectiveContext from '../../analytics/perspective/PerspectiveContext.js';
 import log from '../../helpers/log.js';
+import PushshiftRedditPost from '../../sources/reddit/PushshiftInterface.js';
+import Pushshift from '../../sources/reddit/Pushshift.js';
 
-const VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
-const VALIDITY_ANALYSIS_DEBUG = false;
-
-const VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS = 24 * 14;
-const VALIDITY_DETAILED_ANALYSIS_DEBUG = false;
-
-/**
- * Controller class managing incoming requests to the respective model
- * each controller function is actually an array of functions to be plugged into
- * the router with validations by express-validator before as well as
- * the validate helper to check for detected validation errors
- * @param req
- * @param res
- * @param next
- */
 export default class RedditController {
+  static VALIDITY_PERIOD_ANALYSIS_IN_HOURS = 24 * 14;
+
+  static VALIDITY_ANALYSIS_DEBUG = false;
+
+  static VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS = 24 * 14;
+
+  static VALIDITY_DETAILED_ANALYSIS_DEBUG = false;
 
   static analyze = [
     query('identifier')
-        .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
+      .exists()
+      .withMessage('Value is required')
+      .isString()
+      .withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
       try {
         const identifier = req.query.identifier as string;
-        let redditData = await redditModel.findOne({identifier});
+        let redditData = await RedditModel.findOne({ identifier });
         if (redditData !== null) {
           // Entry exists
           const lastTimeUpdated = redditData.updatedAt;
           const hoursSinceLastUpdate = differenceInHours(
-              Date.now(),
-              lastTimeUpdated
-            );
-          if (hoursSinceLastUpdate > VALIDITY_PERIOD_ANALYSIS_IN_HOURS || VALIDITY_ANALYSIS_DEBUG) {
+            Date.now(),
+            lastTimeUpdated,
+          );
+          if (hoursSinceLastUpdate > this.VALIDITY_PERIOD_ANALYSIS_IN_HOURS
+            || this.VALIDITY_ANALYSIS_DEBUG) {
             // Update entry
-            log.info(`ANALYSIS`, `Updating (${identifier})`);
+            log.info('ANALYSIS', `Updating (${identifier})`);
             try {
-              const data = await analyze(identifier);
-              await redditData.updateOne({identifier}, data);
+              const data = await this.analyzeFunctionality(identifier);
+              await redditData.updateOne({ identifier }, data);
               respondWithSuccessAndData(
                 res,
                 await redditData,
                 'Updated analysis for an existing Reddit user',
               );
             } catch (error: any) {
-              log.error(`ANALYSIS`, error.toString());
-              respondWithNoContent(res, 'Analysis APIs overloaded')
+              log.error('ANALYSIS', `Error for ${identifier}`);
+              console.log(error);
+              respondWithNoContent(res, 'Analysis APIs overloaded');
             }
           } else {
             // Keep entry
-            log.info(`ANALYSIS`, `Keeping (${identifier})`);
+            log.info('ANALYSIS', `Keeping (${identifier})`);
             respondWithSuccessAndData(
-                res,
-                redditData,
-                'Kept analysis for an existing Reddit user',
+              res,
+              redditData,
+              'Kept analysis for an existing Reddit user',
             );
             return;
           }
         } else {
           // Entry does not exist
-          log.info(`ANALYSIS`, `Creating (${identifier})`);
+          log.info('ANALYSIS', `Creating (${identifier})`);
           try {
-            const data = await analyze(identifier);
-            redditData = await redditModel.create(data);
+            const data = await this.analyzeFunctionality(identifier);
+            redditData = await RedditModel.create(data);
             respondWithSuccessAndData(
               res,
               await redditData,
               'Created analysis for a new Reddit user',
             );
           } catch (error: any) {
-            log.error(`ANALYSIS`, error.toString() + ` (${identifier})`);
-            respondWithNoContent(res, 'Analysis APIs overloaded')
+            log.error('ANALYSIS', `Error for (${identifier})`);
+            console.log(error);
+            respondWithNoContent(res, 'Analysis APIs overloaded');
           }
         }
       } catch (error) {
-        log.error('ERROR', 'Error for identifier: ' + req.query.identifier);
-        respondWithError(res, `Error for identifier: ${req.query.identifier}`);
+        log.error('ERROR', `Error for identifier: ${req.query.identifier}`);
         console.log(error);
+        respondWithError(res, `Error for identifier: ${req.query.identifier}`);
       }
     },
   ];
-  
+
   static analyzeDetailed = [
-     query('identifier')
-        .exists().withMessage('Value is required')
-        .isString().withMessage('Value needs to be string'),
+    query('identifier')
+      .exists()
+      .withMessage('Value is required')
+      .isString()
+      .withMessage('Value needs to be string'),
     validate,
     async (req: Request, res: Response) => {
       try {
         const identifier = req.query.identifier as string;
-        let redditData = await redditModel.findOne({identifier});
+        let redditData = await RedditModel.findOne({ identifier });
         // Entry exists
         if (redditData !== null) {
           const lastTimeUpdated = redditData.analytics.perspectiveExamples.examplesUpdatedAt;
-          console.log('lastTime: ' + lastTimeUpdated)
           const hoursSinceLastUpdate = differenceInHours(
             Date.now(),
-            lastTimeUpdated
+            lastTimeUpdated,
           );
-          console.log(lastTimeUpdated)
-          console.log(redditData);
-          console.log(identifier)
           // Update examples
           if (
-            redditData.analytics.perspectiveExamples.examplesUpdatedAt === null 
-            || hoursSinceLastUpdate > VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS 
-            || VALIDITY_DETAILED_ANALYSIS_DEBUG
+            redditData.analytics.perspectiveExamples.examplesUpdatedAt === null
+            || hoursSinceLastUpdate > this.VALIDITY_PERIOD_DETAILED_ANALYSIS_IN_HOURS
+            || this.VALIDITY_DETAILED_ANALYSIS_DEBUG
           ) {
-            log.info(`DETAILED ANALYSIS`, `Updating (${identifier})`);
+            log.info('DETAILED ANALYSIS', `Updating (${identifier})`);
             try {
-
-              const analysis = await analyzeDetailed(identifier);
+              const analysis = await this.analyzeDetailedFunctionality(identifier);
               redditData.analytics.perspectiveExamples = analysis;
               console.log(redditData);
               await redditData.save();
               respondWithSuccessAndData(
                 res,
                 redditData.analytics.perspectiveExamples,
-              )
+              );
             } catch (error) {
               console.log(error);
               respondWithError(
-                res, 
-                `Could not get detailed analysis for ${identifier}`
-              )
+                res,
+                `Could not get detailed analysis for ${identifier}`,
+              );
             }
           // Keep examples
           } else {
-            log.info(`DETAILED ANALYSIS`, `Keeping (${identifier})`);
+            log.info('DETAILED ANALYSIS', `Keeping (${identifier})`);
             respondWithSuccessAndData(
               res,
               redditData.analytics.perspectiveExamples,
-            )
+            );
           }
         // Entry does not exist
         } else {
-          const data = await analyze(identifier);
-          redditData = await redditModel.create(data);
-          const analysis = await analyzeDetailed(identifier);
+          const data = await this.analyzeFunctionality(identifier);
+          redditData = await RedditModel.create(data);
+          const analysis = await this.analyzeDetailedFunctionality(identifier);
           redditData.analytics.perspectiveExamples = analysis;
           redditData = await redditData.save();
           respondWithSuccessAndData(
             res,
-            redditData
-          )
+            redditData,
+          );
         }
       } catch (error) {
         console.log(error);
         respondWithError(res);
       }
-    }
+    },
   ];
 
   static highest = [
     query('behavior')
-      .exists().withMessage('Value is required')
-      .isString().withMessage('Value needs to be string'),
+      .exists()
+      .withMessage('Value is required')
+      .isString()
+      .withMessage('Value needs to be string'),
     validate,
-    async(req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
       try {
-        const selectedBehavior = `${req.query.behavior}`
+        const selectedBehavior = `${req.query.behavior}`;
         let highest = {};
-        switch(selectedBehavior) {
-          case('toxicity'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.toxicity": -1})
+        switch (selectedBehavior) {
+          case ('toxicity'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.toxicity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
-          } case('severeToxicity'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.severeToxicity": -1})
+          } case ('severeToxicity'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.severeToxicity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
-          } case('insult'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.insult": -1})
+          } case ('insult'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.insult': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
-          } case('threat'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.threat": -1})
+          } case ('threat'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.threat': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
-          } case('profanity'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.profanity": -1})
+          } case ('profanity'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.profanity': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
             break;
-          } case('identityAttack'): {
-            highest = await redditModel.find({})
-              .sort({"analytics.perspective.identityAttack": -1})
+          } case ('identityAttack'): {
+            highest = await RedditModel.find({})
+              .sort({ 'analytics.perspective.identityAttack': -1 })
               .select(['identifier', 'analytics', 'metrics', 'createdAt', 'updatedAt'])
               .limit(100);
+            break;
+          } default: {
             break;
           }
         }
         respondWithSuccessAndData(
-          res, 
-          highest, 
-          `Reddit data sorted by highest ${req.query.behavior}`
-          )
-      } catch(error) {
-        console.log(error)
+          res,
+          highest,
+          `Reddit data sorted by highest ${req.query.behavior}`,
+        );
+      } catch (error) {
+        console.log(error);
         respondWithError(res);
       }
-    }
-  ]
+    },
+  ];
 
   static average = [
     query('behavior')
-      .exists().withMessage('Value is required')
-      .isString().withMessage('Value needs to be string'),
+      .exists()
+      .withMessage('Value is required')
+      .isString()
+      .withMessage('Value needs to be string'),
     validate,
-    async(req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
       try {
-        const selectedBehavior = `$analytics.perspective.${req.query.behavior}`
-        const label = req.query.behavior
-        const average = await redditModel.aggregate([
-          { $group : { _id : null, label : { $avg : selectedBehavior } } }
+        const selectedBehavior = `$analytics.perspective.${req.query.behavior}`;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const label = req.query.behavior;
+        const average = await RedditModel.aggregate([
+          { $group: { _id: null, label: { $avg: selectedBehavior } } },
         ]);
         respondWithSuccessAndData(
           res,
           average,
-          `Reddit average of ${req.query.behavior}`
-        )
+          `Reddit average of ${req.query.behavior}`,
+        );
       } catch (error) {
-        console.log(error)
+        console.log(error);
         respondWithError(res);
       }
-    }
-  ]
+    },
+  ];
 
   static all = [
-    async(req: Request, res: Response) => {
+    async (_: Request, res: Response) => {
       try {
-        const all = await redditModel.find({});
+        const all = await RedditModel.find({});
         respondWithSuccessAndData(
-          res, 
-          all, 
-          `Reddit all data`
+          res,
+          all,
+          'Reddit all data',
         );
-      } catch(error) {
-        console.log(error)
+      } catch (error) {
+        console.log(error);
         respondWithError(res);
       }
-    }
-  ]
-}
+    },
+  ];
 
-async function analyze(identifier: string) {
-  type redditModelInterface = {
-    identifier: string,
-    metrics: {
-      totalSubmissions?: number
-      totalComments?: number,
-      medianScoreComments?: number,
-      medianScoreSubmissions?: number,
-      averageScoreComments?: number,
-      averageScoreSubmissions?: number,
-    },
-    context: {
-      subredditsForComments?: {subreddit: string; count: number}[],
-      subredditsForSubmissions?: {subreddit: string; count: number}[],
-      subreddits?: {subreddit: string; count: number}[],
-    },
-    analytics: {
-      perspective: {
-        toxicity?: number,
-        severeToxicity?: number,
-        threat?: number,
-        identityAttack?: number,
-        profanity?: number,
-        insult?: number,
+  static async analyzeFunctionality(identifier: string) {
+    type RedditModelInterface = {
+      identifier: string,
+      metrics: {
+        totalSubmissions?: number
+        totalComments?: number,
+        medianScoreComments?: number,
+        medianScoreSubmissions?: number,
+        averageScoreComments?: number,
+        averageScoreSubmissions?: number,
       },
-    },
-  };
+      context: {
+        subredditsForComments?: { subreddit: string; count: number }[],
+        subredditsForSubmissions?: { subreddit: string; count: number }[],
+        subreddits?: { subreddit: string; count: number }[],
+      },
+      analytics: {
+        perspective: {
+          toxicity?: number,
+          severeToxicity?: number,
+          threat?: number,
+          identityAttack?: number,
+          profanity?: number,
+          insult?: number,
+        },
+      },
+    };
 
-  const redditModel: redditModelInterface = {
-    identifier,
-    metrics: {},
-    context: {},
-    analytics: {
-      perspective: {}
-    },
-  }
-
-  log.info(`ANALYSIS`, `Analyzing information (${identifier})`);
-
-  const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
+    const redditDataModel: RedditModelInterface = {
       identifier,
-  );
-  const submissions = submissionsResponse.data;
+      metrics: {},
+      context: {},
+      analytics: {
+        perspective: {},
+      },
+    };
 
-  const commentsResponse = await getCommentsFromRedditUserOnPushshift(
+    log.info('ANALYSIS', `Analyzing information (${identifier})`);
+
+    const submissionsResponse = await Pushshift.getSubmissionsFromRedditUserOnPushshift(
       identifier,
-  );
-  const comments = commentsResponse.data;
+    );
+    const submissions = submissionsResponse.data;
 
-  const textSnippets = getTextSnippetsOfRedditPosts(submissions.data, comments.data)
+    const commentsResponse = await Pushshift.getCommentsFromRedditUserOnPushshift(
+      identifier,
+    );
+    const comments = commentsResponse.data;
+
+    const textSnippets = this.getTextSnippetsOfRedditPosts(submissions.data, comments.data)
       .slice(0, 30).join('; ');
 
-  if (textSnippets !== '') {
-    const perspective = await ToxicityContext.analyze(textSnippets);
-    log.info(`ANALYSIS`, `Toxicity (${identifier})`)
-    console.log(perspective);
-    redditModel.analytics.perspective.toxicity = perspective.toxicity;
-    redditModel.analytics.perspective.severeToxicity = perspective.severeToxicity;
-    redditModel.analytics.perspective.threat = perspective.threat;
-    redditModel.analytics.perspective.identityAttack = perspective.identityAttack;
-    redditModel.analytics.perspective.insult = perspective.insult;
-    redditModel.analytics.perspective.profanity = perspective.profanity;
-  }
+    if (textSnippets !== '') {
+      const perspective = await PerspectiveContext.analyze(textSnippets);
+      log.info('ANALYSIS', `Toxicity (${identifier})`);
+      console.log(perspective);
+      redditDataModel.analytics.perspective.toxicity = perspective.toxicity;
+      redditDataModel.analytics.perspective.severeToxicity = perspective.severeToxicity;
+      redditDataModel.analytics.perspective.threat = perspective.threat;
+      redditDataModel.analytics.perspective.identityAttack = perspective.identityAttack;
+      redditDataModel.analytics.perspective.insult = perspective.insult;
+      redditDataModel.analytics.perspective.profanity = perspective.profanity;
+    }
 
-  redditModel.metrics.totalSubmissions = submissions.data.length;
-  redditModel.metrics.totalComments = comments.data.length;
+    redditDataModel.metrics.totalSubmissions = submissions.data.length;
+    redditDataModel.metrics.totalComments = comments.data.length;
 
-  const commentScores: number[] = [];
-  const commentSubreddits: string[] = [];
+    const commentScores: number[] = [];
+    const commentSubreddits: string[] = [];
 
-  const submissionScores: number[] = [];
-  const submissionSubreddits: string[] = [];
+    const submissionScores: number[] = [];
+    const submissionSubreddits: string[] = [];
 
-  for (const comment of comments.data) {
-    commentScores.push(comment.score);
-    commentSubreddits.push(comment.subreddit);
-  }
+    comments.data.forEach((comment) => {
+      commentScores.push(comment.score);
+      commentSubreddits.push(comment.subreddit);
+    });
 
-  for (const submission of submissions.data) {
-    submissionScores.push(submission.score);
-    submissionSubreddits.push(submission.subreddit);
-  }
+    submissions.data.forEach((submission) => {
+      submissionScores.push(submission.score);
+      submissionSubreddits.push(submission.subreddit);
+    });
 
-  redditModel.metrics.medianScoreComments = getMedianOfNumberArray(
+    redditDataModel.metrics.medianScoreComments = this.getMedianOfNumberArray(
       commentScores,
-  );
-  redditModel.metrics.medianScoreSubmissions = getMedianOfNumberArray(
+    );
+    redditDataModel.metrics.medianScoreSubmissions = this.getMedianOfNumberArray(
       submissionScores,
-  );
+    );
 
-  redditModel.metrics.averageScoreComments = getAverageOfNumberArray(
+    redditDataModel.metrics.averageScoreComments = this.getAverageOfNumberArray(
       commentScores,
-  );
-  redditModel.metrics.averageScoreSubmissions = getAverageOfNumberArray(
+    );
+    redditDataModel.metrics.averageScoreSubmissions = this.getAverageOfNumberArray(
       submissionScores,
-  );
-  redditModel.metrics.totalComments = commentSubreddits.length;
-  redditModel.metrics.totalSubmissions = submissionSubreddits.length;
+    );
+    redditDataModel.metrics.totalComments = commentSubreddits.length;
+    redditDataModel.metrics.totalSubmissions = submissionSubreddits.length;
 
-  redditModel.context.subredditsForComments = getCountOfSubreddits(
-      commentSubreddits
-  );
-  redditModel.context.subredditsForSubmissions = getCountOfSubreddits(
-      submissionSubreddits
-  );
+    redditDataModel.context.subredditsForComments = getCountOfSubreddits(
+      commentSubreddits,
+    );
+    redditDataModel.context.subredditsForSubmissions = getCountOfSubreddits(
+      submissionSubreddits,
+    );
 
-  let mergedSubreddits: string[] = [];
-  mergedSubreddits = mergedSubreddits.concat(submissionSubreddits, commentSubreddits)
-  redditModel.context.subreddits = getCountOfSubreddits(
-      mergedSubreddits
-  )
+    let mergedSubreddits: string[] = [];
+    mergedSubreddits = mergedSubreddits.concat(submissionSubreddits, commentSubreddits);
+    redditDataModel.context.subreddits = getCountOfSubreddits(
+      mergedSubreddits,
+    );
 
-  return redditModel;
-}
+    return redditDataModel;
+  }
 
-async function analyzeDetailed(identifier: string): Promise<DetailedAnalysis> {
-  const detailedAnalysis = await getDetailedAnalysis(identifier);
-  console.log(detailedAnalysis);
-  
-  if (detailedAnalysis.length === 0) {
-    return {
-      examplesUpdatedAt: null,
+  static async analyzeDetailedFunctionality(identifier: string): Promise<DetailedAnalysis> {
+    const detailedAnalysis = await this.getDetailedAnalysis(identifier);
+    if (detailedAnalysis.length === 0) {
+      return {
+        examplesUpdatedAt: null,
+        toxicity: {
+          text: null,
+          value: null,
+        },
+        severeToxicity: {
+          text: null,
+          value: null,
+        },
+        insult: {
+          text: null,
+          value: null,
+        },
+        profanity: {
+          text: null,
+          value: null,
+        },
+        identityAttack: {
+          text: null,
+          value: null,
+        },
+        threat: {
+          text: null,
+          value: null,
+        },
+      };
+    }
+
+    console.log(detailedAnalysis);
+
+    // const attributes = [
+    //   'toxicity',
+    //   'severeToxicity',
+    //   'insult',
+    //   'identityAttack',
+    //   'threat',
+    //   'profanity',
+    // ];
+
+    const maxBehaviorReducer = (
+      max: {
+        text: string,
+        behavior: {
+          toxicity: number,
+          severeToxicity: number,
+          insult: number,
+          identityAttack: number,
+          threat: number,
+          profanity: number,
+        }
+      },
+      current: {
+        text: string,
+        behavior: {
+          toxicity: number,
+          severeToxicity: number,
+          insult: number,
+          identityAttack: number,
+          threat: number,
+          profanity: number,
+        }
+      },
+      label: 'toxicity' | 'severeToxicity' | 'insult' | 'identityAttack' | 'threat' | 'profanity',
+    ) => {
+      if (max.behavior[label] > current.behavior[label]) {
+        return max;
+      }
+      return current;
+    };
+
+    const maxToxicity = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'toxicity'));
+    const maxSevereToxicity = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'severeToxicity'));
+    const maxInsult = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'insult'));
+    const maxIdentityAttack = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'identityAttack'));
+    const maxThreat = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'threat'));
+    const maxProfanity = detailedAnalysis
+      .reduce((max, current) => maxBehaviorReducer(max, current, 'profanity'));
+
+    const date = new Date();
+    const exemplaryComments: DetailedAnalysis = {
+      examplesUpdatedAt: date,
       toxicity: {
-        text: null,
-        value: null,
+        text: maxToxicity.text,
+        value: maxToxicity.behavior.toxicity,
       },
       severeToxicity: {
-        text: null,
-        value: null,
+        text: maxSevereToxicity.text,
+        value: maxSevereToxicity.behavior.severeToxicity,
       },
       insult: {
-        text: null,
-        value: null,
+        text: maxInsult.text,
+        value: maxInsult.behavior.insult,
       },
-      profanity: {
-        text: null,
-        value: null,
-      }, 
       identityAttack: {
-        text: null,
-        value: null,
+        text: maxIdentityAttack.text,
+        value: maxIdentityAttack.behavior.identityAttack,
       },
       threat: {
-        text: null,
-        value: null,
-      }
+        text: maxThreat.text,
+        value: maxThreat.behavior.threat,
+      },
+      profanity: {
+        text: maxProfanity.text,
+        value: maxProfanity.behavior.profanity,
+      },
     };
+    console.log(exemplaryComments);
+    return exemplaryComments;
   }
 
-  const attributes = ['toxicity', 'severeToxicity', 'insult', 'identityAttack', 'threat', 'profanity'];
-  
-  const maxToxicity = detailedAnalysis.reduce((max, current) => max.behavior.toxicity > current.behavior.toxicity ? max : current);
-  const maxSevereToxicity = detailedAnalysis.reduce((max, current) => max.behavior.severeToxicity > current.behavior.severeToxicity ? max : current);
-  const maxInsult = detailedAnalysis.reduce((max, current) => max.behavior.insult > current.behavior.insult ? max : current);
-  const maxIdentityAttack = detailedAnalysis.reduce((max, current) => max.behavior.identityAttack > current.behavior.identityAttack ? max : current);
-  const maxThreat = detailedAnalysis.reduce((max, current) => max.behavior.threat > current.behavior.threat ? max : current);
-  const maxProfanity = detailedAnalysis.reduce((max, current) => max.behavior.profanity > current.behavior.profanity ? max : current);
-  
-  const date = new Date();
-  let exemplaryComments: DetailedAnalysis = {
-    examplesUpdatedAt: date,
-    toxicity: {
-      text: maxToxicity.text,
-      value: maxToxicity.behavior.toxicity,
-    },
-    severeToxicity: {
-      text: maxSevereToxicity.text,
-      value: maxSevereToxicity.behavior.severeToxicity,
-    },
-    insult: {
-      text: maxInsult.text,
-      value: maxInsult.behavior.insult,
-    },
-    identityAttack: {
-      text: maxIdentityAttack.text,
-      value: maxIdentityAttack.behavior.identityAttack,
-    },
-    threat: {
-      text: maxThreat.text,
-      value: maxThreat.behavior.threat,
-    },
-    profanity: {
-      text: maxProfanity.text,
-      value: maxProfanity.behavior.profanity,
-    },
-  }
-  console.log(exemplaryComments);
-  return exemplaryComments;
-}
+  static async getDetailedAnalysis(identifier: string): Promise<{
+    text: string,
+    behavior: {
+      toxicity: number,
+      severeToxicity: number,
+      insult: number,
+      identityAttack: number,
+      threat: number,
+      profanity: number,
+    }
+  }[]> {
+    return new Promise(async (resolve) => {
+      const NUMBER_OF_POSTS_TO_CONSIDER = 30;
 
-async function getDetailedAnalysis(identifier: string): Promise<{
-      text: string,
-      behavior: {
-        toxicity: number,
-        severeToxicity: number,
-        insult: number,
-        identityAttack: number,
-        threat: number,
-        profanity: number,
+      log.info('DETAILED ANALYSIS', `Analyzing information (${identifier})`);
+
+      const submissionsResponse = await Pushshift.getSubmissionsFromRedditUserOnPushshift(
+        identifier,
+      );
+      const submissions: PushshiftRedditPost[] = submissionsResponse.data.data;
+
+      const commentsResponse = await Pushshift.getCommentsFromRedditUserOnPushshift(
+        identifier,
+      );
+      const comments: PushshiftRedditPost[] = commentsResponse.data.data;
+
+      let posts: PushshiftRedditPost[] = [];
+      posts = posts.concat(submissions, comments);
+
+      posts = this.sortRedditPostsByCreatedUTC(posts);
+
+      posts = posts.slice(0, NUMBER_OF_POSTS_TO_CONSIDER);
+
+      const detailedAnalysis: {
+        text: string,
+        behavior: {
+          toxicity: number,
+          severeToxicity: number,
+          insult: number,
+          identityAttack: number,
+          threat: number,
+          profanity: number,
+        }
+      }[] = [];
+      // We need a 'for await' because the promise can only resolve after the loop
+      // eslint-disable-next-line no-restricted-syntax
+      for await (const post of posts) {
+        let postText: string = '';
+        if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
+          const text = this.beautifyRedditText(post.selftext);
+          if (text !== '') {
+            postText = text;
+          }
+        } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
+          const text = this.beautifyRedditText(post.body);
+          if (text !== '') {
+            postText = text;
+          }
+        }
+        if (postText !== '') {
+          try {
+            const behaviorResult = await PerspectiveContext.analyze(postText);
+            const postAnalysis = {
+              text: postText,
+              behavior: {
+                toxicity: behaviorResult.toxicity ?? 0,
+                severeToxicity: behaviorResult.severeToxicity ?? 0,
+                insult: behaviorResult.insult ?? 0,
+                identityAttack: behaviorResult.identityAttack ?? 0,
+                threat: behaviorResult.threat ?? 0,
+                profanity: behaviorResult.profanity ?? 0,
+              },
+            };
+            detailedAnalysis.push(postAnalysis);
+          } catch (error) {
+            console.log(error);
+          }
+        }
       }
-    }[]> {
-  return new Promise(async (resolve, reject) => {
-    const NUMBER_OF_POSTS_TO_CONSIDER = 30;
+      resolve(detailedAnalysis);
+    });
+  }
 
-    log.info(`DETAILED ANALYSIS`, `Analyzing information (${identifier})`);
+  static getAverageOfNumberArray(numberArray: number[]): number {
+    if (numberArray.length === 0) {
+      return 0;
+    }
+    let sum = 0;
+    numberArray.forEach((element) => {
+      sum += element;
+    });
+    return sum / numberArray.length;
+  }
 
-    const submissionsResponse = await getSubmissionsFromRedditUserOnPushshift(
-        identifier,
-    );
-    const submissions: PushshiftRedditPost[] = submissionsResponse.data.data;
+  static getMedianOfNumberArray(numberArray: number[]) {
+    const numberArraySorted = numberArray.sort();
+    let result: number;
+    const mid = Math.floor(numberArraySorted.length / 2);
+    result = numberArraySorted[mid];
+    if (numberArraySorted.length % 2 === 0) {
+      result = (numberArraySorted[mid - 1] + numberArraySorted[mid]) / 2;
+    }
+    if (Number.isNaN(result)) {
+      return 0;
+    }
+    return result;
+  }
 
-    const commentsResponse = await getCommentsFromRedditUserOnPushshift(
-        identifier,
-    );
-    const comments: PushshiftRedditPost[] = commentsResponse.data.data;
-
+  /**
+   * Returns an array of strings originating of the sorted submission and comments
+   * @param submissions pushshift submission object
+   * @param comments pushshift comment object
+   * @returns each string is one text snippet
+   */
+  static getTextSnippetsOfRedditPosts(
+    submissions: PushshiftRedditPost[],
+    comments: PushshiftRedditPost[],
+  ) {
     let posts: PushshiftRedditPost[] = [];
     posts = posts.concat(submissions, comments);
-
-    posts = sortRedditPostsByCreatedUTC(posts);
-
-    posts = posts.slice(0, NUMBER_OF_POSTS_TO_CONSIDER);
-
-    const detailedAnalysis: {
-      text: string,
-      behavior: {
-        toxicity: number,
-        severeToxicity: number,
-        insult: number,
-        identityAttack: number,
-        threat: number,
-        profanity: number,
-      }
-    }[] = [];
-    for (const post of posts) {
-      let postText: string = '';
+    posts = RedditController.sortRedditPostsByCreatedUTC(posts);
+    const textSnippets: string[] = [];
+    posts.forEach((post) => {
       if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
-        const text = beautifyRedditText(post.selftext);
+        const text = RedditController.beautifyRedditText(post.selftext);
         if (text !== '') {
-          postText = text;
+          textSnippets.push(text);
         }
       } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
-        const text = beautifyRedditText(post.body)
+        const text = RedditController.beautifyRedditText(post.body);
         if (text !== '') {
-          postText = text;
+          textSnippets.push(text);
         }
       }
-      if (postText !== '') {
-        try {
-          const behaviorResult = await ToxicityContext.analyze(postText);
-          let postAnalysis = {
-            text: postText,
-            behavior: {
-              toxicity: behaviorResult.toxicity ? behaviorResult.toxicity : 0,
-              severeToxicity: behaviorResult.severeToxicity ? behaviorResult.severeToxicity : 0,
-              insult: behaviorResult.insult ? behaviorResult.insult : 0,
-              identityAttack: behaviorResult.identityAttack ? behaviorResult.identityAttack : 0,
-              threat: behaviorResult.threat ? behaviorResult.threat : 0,
-              profanity: behaviorResult.profanity ? behaviorResult.profanity : 0,
-            }
-          }
-          detailedAnalysis.push(postAnalysis);
-        } catch(error) {
-          console.log(error);
-        }
-      }
-    }
-    resolve(detailedAnalysis);
-  })
-  
-
-  
-}
-
-function getAverageOfNumberArray(numberArray: number[]): number {
-  if (numberArray.length === 0) {
-    return 0;
+    });
+    return textSnippets;
   }
-  let sum = 0;
-  for (const element of numberArray) {
-    sum += element;
-  }
-  return sum / numberArray.length;
-}
 
-function getMedianOfNumberArray(numberArray: number[]) {
-  numberArray = numberArray.sort();
-  let result: number;
-  const mid = Math.floor(numberArray.length / 2);
-  result = numberArray[mid];
-  if (numberArray.length % 2 === 0) {
-    result = (numberArray[mid - 1] + numberArray[mid]) / 2;
+  static sortRedditPostsByCreatedUTC(arrayOfRedditPosts: PushshiftRedditPost[]) {
+    return arrayOfRedditPosts.sort((
+      a: PushshiftRedditPost,
+      b: PushshiftRedditPost,
+    ) => b.created_utc - a.created_utc);
   }
-  if (isNaN(result)) {
-    return 0;
+
+  /**
+   * Cleans up reddit text from text that would be difficult to interprete by an analytics tool
+   * @param text
+   * @returns
+   */
+  static beautifyRedditText(text: string) {
+    return text
+      // Remove quotes (indicated through '> Lorem ipsum')
+      .replace(/^(>.+)$/g, '')
+      // Remove links (indicated through '[text](url)')
+      .replace(/(\[.+\]\(.+\))/g, '')
+      .replace(/(\(http\S+\))/g, '')
+      .replace(/(\(www\S+\))/g, '')
+      // Remove line breaks, tabs and similar
+      .replace(/[\n\r\t\s]+/g, ' ');
   }
-  return result;
-}
-
-/**
- * Returns an array of strings originating of the sorted submission and comments
- * @param submissions pushshift submission object
- * @param comments pushshift comment object
- * @returns each string is one text snippet
- */
-function getTextSnippetsOfRedditPosts(submissions: PushshiftRedditPost[], comments: PushshiftRedditPost[]) {
-  let posts: PushshiftRedditPost[] = [];
-  posts = posts.concat(submissions, comments);
-  posts = sortRedditPostsByCreatedUTC(posts);
-  const textSnippets: string[] = [];
-  for (const post of posts) {
-    if (post.selftext !== undefined && post.selftext !== '' && post.selftext !== '[removed]') {
-      const text = beautifyRedditText(post.selftext);
-      if (text !== '') {
-        textSnippets.push(text);
-      }
-    } else if (post.body !== undefined && post.body !== '' && post.body !== '[removed]') {
-      const text = beautifyRedditText(post.body)
-      if (text !== '') {
-        textSnippets.push(text);
-      }
-    }
-  }
-  return textSnippets;
-}
-
-function sortRedditPostsByCreatedUTC(arrayOfRedditPosts: PushshiftRedditPost[]) {
-  return arrayOfRedditPosts.sort((a: PushshiftRedditPost, b: PushshiftRedditPost) => b.created_utc - a.created_utc);
-}
-
-/**
- * Cleans up reddit text from text that would be difficult to interprete by an analytics tool
- * @param text 
- * @returns
- */
-function beautifyRedditText(text: string) {
- return text
-    // Remove quotes (indicated through '> Lorem ipsum')
-    .replace(/^(>.+)$/g, '')
-    // Remove links (indicated through '[text](url)')
-    .replace(/(\[.+\]\(.+\))/g, '')
-    .replace(/(\(http\S+\))/g, '')
-    .replace(/(\(www\S+\))/g, '')
-    // Remove line breaks, tabs and similar
-    .replace(/[\n\r\t\s]+/g, ' ');
 }
 
 interface DetailedAnalysis {
-    examplesUpdatedAt: Date | null,
-    toxicity: {
-      text: string | null,
-      value: number | null,
-    },
-    severeToxicity: {
-      text: string | null,
-      value: number | null,
-    },
-    insult: {
-      text: string | null,
-      value: number | null,
-    },
-    identityAttack: {
-      text: string | null,
-      value: number | null,
-    },
-    threat: {
-      text: string | null,
-      value: number | null,
-    },
-    profanity: {
-      text: string | null,
-      value: number | null,
-    },
-  }
+  examplesUpdatedAt: Date | null,
+  toxicity: {
+    text: string | null,
+    value: number | null,
+  },
+  severeToxicity: {
+    text: string | null,
+    value: number | null,
+  },
+  insult: {
+    text: string | null,
+    value: number | null,
+  },
+  identityAttack: {
+    text: string | null,
+    value: number | null,
+  },
+  threat: {
+    text: string | null,
+    value: number | null,
+  },
+  profanity: {
+    text: string | null,
+    value: number | null,
+  },
+}

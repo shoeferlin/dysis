@@ -21,7 +21,7 @@ export class DysisRequest {
         throw Error(response.toString())
       }
     } catch (error) {
-      throw Error(error)
+      throw Error(error);
     }
   }
 
@@ -44,7 +44,7 @@ export class DysisRequest {
         throw Error(response.toString())
       }
     } catch (error) {
-      console.log(error)
+      throw Error(error);
     }
   }
 }
