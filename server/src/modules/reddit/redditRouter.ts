@@ -1,14 +1,14 @@
 import * as express from 'express';
 
 import redditController from './redditController.js';
-import { validateAuthentication } from '../../helpers/authenticate.js';
+import AuthenticationController from '../../authentication/AuthenticationController.js';
 
 const redditRouter: express.Router = express.Router();
 
 redditRouter.get('/', redditController.analyze);
 redditRouter.get('/detailed', redditController.analyzeDetailed);
 
-redditRouter.use(validateAuthentication);
+redditRouter.use(AuthenticationController.validateAuthentication);
 /** Authentication required for routes below */
 
 redditRouter.get('/highest', redditController.highest);

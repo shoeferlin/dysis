@@ -14,7 +14,7 @@ import {
 import validate from '../../helpers/validate.js';
 import redditModel from './redditModel.js';
 import { getCountOfSubreddits } from '../../helpers/utils.js';
-import { PushshiftRedditPost } from '../../sources/reddit/pushshift.d.js';
+import PushshiftRedditPost from '../../sources/reddit/pushshiftInterface.js';
 import ToxicityContext from '../../analytics/ToxicityContext.js';
 import log from '../../helpers/log.js';
 

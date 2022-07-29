@@ -9,7 +9,7 @@ import {
   respondWithSuccessAndData,
 } from '../helpers/response.js';
 
-export default class ParticipantRouter {
+export default class ParticipantController {
   /**
    * Takes multiple identifiers in a post body and sends array of results
    * (array can be empty if no results are found)
