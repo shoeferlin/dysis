@@ -7,6 +7,7 @@ import moduleRouter from './modules/moduleRouter.js';
 import ParticipantRouter from './participant/ParticipantRouter.js';
 
 import AuthenticationController from './authentication/AuthenticationController.js';
+import AuthenticationRouter from './authentication/AuthenticationRouter.js';
 import PushshiftRouter from './sources/reddit/PushshiftRouter.js';
 import PerspectiveRouter from './analytics/perspective/PerspectiveRouter.js';
 
@@ -27,7 +28,7 @@ router.use('/api', moduleRouter);
 router.use('/tracking', ParticipantRouter);
 
 // Receive authentication token by using .env environment user and password
-router.get('', AuthenticationController.authenticate);
+router.use('', AuthenticationRouter);
 
 /**
  *  AUTHENTICATION REQUIRED

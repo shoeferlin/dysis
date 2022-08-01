@@ -31,7 +31,7 @@ export default class AuthenticationController {
       const adminUsername = process.env.ADMIN_USERNAME;
       const adminPassword = process.env.ADMIN_PASSWORD;
       if (req.body.username === adminUsername
-          && req.body.password === adminPassword
+        && req.body.password === adminPassword
       ) {
         const data = {
           token: AuthenticationController.generateAccessToken(req.body.username),
