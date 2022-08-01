@@ -43,6 +43,7 @@ const redditSchema = new mongoose.Schema(
     },
     metrics: {
       totalSubmissions: { type: Number },
+      totalComments: { type: Number },
       medianScoreComments: { type: Number },
       medianScoreSubmissions: { type: Number },
       averageScoreComments: { type: Number },

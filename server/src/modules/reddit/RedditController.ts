@@ -48,10 +48,12 @@ export default class RedditController {
             log.info('ANALYSIS', `Updating (${identifier})`);
             try {
               const data = await this.analyzeFunctionality(identifier);
-              await redditData.updateOne({ identifier }, data);
+              redditData.analytics = data.analytics;
+              redditData.metrics = data.metrics;
+              await redditData.save();
               respondWithSuccessAndData(
                 res,
-                await redditData,
+                redditData,
                 'Updated analysis for an existing Reddit user',
               );
             } catch (error: any) {
