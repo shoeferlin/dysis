@@ -1,7 +1,7 @@
 export const dysisConfig = {
   server: {
-    // baseUrl: 'https://dysis-server.herokuapp.com/'
-    baseUrl: 'http://localhost:8080/'
+    baseUrl: 'https://dysis-server.herokuapp.com/'
+    // baseUrl: 'http://localhost:8080/'
   },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
