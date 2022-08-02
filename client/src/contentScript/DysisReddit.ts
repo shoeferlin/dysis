@@ -64,14 +64,8 @@ export class DysisReddit implements DysisAbstract {
           element.href.includes('/user/') 
           && element.innerHTML.includes(DysisReddit.getUsernameParamFromPath(element.href))
         ) {
-          // Necessary conditions to avoid adding the same object twice to an observer
-          // the element cannot already be marked with the class 'dysis-detected'
-          if (!element.classList.contains('dysis-detected')) {
-            // Mark element with the class 'dysis-detected' so it is not attached again in future
-            element.classList.add('dysis-detected')
-            // Attach viewport observer to element
-            this.attachViewportObserverToElement(element);
-          }
+          // Attach viewport observer to element
+          this.attachViewportObserverToElement(element);
         }
       }
     }
