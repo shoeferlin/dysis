@@ -197,7 +197,7 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '# of comments',
-            response.metrics.totalComments === 100 ? '> 100' : response.metrics.totalComments)
+            response.metrics.totalComments >= 249 ? '> 250' : response.metrics.totalComments)
         )
       }
       if (response?.metrics?.totalSubmissions) {
@@ -205,7 +205,7 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '# of submissions',
-            response.metrics.totalSubmissions === 100 ? '> 100' : response.metrics.totalSubmissions)
+            response.metrics.totalSubmissions >= 249 ? '> 250' : response.metrics.totalSubmissions)
         )
       }
     }).catch(() => {
@@ -292,7 +292,7 @@ export class DysisRedditEnrichment {
           ${tagName}
         </span>
         <span class="dysis-tag-right dysis-tag-interests">
-          ${tagValue.toString()}x
+          ${tagValue.toString()}
         </span>
       </span>
     </a>`;
