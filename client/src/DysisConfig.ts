@@ -11,7 +11,7 @@ export const dysisConfig = {
   sync: {
     showNotificationWhenSyncing: false,
     defaultTrackingIntervalInSeconds: 1,
-    defaultSyncIntervalInSeconds: 60 * 15,
+    defaultSyncIntervalInSeconds: 60,
   },
   debug: {
     displayMutationRecords: false,

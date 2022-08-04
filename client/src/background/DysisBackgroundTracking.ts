@@ -74,6 +74,11 @@ export default class DysisBackgroundTracking {
 
   private createExtensionBackgroundAlarm() {
     // Create interval for background script
+    //
+    // Caution: Be aware that Chrome does not reliably tolerate alarms firing more frequently
+    // then once a minute (so the minimum is 60 seconds for tracking), one exception is
+    // in unpacked chrome extension Chrome allows more frequent alarms (see the following link:
+    // https://developer.chrome.com/docs/extensions/reference/alarms/#method-create)
     chrome.alarms.create(this.backgroundAlarmVariableName, {
       periodInMinutes: this.trackingIntervalInSeconds / 60
     });
@@ -143,7 +148,7 @@ export default class DysisBackgroundTracking {
         console.log(response);
       }
     } else {
-      console.log('Sync error')
+      console.log('Dysis sync error ...')
     }
   } 
 
