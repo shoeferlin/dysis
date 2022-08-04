@@ -18,10 +18,10 @@ export class DysisRequest {
       if (response.ok) {
         return response.json();
       } else {
-        console.error('Dysis failed to get from server ...')
+        console.error('Dysis failed to get from server ...');
       }
     } catch (error) {
-      console.error('Dysis failed to get from server ...')
+      console.error('Dysis failed to get from server ...');
     }
   }
 
@@ -41,10 +41,10 @@ export class DysisRequest {
       if (response.ok) {
         return response.json();
       } else {
-        console.error('Dysis failed to post to server ...'))
+        console.error('Dysis failed to post to server ...');
       }
     } catch (error) {
-      console.error('Dysis failed to post to server ...')
+      console.error('Dysis failed to post to server ...');
     }
   }
 }
