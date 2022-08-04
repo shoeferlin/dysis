@@ -292,7 +292,7 @@ export class DysisRedditEnrichment {
           ${tagName}
         </span>
         <span class="dysis-tag-right dysis-tag-interests">
-          ${tagValue.toString()}
+          ${tagValue.toString()}x
         </span>
       </span>
     </a>`;
