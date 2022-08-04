@@ -122,7 +122,7 @@ export class DysisReddit implements DysisAbstract {
 
   static getUsernameParamFromPath(path: String) {
     if (!path.match('\/user\/.+')) {
-      throw Error('Path must be user path with username param ')
+      return;
     }
     let username = path.replace('https://www.reddit.com/user/', '').slice(0, -1)
     return username;
