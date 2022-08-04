@@ -10,17 +10,17 @@ export const dysisConfig = {
   },
   sync: {
     showNotificationWhenSyncing: false,
-    defaultTrackingIntervalInSeconds: 1,
+    defaultTrackingIntervalInSeconds: 20, // Consider Chrome limitations with less then 60 s
     defaultSyncIntervalInSeconds: 60,
   },
   debug: {
     displayMutationRecords: false,
-    displayLocalStorageChanges: false,
-    displayUsageTimeTicks: false,
+    displayLocalStorageChanges: true,
+    displayUsageTimeTicks: true,
     displayEnrichmentDataObjects: false,
     displayEnrichmentInstancesCreated: false,
-    displaySyncingInformation: false,
-    displaySyncing: false,
+    displaySyncingInformation: true,
+    displaySyncing: true,
     displayRequestTimeoutsAndRetries: false,
     displayEnrichmentElementCreated: false,
   },
