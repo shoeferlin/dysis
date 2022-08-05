@@ -205,7 +205,8 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '# of submissions',
-            response.metrics.totalSubmissions >= 249 ? '> 250' : response.metrics.totalSubmissions)
+            response.metrics.totalSubmissions >= 
+            249 ? '> 250' : response.metrics.totalSubmissions)
         )
       }
     }).catch(() => {
@@ -292,7 +293,7 @@ export class DysisRedditEnrichment {
           ${tagName}
         </span>
         <span class="dysis-tag-right dysis-tag-interests">
-          ${tagValue.toString()}
+          ${tagValue.toString()}x
         </span>
       </span>
     </a>`;
