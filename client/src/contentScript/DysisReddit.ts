@@ -1,7 +1,7 @@
-import {DysisAbstract} from './DysisAbstract';
-import {DysisRedditEnrichment} from './DysisRedditEnrichment';
+import { DysisAbstract } from './DysisAbstract';
+import { DysisRedditEnrichment } from './DysisRedditEnrichment';
 
-import {dysisConfig} from '../DysisConfig';
+import { dysisConfig } from '../DysisConfig';
 
 /**
  * DysisReddit is the first module and enhances the public discussion platform reddit. Once the 

@@ -1,6 +1,6 @@
-import {DysisReddit} from './DysisReddit';
-import {DysisRequest} from '../DysisRequest';
-import {dysisConfig} from '../DysisConfig';
+import { DysisReddit } from './DysisReddit';
+import { DysisRequest } from '../DysisRequest';
+import { dysisConfig } from '../DysisConfig';
 
 /**
  * DysisRedditEnrichment instances are created for each relevant (i.e. visible) user object 

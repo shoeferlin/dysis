@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {Typography, Avatar, Grid} from '@mui/material';
+import { Typography, Avatar, Grid } from '@mui/material';
 
 import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
 
@@ -52,7 +52,7 @@ export const DysisPopupActivity = (): JSX.Element => {
         gutterBottom
         component="p"
         align="center">
-        Different metrics are generated based on up to 100 latest posts of a user.
+        Different metrics are generated based on up to 250 latest posts of a user.
       </Typography>      
     </Grid>
   )

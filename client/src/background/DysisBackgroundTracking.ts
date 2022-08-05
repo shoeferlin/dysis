@@ -1,6 +1,6 @@
-import {dysisConfig} from '../DysisConfig';
+import { dysisConfig } from '../DysisConfig';
 
-import {DysisRequest} from '../DysisRequest';
+import { DysisRequest } from '../DysisRequest';
 
 export default class DysisBackgroundTracking {
 

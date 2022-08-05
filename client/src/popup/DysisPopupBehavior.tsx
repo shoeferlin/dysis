@@ -1,10 +1,10 @@
 import React from 'react';
 
-import {Typography, Avatar, Grid, Divider} from '@mui/material';
+import { Typography, Avatar, Grid, Divider } from '@mui/material';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 
-import {dysisConfig} from '../DysisConfig';
+import { dysisConfig } from '../DysisConfig';
 
 export const DysisPopupBehavior = (): JSX.Element => {
 

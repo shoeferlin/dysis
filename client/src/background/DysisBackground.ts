@@ -1,6 +1,6 @@
 import DysisBackgroundTracking from './DysisBackgroundTracking';
 
-import {dysisConfig} from '../DysisConfig';
+import { dysisConfig } from '../DysisConfig';
 
 export default class DysisBackground {
 

@@ -1,6 +1,6 @@
-import {DysisAbstract} from './DysisAbstract';
-import {DysisReddit} from './DysisReddit';
-import {DysisZeit} from './DysisZeit';
+import { DysisAbstract } from './DysisAbstract';
+import { DysisReddit } from './DysisReddit';
+import { DysisZeit } from './DysisZeit';
 
 /**
  * The Dysis class is loaded via the content script which is injected in relevant websites

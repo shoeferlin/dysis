@@ -1,11 +1,11 @@
 import React from 'react';
 
-import {Typography, Grid, Divider, Link, Button} from '@mui/material';
-import {createTheme, ThemeProvider} from '@mui/material/styles';
+import { Typography, Grid, Divider, Link } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import {DysisPopupBehavior} from './DysisPopupBehavior';
-import {DysisPopupInterests} from './DysisPopupInterests';
-import {DysisPopupActivity} from './DysisPopupActivity';
+import { DysisPopupBehavior } from './DysisPopupBehavior';
+import { DysisPopupInterests } from './DysisPopupInterests';
+import { DysisPopupActivity } from './DysisPopupActivity';
 
 const theme = createTheme({
   typography: {
