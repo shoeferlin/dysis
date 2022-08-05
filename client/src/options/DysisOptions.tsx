@@ -83,8 +83,14 @@ export const DysisOptions = (): JSX.Element => {
   }
 
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+
+  const handleOpen = () => {
+    setOpen(true)
+  }
+  
+  const handleClose = () => {
+    setOpen(false);
+  }
   
   const toggleButton = () => {
     setParticipant({ ...participant, agreedToTerms: (participant.agreedToTerms ? false : true)})
