@@ -102,7 +102,6 @@ export default class ParticipantController {
     async (req: Request, res: Response) => {
       try {
         const participant = await ParticipantModel.findOne({ _id: req.body.participantID });
-        console.log(participant);
         if (await participant === null) {
           respondWithError(res, 'Could not find participant');
         } else {
