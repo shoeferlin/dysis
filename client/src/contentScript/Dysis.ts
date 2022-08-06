@@ -1,5 +1,6 @@
 import { DysisAbstract } from './DysisAbstract';
 import { DysisReddit } from './DysisReddit';
+import DysisTracking from './DysisTracking';
 import { DysisZeit } from './DysisZeit';
 
 /**
@@ -23,6 +24,7 @@ export default class Dysis {
   }
 
   init() {
+    new DysisTracking();
     for (const module of this.modules) {
       module.init();
     }

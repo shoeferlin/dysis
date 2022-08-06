@@ -73,6 +73,9 @@ export default class DysisBackgroundTracking {
       (browserActivityState) => {
         console.log(`State change to '${this.browserActivityState}' detected`);
         this.browserActivityState = browserActivityState;
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, { browserActivityState: browserActivityState });
+        });
       }
     )
   }
