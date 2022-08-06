@@ -36,7 +36,8 @@ export default class DysisBackgroundSync {
           [
             'dysisUsageTime'
           ], (res) => {
-            this.syncUsageTime(res.dysisUsageTime);
+            const usageTime: number = 'dysisUsageTime' in res ? res.dysisUsageTime : 0;
+            this.syncUsageTime(usageTime);
           }
         );
       }

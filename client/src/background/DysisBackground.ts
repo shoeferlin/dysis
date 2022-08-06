@@ -55,7 +55,6 @@ export default class DysisBackground {
         'dysisParticipantID',
         'dysisParticipantAgreedToTerms',
         'dysisParticipantSubmitted',
-        'dysisInstallationDate',
       ], (res) => {
       chrome.storage.local.set({
         dysisParticipantFirstName: 
@@ -117,7 +116,6 @@ export default class DysisBackground {
       namespace: 'sync' | 'local' | 'managed'
     ) => {
       for (let [key] of Object.entries(changes)) {
-        console.log('Detected change')
         if (namespace === 'local' && key === 'dysisParticipantSubmitted') {
           this.getLocalStorageValuesAndInitSync();
         }

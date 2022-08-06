@@ -72,13 +72,12 @@ export default class DysisTracking {
   }
 
   private increaseUsageTimeByOneTick() {
-    console.log(`Dysis ticking (${new Date().toLocaleTimeString()})`);
     chrome.storage.local.get(
-      [
-        'dysisUsageTime',
-      ], (res) => {
+      ['dysisUsageTime'], (res) => {
         const dysisUsageTimeBeforeTick = res.dysisUsageTime;
-        const dysisUsageTimeAfterTick = dysisUsageTimeBeforeTick + this.TRACKING_INTERVAL_IN_SECONDS;
+        const dysisUsageTimeAfterTick = 
+          dysisUsageTimeBeforeTick 
+          + this.TRACKING_INTERVAL_IN_SECONDS;
         chrome.storage.local.set({
           dysisUsageTime: dysisUsageTimeAfterTick,
         })

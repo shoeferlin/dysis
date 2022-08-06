@@ -1,12 +1,12 @@
+const DEBUG = false;
+
 export const dysisConfig = {
   server: {
-    // baseUrl: 'https://dysis-server.herokuapp.com/'
-    baseUrl: 'http://localhost:8080/'
+    baseUrl: DEBUG ? 'http://localhost:8080/' : 'https://dysis-server.herokuapp.com/'
   },
   sync: {
-    showNotificationWhenSyncing: false,
     defaultTrackingIntervalInSeconds: 1, 
-    defaultSyncIntervalInMinutes: 10 / 60,
+    defaultSyncIntervalInMinutes: DEBUG ? 10 / 60 : 15,
   },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
@@ -23,6 +23,8 @@ export const dysisConfig = {
       maxNumberOfDisplayedInterests: 10,
     },
     activity: {
+      maxFetchedPosts: 250,
     }
   },
+
 }

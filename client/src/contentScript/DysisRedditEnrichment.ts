@@ -190,7 +190,10 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '# of comments',
-            response.metrics.totalComments >= 249 ? '> 250' : response.metrics.totalComments)
+            response.metrics.totalComments 
+            >= (dysisConfig.reddit.activity.maxFetchedPosts - 1) 
+              ? `>${dysisConfig.reddit.activity.maxFetchedPosts}` 
+              : response.metrics.totalComments)
         )
       }
       if (response?.metrics?.totalSubmissions) {
@@ -198,8 +201,10 @@ export class DysisRedditEnrichment {
           'beforeend',
           this.createMetricsElement(
             '# of submissions',
-            response.metrics.totalSubmissions >= 
-            249 ? '> 250' : response.metrics.totalSubmissions)
+            response.metrics.totalSubmissions
+            >= (dysisConfig.reddit.activity.maxFetchedPosts - 1) 
+              ? `>${dysisConfig.reddit.activity.maxFetchedPosts}` 
+              : response.metrics.totalSubmissions)
         )
       }
     }).catch(() => {
