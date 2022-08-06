@@ -29,6 +29,9 @@ export class DysisRequest {
       path: string,
       data: Object,
   ): Promise<any> {
+    console.log('async post()')
+    console.log(path);
+    console.log(data);
     try {
       const response = await fetch(
         DysisRequest.BASE_URL + path,

@@ -9,7 +9,7 @@ export const dysisConfig = {
     defaultTrackingIntervalInSeconds: 1, 
   },
   sync: {
-    defaultSyncIntervalInMinutes: DEBUG ? 1 / 6 : 15,
+    defaultSyncIntervalInMinutes: DEBUG ? 1 / 6 : 5,
   },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
