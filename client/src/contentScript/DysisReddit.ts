@@ -37,7 +37,6 @@ export class DysisReddit implements DysisAbstract {
       // Anonymous mutation callback function
       (mutationList: any) => {
         for (const mutation of mutationList) {
-          if (dysisConfig.debug.displayMutationRecords) this.debugDisplayMutation(mutation);
           if (
             mutation.type === 'childList'       // Mutation is adding / removing elements
             && mutation.addedNodes.length > 0   // Mutation contains added nodes

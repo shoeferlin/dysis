@@ -62,8 +62,8 @@ export const DysisOptions = (): JSX.Element => {
     const response = await DysisRequest.post(
       'tracking/create',
       {
-        'participantFirstName': participant.firstName,
-        'participantLastName': participant.lastName,
+        'participantFirstName': participant.firstName.trim(),
+        'participantLastName': participant.lastName.trim(),
         'participantAgreedToTerms': participant.agreedToTerms,
         'participantSubmitted': true,
         'participantInstallationDate': participant.installationDate,
@@ -72,8 +72,8 @@ export const DysisOptions = (): JSX.Element => {
     setParticipant({ ...participant, submitted: true});
     if (response) {
       chrome.storage.local.set({
-        dysisParticipantFirstName: participant.firstName,
-        dysisParticipantLastName: participant.lastName,
+        dysisParticipantFirstName: participant.firstName.trim(),
+        dysisParticipantLastName: participant.lastName.trim(),
         dysisParticipantID: response.data.participantID,
         dysisParticipantAgreedToTerms: participant.agreedToTerms,
         dysisParticipantSubmitted: true,

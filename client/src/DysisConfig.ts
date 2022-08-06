@@ -3,26 +3,15 @@ export const dysisConfig = {
     // baseUrl: 'https://dysis-server.herokuapp.com/'
     baseUrl: 'http://localhost:8080/'
   },
+  sync: {
+    showNotificationWhenSyncing: false,
+    defaultTrackingIntervalInSeconds: 1, 
+    defaultSyncIntervalInMinutes: 10 / 60,
+  },
   requests: {
     lowerBoundForFailedRequestTimeoutInSeconds: 5,
     upperBoundForFailedRequestTimeoutInSeconds: 10,
     maxNumberOfRequestAttempts: 3,
-  },
-  sync: {
-    showNotificationWhenSyncing: false,
-    defaultTrackingIntervalInSeconds: 1, // Consider Chrome limitations with less then 60 as value
-    defaultSyncIntervalInSeconds: 10,
-  },
-  debug: {
-    displayMutationRecords: false,
-    displayLocalStorageChanges: false,
-    displayUsageTimeTicks: true,
-    displayEnrichmentDataObjects: false,
-    displayEnrichmentInstancesCreated: false,
-    displaySyncingInformation: false,
-    displaySyncing: true,
-    displayRequestTimeoutsAndRetries: false,
-    displayEnrichmentElementCreated: false,
   },
   reddit: {
     timeoutUntilAnElementIsInViewportInMilliseconds: 125,
@@ -32,6 +21,8 @@ export const dysisConfig = {
     },
     interests: {
       maxNumberOfDisplayedInterests: 10,
+    },
+    activity: {
     }
   },
 }

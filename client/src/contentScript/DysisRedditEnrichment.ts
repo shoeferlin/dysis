@@ -64,9 +64,6 @@ export class DysisRedditEnrichment {
     } else {
       this.injetionElement = hostingElement;
     };
-    if (dysisConfig.debug.displayEnrichmentInstancesCreated) {
-      console.log(`Dysis User Enrichment created for "${this.identifier}"...`)
-    }
     this.createContainerElement();
     this.displayLoading();
     this.displayData();
@@ -105,10 +102,6 @@ export class DysisRedditEnrichment {
     this.numberOfRequestAttempts++;
     await this.requestData().then((response) => {
       const tagContainer = this.dysisTagContainer
-      if (dysisConfig.debug.displayEnrichmentDataObjects) {
-        console.log(response)
-      }
-
       tagContainer.innerHTML = '';
 
       // Create behavioral tags
@@ -217,9 +210,6 @@ export class DysisRedditEnrichment {
       setTimeout(
         (self = this) => {
           if (self.numberOfRequestAttempts <= self.MAX_NUMBER_OF_REQUEST_ATTEMPTS) {
-            if (dysisConfig.debug.displayRequestTimeoutsAndRetries) {
-              console.log(`Dysis requesting data again for ${self.identifier}`)
-            };
             self.displayData();
           }
         },

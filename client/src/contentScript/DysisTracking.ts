@@ -25,9 +25,9 @@ export default class DysisTracking {
           [
             'dysisParticipantAgreedToTerms',
             'dysisParticipantSubmitted',
-            'participantID',
+            'dysisParticipantID',
           ], (res) => {
-            this.participantID = res.participantID;
+            this.participantID = res.dysisParticipantID;
             if (res.dysisParticipantAgreedToTerms && res.dysisParticipantSubmitted) {
               resolve(true);
             } else {
