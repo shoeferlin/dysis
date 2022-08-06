@@ -6,7 +6,6 @@ import InterestsOutlinedIcon from '@mui/icons-material/InterestsOutlined';
 import { dysisConfig } from '../DysisConfig';
 
 export const DysisPopupInterests = (): JSX.Element => {
-
   const MAX_NUMBER_OF_DISPLAYED_INTEREST: number = 
     dysisConfig.reddit.interests.maxNumberOfDisplayedInterests;
 

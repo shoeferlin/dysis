@@ -3,8 +3,7 @@
  * All Dysis modules need to implement an init() method and have a page of type HTML element
  * which is the entry point for a given module.
  */
-export abstract class DysisAbstract {
-
+export default abstract class DysisAbstract {
   page: HTMLElement;
 
   constructor(page: HTMLElement) {

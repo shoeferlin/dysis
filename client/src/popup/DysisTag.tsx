@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const DysisTag = (props: {
+export default const DysisTag = (props: {
   type: 'behavior' | 'interests' | 'metrics',
   label: string,
   value: number,

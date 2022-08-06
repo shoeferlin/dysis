@@ -44,7 +44,6 @@ export const DysisOptions = (): JSX.Element => {
         installationDate: res.dysisInstallationDate,
       })
   })}, []);
-  
 
   const handleChange = (event: any) => {
     setParticipant({ ...participant, [event.target.name]: event.target.value });
@@ -192,3 +191,5 @@ export const DysisOptions = (): JSX.Element => {
     </React.Fragment>
   )
 }
+
+export default { DysisOptions };

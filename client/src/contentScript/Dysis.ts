@@ -1,7 +1,7 @@
-import { DysisAbstract } from './DysisAbstract';
-import { DysisReddit } from './DysisReddit';
+import DysisAbstract from './DysisAbstract';
+import DysisReddit from './DysisReddit';
 import DysisTracking from './DysisTracking';
-import { DysisZeit } from './DysisZeit';
+import DysisZeit from './DysisZeit';
 
 /**
  * The Dysis class is loaded via the content script which is injected in relevant websites
@@ -12,21 +12,22 @@ import { DysisZeit } from './DysisZeit';
  */
 export default class Dysis {
   modules: DysisAbstract[];
+
   constructor() {
-    console.log('Dysis App started ...')
+    console.log('Dysis App started ...');
 
     this.modules = [
       // Add modules to this array
       new DysisReddit(document.body),
       new DysisZeit(document.body),
-    ]
+    ];
     this.init();
   }
 
   init() {
     new DysisTracking();
-    for (const module of this.modules) {
+    this.modules.forEach((module) => {
       module.init();
-    }
+    });
   }
 }

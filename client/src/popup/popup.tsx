@@ -11,7 +11,7 @@ const App: React.FC<{}> = () => {
   )
 }
 
-const container = document.createElement('div')
-document.body.appendChild(container)
-const root = createRoot(container)
-root.render(<App />)
+const container = document.createElement('div');
+document.body.appendChild(container);
+const root = createRoot(container);
+root.render(<App />);

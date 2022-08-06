@@ -1,5 +1,5 @@
-import { DysisAbstract } from './DysisAbstract';
-import { DysisRedditEnrichment } from './DysisRedditEnrichment';
+import DysisAbstract from './DysisAbstract';
+import DysisRedditEnrichment from './DysisRedditEnrichment';
 
 import { dysisConfig } from '../DysisConfig';
 
@@ -8,7 +8,7 @@ import { dysisConfig } from '../DysisConfig';
  * script below is injected, it scans the page for user elements which need to be appended
  * by Dysis. Once an element is detected, a DysisRedditEnrichment instance is created for it.
  */
-export class DysisReddit implements DysisAbstract {
+export default class DysisReddit implements DysisAbstract {
   page: HTMLElement;
   mutationObserver: MutationObserver;
   viewportObserver: IntersectionObserver;
@@ -18,7 +18,7 @@ export class DysisReddit implements DysisAbstract {
   }
 
   init() {
-    console.log('Initialized Dysis for Reddit ...')
+    console.log('Initialized Dysis for Reddit ...');
     this.initMutationObserver();
     this.initViewportObserver();
   }
@@ -77,10 +77,10 @@ export class DysisReddit implements DysisAbstract {
   }
 
   attachViewportObserverToElement(element: Element) {
-    function delayedObserver () {
-      this.viewportObserver.observe(element)
+    function delayedObserver() {
+      this.viewportObserver.observe(element);
     }
-    setTimeout(delayedObserver.bind(this))
+    setTimeout(delayedObserver.bind(this));
   }
 
   /**
@@ -135,20 +135,23 @@ export class DysisReddit implements DysisAbstract {
 
   private isInViewport(element: HTMLAnchorElement): boolean {
     const bounding = element.getBoundingClientRect();
-    const result = bounding.top >= 0 && bounding.left >= 0 && bounding.right <= window.innerWidth && bounding.bottom <= window.innerHeight
+    const result = bounding.top >= 0
+    && bounding.left >= 0
+    && bounding.right <= window.innerWidth
+    && bounding.bottom <= window.innerHeight;
     return result;
   }
 
   /**
    * Debug function to display mutations in console
-   * @param mutation 
+   * @param mutation
    */
   debugDisplayMutation(mutation: MutationRecord) {
     if (mutation.type === 'childList') {
       console.log('A child node has been added or removed.');
     } else if (mutation.type === 'attributes') {
-      console.log('A ' + mutation.attributeName + ' attribute was modified.');
+      console.log(`A ${mutation.attributeName} attribute was modified.`);
     }
-    console.log(mutation)
+    console.log(mutation);
   }
 }

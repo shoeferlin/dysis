@@ -1,8 +1,7 @@
-import { dysisConfig } from "../DysisConfig";
-import { DysisRequest } from "../DysisRequest";
+import { dysisConfig } from '../DysisConfig';
+import DysisRequest from '../DysisRequest';
 
 export default class DysisBackgroundSync {
-
   participantID: string;
 
   SYNC_INTERVAL_IN_MINUTES: number = dysisConfig.sync.defaultSyncIntervalInMinutes;

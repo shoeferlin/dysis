@@ -1,7 +1,6 @@
-import { dysisConfig } from "../DysisConfig";
+import { dysisConfig } from '../DysisConfig';
 
 export default class DysisTracking {
-
   public participantID: string;
 
   private MAX_IDLE_TIME_IN_SECONDS = dysisConfig.tracking.defaultMaxIdleTimeInSeconds;
@@ -45,14 +44,15 @@ export default class DysisTracking {
 
   private setDefaultLocalStorageValues() {
     chrome.storage.local.get(
-    [
-      'dysisUsageTime',
-    ], (res) => {
-      chrome.storage.local.set({
-        dysisUsageTime: 'dysisUsageTime' in res ? res.dysisUsageTime : 0,
-      });
-    })
-  }  
+      [
+        'dysisUsageTime',
+      ], (res) => {
+        chrome.storage.local.set({
+          dysisUsageTime: 'dysisUsageTime' in res ? res.dysisUsageTime : 0,
+        });
+      },
+    )
+  }
 
   private track() {
     setInterval(
@@ -80,34 +80,31 @@ export default class DysisTracking {
     chrome.storage.local.get(
       ['dysisUsageTime'], (res) => {
         const dysisUsageTimeBeforeTick = res.dysisUsageTime;
-        const dysisUsageTimeAfterTick = 
-          dysisUsageTimeBeforeTick 
+        const dysisUsageTimeAfterTick = dysisUsageTimeBeforeTick
           + this.TRACKING_INTERVAL_IN_SECONDS;
         chrome.storage.local.set({
           dysisUsageTime: dysisUsageTimeAfterTick,
-        })
-      }
-    )
-  };
+        });
+      });
+  }
 
   private createTimeOfLastActivityListeners() {
     const setTimeOfLastActivity = () => {
       this.timeOfLastAction = Date.now();
-    }
+    };
     document.addEventListener('click', setTimeOfLastActivity);
     document.addEventListener('scroll', setTimeOfLastActivity);
     document.addEventListener('mousemove', setTimeOfLastActivity);
     document.addEventListener('keydown', setTimeOfLastActivity)
   }
 
-  
   private createBackgroundBrowserActivityStateListener() {
     chrome.runtime.onMessage.addListener(
       (message) => {
         if ('browserActivityState' in message) {
           this.browserActivityState = message.browserActivityState;
         }
-      }
-    )
+      },
+    );
   }
 }

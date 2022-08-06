@@ -1,5 +1,5 @@
-import { DysisReddit } from './DysisReddit';
-import { DysisRequest } from '../DysisRequest';
+import DysisReddit from './DysisReddit';
+import DysisRequest from '../DysisRequest';
 import { dysisConfig } from '../DysisConfig';
 
 /**
@@ -8,8 +8,7 @@ import { dysisConfig } from '../DysisConfig';
  * Dysis information for a given identifier (i.e. username from the anchor element path).
  * Thereby this class represents the actual Enrichment for reddit.
  */
-export class DysisRedditEnrichment {
-
+export default class DysisRedditEnrichment {
   hostingElement: HTMLAnchorElement;
   injetionElement: HTMLElement;
   dysisContainer: HTMLElement;
@@ -63,7 +62,7 @@ export class DysisRedditEnrichment {
       this.injetionElement = hostingElement.parentElement.parentElement;
     } else {
       this.injetionElement = hostingElement;
-    };
+    }
     this.createContainerElement();
     this.displayLoading();
     this.displayData();
@@ -72,15 +71,12 @@ export class DysisRedditEnrichment {
   private createContainerElement() {
     const dysisContainer = document.createElement('div');
     dysisContainer.classList.add('dysis');
-
     this.injetionElement.parentElement.parentElement.parentElement.insertAdjacentElement('beforeend', dysisContainer);
     this.injetionElement.parentElement.parentElement.parentElement.classList.add('dysis-hosting-element');
-    
-    this.dysisContainer = dysisContainer;   
-
-    const tagContainer = document.createElement('div');    
+    this.dysisContainer = dysisContainer;
+    const tagContainer = document.createElement('div');
     this.dysisContainer.appendChild(tagContainer);
-    this.dysisTagContainer = tagContainer
+    this.dysisTagContainer = tagContainer;
   }
 
   private async displayLoading() {
@@ -101,7 +97,7 @@ export class DysisRedditEnrichment {
   private async displayData() {
     this.numberOfRequestAttempts++;
     await this.requestData().then((response) => {
-      const tagContainer = this.dysisTagContainer
+      const tagContainer = this.dysisTagContainer;
       tagContainer.innerHTML = '';
 
       // Create behavioral tags
@@ -111,8 +107,8 @@ export class DysisRedditEnrichment {
             'toxicity',
             'toxicity',
             response.analytics.perspective.toxicity
-          )
-        )
+          ),
+        );
       }
       if (response?.analytics?.perspective?.severeToxicity) {
         tagContainer.appendChild(
@@ -120,44 +116,44 @@ export class DysisRedditEnrichment {
             'severe toxicity',
             'severeToxicity',
             response.analytics.perspective.severeToxicity
-          )
-        )
+          ),
+        );
       }
       if (response?.analytics?.perspective?.insult) {
-        tagContainer.appendChild( 
+        tagContainer.appendChild(
           this.createBehaviorElement(
             'insult',
             'insult',
             response.analytics.perspective.insult
-          )
-        )
+          ),
+        );
       }
       if (response?.analytics?.perspective?.identityAttack) {
-        tagContainer.appendChild( 
+        tagContainer.appendChild(
           this.createBehaviorElement(
             'identity attack',
             'identityAttack',
             response.analytics.perspective.identityAttack
-          )
-        )
+          ),
+        );
       }
       if (response?.analytics?.perspective?.threat) {
-        tagContainer.appendChild( 
+        tagContainer.appendChild(
           this.createBehaviorElement(
             'threat',
             'threat',
             response.analytics.perspective.threat
-          )
-        )
+          ),
+        );
       }
       if (response?.analytics?.perspective?.profanity) {
-        tagContainer.appendChild( 
+        tagContainer.appendChild(
           this.createBehaviorElement(
             'profanity',
             'profanity',
             response.analytics.perspective.threat
-          )
-        )
+          ),
+        );
       }
 
       // Create interests tags (max. 10)
@@ -173,9 +169,9 @@ export class DysisRedditEnrichment {
         tagContainer.insertAdjacentHTML(
           'beforeend',
           this.createMetricsElement(
-            '\&#8709 score for submissions', 
+            '\&#8709 score for submissions',
             response.metrics.averageScoreSubmissions.toFixed(2).toString())
-        )
+        );
       }
       if (response?.metrics?.averageScoreComments) {
         tagContainer.insertAdjacentHTML(
@@ -205,13 +201,13 @@ export class DysisRedditEnrichment {
             >= (dysisConfig.reddit.activity.maxFetchedPosts - 1) 
               ? `>${dysisConfig.reddit.activity.maxFetchedPosts}` 
               : response.metrics.totalSubmissions)
-        )
+        );
       }
     }).catch(() => {
       const timeoutInMiliseconds: number = this.getRandomNumber(
         this.LOWER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
         this.UPPER_BOUND_FOR_FAILED_REQUEST_TIMEOUT_IN_SECONDS * 1000,
-      )
+      );
       setTimeout(
         (self = this) => {
           if (self.numberOfRequestAttempts <= self.MAX_NUMBER_OF_REQUEST_ATTEMPTS) {
@@ -275,11 +271,11 @@ export class DysisRedditEnrichment {
         } else {
           outerAnchorElement.removeChild(outerAnchorElement.lastElementChild);
         }
-      }
+      },
     );
     return outerAnchorElement;
   }
-  
+
   private createInterestsElement(tagName: string, tagValue: number): string {
     return `
     <a href="https://www.reddit.com/r/${tagName}" target="_blank">
@@ -292,8 +288,6 @@ export class DysisRedditEnrichment {
         </span>
       </span>
     </a>`;
-
-    
   }
 
   private createMetricsElement(tagName: string, tagValue: string): string {
@@ -315,29 +309,28 @@ export class DysisRedditEnrichment {
   private instanceIsInViewport(): boolean {
     const bounding = this.injetionElement.getBoundingClientRect();
     const result = (
-      bounding.top >= 0 
-      && bounding.left >= 0 
+      bounding.top >= 0
+      && bounding.left >= 0
       && bounding.right <= window.innerWidth
       && bounding.bottom <= window.innerHeight
-    )
+    );
     return result;
   }
 
   private async requestDetailedData(): Promise<any> {
     const result = DysisRequest.get(
-      `/api/reddit/detailed?identifier=${this.identifier}`
-    )
+      `/api/reddit/detailed?identifier=${this.identifier}`,
+    );
     return result;
   }
- 
+
   private async getExampleComment(behavior: string): Promise<string> {
     if (this.behaviorExamplesPromise === null) {
       this.behaviorExamplesPromise = this.requestDetailedData();
       const behaviorExamples = await this.behaviorExamplesPromise;
       return behaviorExamples.data[behavior].text;
-    } else {
-      const behaviorExamples = await this.behaviorExamplesPromise;
-      return behaviorExamples.data[behavior].text;
     }
+    const behaviorExamples = await this.behaviorExamplesPromise;
+    return behaviorExamples.data[behavior].text;
   }
 }
