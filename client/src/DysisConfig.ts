@@ -4,8 +4,11 @@ export const dysisConfig = {
   server: {
     baseUrl: DEBUG ? 'http://localhost:8080/' : 'https://dysis-server.herokuapp.com/'
   },
-  sync: {
+  tracking: {
+    defaultMaxIdleTimeInSeconds: 40,
     defaultTrackingIntervalInSeconds: 1, 
+  },
+  sync: {
     defaultSyncIntervalInMinutes: DEBUG ? 10 / 60 : 15,
   },
   requests: {
@@ -26,5 +29,4 @@ export const dysisConfig = {
       maxFetchedPosts: 250,
     }
   },
-
 }

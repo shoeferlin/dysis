@@ -1,9 +1,11 @@
+import { dysisConfig } from "../DysisConfig";
+
 export default class DysisTracking {
 
   public participantID: string;
 
-  private MAX_IDLE_TIME_IN_SECONDS: number = 40;
-  private TRACKING_INTERVAL_IN_SECONDS: number = 1;
+  private MAX_IDLE_TIME_IN_SECONDS = dysisConfig.tracking.defaultMaxIdleTimeInSeconds;
+  private TRACKING_INTERVAL_IN_SECONDS = dysisConfig.tracking.defaultTrackingIntervalInSeconds;
 
   private timeOfLastAction: number = Date.now();
   private browserActivityState: string = 'active';
@@ -71,6 +73,9 @@ export default class DysisTracking {
     }
   }
 
+  /**
+   * Increases usage time by one tick which equals the TRACKING INTERVAL
+   */
   private increaseUsageTimeByOneTick() {
     chrome.storage.local.get(
       ['dysisUsageTime'], (res) => {
