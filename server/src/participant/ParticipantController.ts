@@ -116,6 +116,7 @@ export default class ParticipantController {
         }
       } catch (error) {
         console.log(error);
+        log.info('PARTICIPANT', `Error for ${req.body.participantID}'`);
         respondWithError(res);
       }
     },
