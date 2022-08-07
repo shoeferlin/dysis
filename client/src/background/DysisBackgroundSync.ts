@@ -56,5 +56,4 @@ export default class DysisBackgroundSync {
       console.log('Dysis sync error ...')
     }
   } 
-
 }
