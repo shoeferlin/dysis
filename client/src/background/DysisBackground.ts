@@ -1,4 +1,3 @@
-import { dysisConfig } from '../DysisConfig';
 import DysisBackgroundSync from './DysisBackgroundSync';
 
 export default class DysisBackground {
@@ -103,8 +102,11 @@ export default class DysisBackground {
     // a state change is detected and send it to the active tab content script
     chrome.idle.onStateChanged.addListener(
       (browserActivityState) => {
+        console.log('browserActivityState changed')
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-          chrome.tabs.sendMessage(tabs[0].id, { browserActivityState: browserActivityState });
+          if (tabs[0].url.match('https:\/\/.*.reddit.com\/.*')) {
+            chrome.tabs.sendMessage(tabs[0].id, { browserActivityState: browserActivityState });
+          }
         });
       }
     )
@@ -130,8 +132,8 @@ export default class DysisBackground {
     chrome.storage.onChanged.addListener(function (changes, namespace) {
       for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
         console.log(
-          `Storage key "${key}" in namespace "${namespace}" changed.`,
-          `Old value was "${oldValue}", new value is "${newValue}".`
+          `Storage key '${key}' in namespace '${namespace}' changed.`,
+          `Old value was '${oldValue}', new value is '${newValue}'.`
         );
       }
     });
