@@ -102,9 +102,8 @@ export default class DysisBackground {
     // a state change is detected and send it to the active tab content script
     chrome.idle.onStateChanged.addListener(
       (browserActivityState) => {
-        console.log('browserActivityState changed')
         chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-          if (tabs[0].url.match('https:\/\/.*.reddit.com\/.*')) {
+          if (tabs[0]?.url?.match('https:\/\/.*.reddit.com\/.*')) {
             chrome.tabs.sendMessage(tabs[0].id, { browserActivityState: browserActivityState });
           }
         });

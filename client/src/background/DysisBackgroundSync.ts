@@ -40,6 +40,7 @@ export default class DysisBackgroundSync {
             this.syncUsageTime(usageTime);
           }
         );
+        console.log('Dysis syncing ...')
       }
     })
   }
