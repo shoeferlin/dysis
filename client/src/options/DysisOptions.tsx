@@ -10,7 +10,8 @@ import {
   Container,
   Grid,
   Box,
-  Modal
+  Modal,
+  Link,
 } from '@mui/material'
 
 import {DysisRequest} from '../DysisRequest';
@@ -96,6 +97,10 @@ export const DysisOptions = (): JSX.Element => {
     setParticipant({ ...participant, agreedToTerms: (participant.agreedToTerms ? false : true)})
   }
 
+  const createNewTab = (link: string): void => {
+    chrome.tabs.create({url: link})
+  }
+
   return (
     <React.Fragment>
       <Container 
@@ -136,6 +141,11 @@ export const DysisOptions = (): JSX.Element => {
             disabled={true}
             onChange={handleChange}
             name="installationDate"/>
+          <Link
+            style={{marginTop: '10px'}}
+            onClick={() => { createNewTab('https://www.dropbox.com/s/snolyi6lg8hfydi/Dysis%20Study%20Participation.pdf?dl=0') }}
+            >Study terms
+          </Link>
           <FormControlLabel 
             label ="Agree to study terms"
             control={
